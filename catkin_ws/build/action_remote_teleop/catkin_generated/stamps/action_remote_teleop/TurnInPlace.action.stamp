@@ -1,0 +1,7 @@
+#goal
+float64 degrees
+---
+#result
+bool success
+---
+#feedback

@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="topic_tools" type="throttle" name="action_remote_teleop"  args="messages /input_topic 30 /input_topic/throttled" />
+</launch>

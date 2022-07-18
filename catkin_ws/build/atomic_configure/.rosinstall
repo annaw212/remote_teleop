@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/annawong/remote_teleop/catkin_ws/devel/setup.sh

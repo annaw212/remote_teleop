@@ -1,0 +1,8 @@
+prefix=/home/annawong/remote_teleop/catkin_ws/devel
+
+Name: action_remote_teleop
+Description: Description of action_remote_teleop
+Version: 0.0.0
+Cflags: -I/home/annawong/remote_teleop/catkin_ws/devel/include
+Libs: -L${prefix}/lib 
+Requires: actionlib_msgs rospy std_msgs message_runtime

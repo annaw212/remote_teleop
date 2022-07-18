@@ -1,0 +1,2 @@
+action_remote_teleop
+-DCATKIN_DEVEL_PREFIX=/home/annawong/remote_teleop/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/annawong/remote_teleop/catkin_ws/install -G Unix Makefiles
