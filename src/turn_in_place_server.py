@@ -3,28 +3,50 @@
 import rospy
 import actionlib
 
-from remote_teleop.msg import TurnInPlaceAction, TurnInPlaceGoal, TurnInPlaceResult
+from remote_teleop.msg import TurnInPlaceAction, TurnInPlaceActionGoal, TurnInPlaceResult
 
 class TurnInPlaceClass():
 
     # create messages that are used to publish result
     _result = TurnInPlaceResult()
 
-    def __init__(self):
+    def __init__(self, turn_pub_topic):
         # create the action server and start it
         self._turn_in_place_server = actionlib.SimpleActionServer("turn_in_place_as", TurnInPlaceAction, self.callback, False)
         self._turn_in_place_server.start()
+        
+        # create publisher for /turn_in_place_as/goal
+        self.turn_pub = rospy.Publisher(turn_pub_topic, TurnInPlaceActionGoal, queue_size=10)
+        
+        # other variables
+        self.degrees = 0
+        self.turnLeft = True
 
     def callback(self, msg):
-        #TODO: put something here
+        #TODO: get info from rviz inputs and set them in the variables
+        # will need to figure out a way to check if a new event has come in
+        
+        # create the object
+        turn = TurnInPlaceActionGoal()
+        
+        # set the values for the goal fields
+        turn.goal.degrees = self.degrees
+        turn.goal.turnLeft = self.turnLeft
+        
+        # publish the turn command to the robot to make it turn accordingly
+        self.turn_pub.publish(turn)
+        
         print(msg)
 
 if __name__ == '__main__':
     # initialize the node
     rospy.init_node('remote_teleop_node', anonymous=True)
+    
+    # initialize publisher topics
+    turn_pub_topic = '/turn_in_place_as/goal'
 
     # initialize the class
-    turn_in_place = TurnInPlaceClass()
+    turn_in_place = TurnInPlaceClass(turn_pub_topic)
 
     # keep the program from exiting before the node is stopped
     rospy.spin()
