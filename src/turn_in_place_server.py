@@ -26,6 +26,9 @@ class TurnInPlaceClass():
         #TODO: get info from rviz inputs and set them in the variables
         # will need to figure out a way to check if a new event has come in
         
+        self.degrees = 5 # update this
+        self.turnLeft = True # update this
+        
         # create the object
         turn = TurnInPlaceActionGoal()
         
