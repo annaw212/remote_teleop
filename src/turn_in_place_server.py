@@ -3,14 +3,14 @@
 import rospy
 import actionlib
 
-from action_remote_teleop.msg import TurnInPlaceAction, TurnInPlaceGoal, TurnInPlaceResult
+from remote_teleop.msg import TurnInPlaceAction, TurnInPlaceGoal, TurnInPlaceResult
 
 class TurnInPlaceClass():
 
     # create messages that are used to publish result
     _result = TurnInPlaceResult()
 
-    def __init__(self)
+    def __init__(self):
         # create the action server and start it
         self._turn_in_place_server = actionlib.SimpleActionServer("turn_in_place_as", TurnInPlaceAction, self.callback, False)
         self._turn_in_place_server.start()
