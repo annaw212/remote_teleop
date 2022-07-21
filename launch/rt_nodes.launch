@@ -2,6 +2,6 @@
 
   <node pkg="topic_tools" type="throttle" name="camera_topic_throttle"  args="messages /camera_upward/left/image_raw 30 /camera_upward/left/image_raw/throttled" />
 
-  <node pkg="action_remote_teleop" type="turn_in_place_server.py" name="turn_in_place" />
+  <node pkg="remote_teleop" type="turn_in_place_server.py" name="turn_in_place" />
 
 </launch>
