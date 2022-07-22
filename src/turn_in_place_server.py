@@ -23,7 +23,7 @@ class TurnInPlaceClass():
         self.turnLeft = True
 
     def callback(self, msg):
-        #TODO: get info from rviz inputs and set them in the variables
+        # TODO: get info from rviz inputs and set them in the variables
         # will need to figure out a way to check if a new event has come in
         
         self.degrees = 5 # update this
@@ -33,13 +33,18 @@ class TurnInPlaceClass():
         turn = TurnInPlaceActionGoal()
         
         # set the values for the goal fields
+        # TODO: set the values to 0 if there has been no change since the last update OR make sure that this is only being called if there is an update
         turn.goal.degrees = self.degrees
         turn.goal.turnLeft = self.turnLeft
         
         # publish the turn command to the robot to make it turn accordingly
         self.turn_pub.publish(turn)
         
-        print(msg)
+        # print out what the current command is
+        if turn.goal.turnLeft is True:
+            print("L"+turn.goal.degrees)
+        else:
+            print("R"+turn.goal.degrees)
 
 if __name__ == '__main__':
     # initialize the node
