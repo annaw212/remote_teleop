@@ -1,6 +1,6 @@
 #goal
 float64 degrees
-bool turnLeft
+bool turn_left
 ---
 #result
 bool success
