@@ -4,7 +4,7 @@
   
   <node pkg="image_rotate" type="image_rotate" name="image_rotater" args="image:=/camera_upward/left/image_raw rotated/image:=camera_upward/left/image_raw/rotated" />
   
-    <node pkg="dynamic_reconfigure" type="dynparam" name="image_full_rotate" args="set_from_parameters image_rotater">
+  <node pkg="dynamic_reconfigure" type="dynparam" name="image_full_rotate" args="set_from_parameters image_rotater">
     <param name="target_x" type="double" value="10.0" />
     <param name="target_y" type="double" value="2.0" />
     <param name="target_z" type="double" value="1.0" />
