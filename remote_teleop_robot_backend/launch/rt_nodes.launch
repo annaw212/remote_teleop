@@ -1,7 +1,11 @@
 <launch>
 
   <node pkg="topic_tools" type="throttle" name="camera_topic_throttle"  args="messages /camera_upward/left/image_raw 30 /camera_upward/left/image_raw/throttled" />
-
-  <node pkg="remote_teleop" type="turn_in_place_server.py" name="turn_in_place" />
+  
+  <node pkg="image_rotate" type="image_rotate" name="image_rotater" args="image:=/camera_upward/left/image_raw rotated/image:=camera_upward/left/image_raw/rotated" />
+  
+  <node name="dynamic_reconfigure_load" pkg="dynamic_reconfigure" type="dynparam" args="load /image_rotater image_rotater_params.yaml" />
+  
+  <node pkg="remote_teleop_robot_backend" type="turn_in_place_server.py" name="turn_in_place" />
 
 </launch>
