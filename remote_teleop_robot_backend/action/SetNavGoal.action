@@ -1,0 +1,9 @@
+#goal
+geometry_msgs/PoseStamped goal_pose
+float64 linear_velocity
+float64 angular_velocity
+---
+#result
+bool success
+---
+#feedback
