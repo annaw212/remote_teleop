@@ -38,7 +38,7 @@
 #include <QValidator>
 #include <QString>
 
-#include <remote_teleop/TurnInPlaceActionGoal.h>
+#include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
 
 #include "turn_in_place_panel.h"
 
@@ -149,7 +149,7 @@ void TurnInPlacePanel::sendTurnGoal()
   if( ros::ok() && turn_goal_publisher_ )
   {
     // Create a message of the desired type
-    remote_teleop::TurnInPlaceActionGoal msg;
+    remote_teleop_robot_backend::TurnInPlaceActionGoal msg;
     
     // Set the message fields
     msg.goal.degrees = degrees_;
@@ -173,7 +173,7 @@ void TurnInPlacePanel::save( rviz::Config config ) const
 void TurnInPlacePanel::load( const rviz::Config& config )
 {
   rviz::Panel::load( config );
-  turn_goal_publisher_ = nh_.advertise<remote_teleop::TurnInPlaceActionGoal>( "turn_in_place_as/goal", 1 );
+  turn_goal_publisher_ = nh_.advertise<remote_teleop_robot_backend::TurnInPlaceActionGoal>( "turn_in_place_as/goal", 1 );
   Q_EMIT configChanged();
 }
 

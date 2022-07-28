@@ -18,7 +18,7 @@ protected:
   ros::NodeHandle nh_;
   
   // create the turn in place action server
-  actionlib::SimpleActionServer<remote_teleop::TurnInPlaceAction> turn_in_place_as_;
+  actionlib::SimpleActionServer<remote_teleop_robot_backend::TurnInPlaceAction> turn_in_place_as_;
   
   // create the turn in place cmd_vel publisher
   ros::Publisher turn_in_place_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1)
@@ -30,7 +30,7 @@ protected:
   std::string action_name_;
   
   // create messages that are used to publish result
-  remote_teleop::TurnInPlaceResult turn_in_place_result_;
+  remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
   
   // other variables
   float angle_;
@@ -51,7 +51,7 @@ public:
   
   ~TurnInPlaceAction(void) {}
   
-  void turn_in_place_callback(const remote_teleop::TurnInPlaceGoal::ConstPtr &goal) {
+  void turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoal::ConstPtr &goal) {
     // TODO: implement functionality to gray out the rviz plugin buttons
     // while a turn is being executed so no more than 1 command can be
     // sent at a time

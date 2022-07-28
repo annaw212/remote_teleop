@@ -14,7 +14,6 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   geometry_msgs
   roscpp
-  remote_teleop
 )
 
 ## System dependencies are found with CMake's conventions
@@ -110,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES remote_teleop
-  CATKIN_DEPENDS actionlib_msgs rospy std_msgs message_runtime generate_messages
+  CATKIN_DEPENDS actionlib_msgs rospy std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
