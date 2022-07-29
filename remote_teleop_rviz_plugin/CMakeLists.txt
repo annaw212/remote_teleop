@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(remote_teleop_rviz_plugin)
 find_package(catkin REQUIRED COMPONENTS rviz)
-find_package(catkin REQUIRED remote_teleop)
+find_package(catkin REQUIRED remote_teleop_robot_backend)
 catkin_package()
 include_directories(${catkin_INCLUDE_DIRS})
 link_directories(${catkin_LIBRARY_DIRS})
