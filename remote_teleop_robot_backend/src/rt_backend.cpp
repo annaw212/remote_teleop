@@ -21,7 +21,7 @@ RemoteTeleopClass::RemoteTeleopClass():
   // Initialize the messy stuff
   initializeSubscribers();
   initializePublishers();
-  initializeActions();
+//  initializeActions();
   
   // Initialize the internal variables
   angle_ = 0.0;
