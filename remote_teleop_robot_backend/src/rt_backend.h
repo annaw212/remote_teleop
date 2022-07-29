@@ -17,7 +17,7 @@ class RemoteTeleopClass {
 
 public:
 
-  RemoteTeleopClass(ros::NodeHandle* nodehandle);
+  RemoteTeleopClass();
 
 private:
 
@@ -50,7 +50,7 @@ private:
   void initializePublishers();
   void initializeActions();
 
-  void turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoal& goal);
+  void turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr& goal);
   void odom_callback(const nav_msgs::Odometry& msg);
   void turn_in_place();
 };
