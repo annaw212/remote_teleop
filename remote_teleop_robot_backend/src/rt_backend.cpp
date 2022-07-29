@@ -1,138 +1,188 @@
+/* File: rt_backend.cpp
+ * Author: Anna Wong
+ * Purpose: 
+ */
+
 #include <ros/ros.h>
-#include <actionlib/server/simple_action_server.h>
-#include <remote_teleop/TurnInPlaceAction.h>
+#include <tf/tf.h>
 #include <geometry_msgs/Twist.h>
-#include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
-#include <math.h>
+#include <actionlib/server/simple_action_server.h>
+
+#include <remote_teleop_robot_backend/TurnInPlaceAction.h>
+#include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
+#include <remote_teleop_robot_backend/TurnInPlaceResult.h>
+
+#include "rt_backend.h"
 
 /*-----------------------------------------------------------------------------------*/
-#define THRESHOLD 0.08
+// Define variables here
+#define THRESHOLD 0.8
 
+/*-----------------------------------------------------------------------------------*/
 
-class RemoteTeleop {
+// CONSTRUCTOR: this will get called whenever an instance of this class is created
+RemoteTeleopClass::RemoteTeleopClass(ros::NodeHandle* nodehandle):nh_(*nodehandle) {
 
-protected:
+  ROS_INFO("in class constructor of RemoteTeleopClass");
   
-  // Define node handle
-  ros::NodeHandle nh_;
+  // Initialize the messy stuff
+  initializeSubscribers();
+  initializePublishers();
+  initializeActions();
   
-  // create the turn in place action server
-  actionlib::SimpleActionServer<remote_teleop_robot_backend::TurnInPlaceAction> turn_in_place_as_;
-  
-  // create the turn in place cmd_vel publisher
-  ros::Publisher turn_in_place_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1)
-  
-  // create the odometry subscriber
-  ros::Subscriber odom_sub_ = nh_.subscribe("/odom", 1, odom_callback);
-  
-  // TODO: I DON'T ACTUALLY KNOW WHAT THIS IS FOR
-  std::string action_name_;
-  
-  // create messages that are used to publish result
-  remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
-  
-  // other variables
-  float angle_;
-  bool turn_left_;
-  float lin_vel_;
-  float ang_vel_;
-  tfScalar roll_;
-  tfScalar pitch_;
-  tfScalar yaw_;
-  
-public:
+  // Initialize the internal variables
+  angle_ = 0.0;
+  turn_left_ = true;
+  lin_vel_ = 0.0;
+  ang_vel_ = 0.0;
+  roll_ = 0.0;
+  pitch_ = 0.0;
+  yaw_ = 0.0;
 
-  TurnInPlaceAction() :
-    turn_in_place_as_(nh_, name, boost:bind(&TurnInPlaceAction::turn_in_place_callback, this, _1), false), action_name_(name) {
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopClass::initializeSubscribers() {
+  
+  ROS_INFO("Initializing Subscribers");
+  
+  // Initialize the odometry subscriber
+  odom_sub_ = nh_.subscribe("odom", 1, &RemoteTeleopClass::odom_callback, this);
+
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopClass::initializePublishers() {
+
+  ROS_INFO("Initializing Publishers");
+  
+  // Initialize the turn in place publisher
+  turn_in_place_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopClass::initializeActions() {
+  
+  // Initialize the turn in place action server and start it
+  turn_in_place_server_(nh_, "turn_in_place", boost::bind(&RemoteTeleopClass::turn_in_place_callback, this, _1), false);
+  
+  turn_in_place_server_.start();
+  
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopClass::turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoal& goal) {
+  
+  // TODO: gray out rviz plugin buttons when turn is being executed
+  
+  // Get inputs from Rviz and store them in variables
+  angle_ = goal.degrees;
+  turn_left_ = goal.turn_left;
+  
+  // Convert from degrees to radians
+  angle_ = angle_ * M_PI / 180;
+  
+  // TODO: update vel vars here, OR move this somewhere else
+  lin_vel_ = 0.0;
+  ang_vel_ = 0.5;
+  
+  // Tell robot to turn the desired angle
+  turn_in_place();
+  
+  // Update the turn in place result and success fields
+  turn_in_place_result_.success = true;
+  turn_in_place_server_.setSucceeded(turn_in_place_result_);
+  
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopClass::odom_callback(const nav_msgs::Odometry& msg) {
+  
+  // TODO: this was really difficult to convert from python to c++, so I hope this works
+  
+  // Grab the odometry quaternion values out of the message
+  tf::Quaternion q(
+    msg.pose.pose.orientation.x,
+    msg.pose.pose.orientation.y,
+    msg.pose.pose.orientation.z,
+    msg.pose.pose.orientation.w);
+  
+  // Turn the quaternion values into a matrix
+  tf::Matrix3x3 m(q);
+  
+  // Extract the euler angles from the matrix
+  m.getRPY(roll_, pitch_, yaw_);
+  
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopClass::turn_in_place() {
+  
+  // Create message to be sent
+  geometry_msgs::Twist command;
+  
+  float goal_yaw = 0.0;
     
-    turn_in_place_as_.start();
+  if(turn_left_ == false) {
+    // TURNING RIGHT
+    goal_yaw = yaw_ - angle_;
+    // Make sure the goal angle is within a valid range
+    if(goal_yaw < -M_PI) {
+      goal_yaw += 2*M_PI;
+    }
+  } else {
+    // TURNING LEFT
+    goal_yaw = yaw_ + angle_;
+    // Make sure the goal angle is within a valid range
+    if(goal_yaw > M_PI) {
+      goal_yaw -= 2*M_PI;
+    }
   }
   
-  ~TurnInPlaceAction(void) {}
-  
-  void turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoal::ConstPtr &goal) {
-    // TODO: implement functionality to gray out the rviz plugin buttons
-    // while a turn is being executed so no more than 1 command can be
-    // sent at a time
+  // Turn the robot until it reaches the desired angle
+  while(abs(goal_yaw - yaw_) > THRESHOLD) {
     
-    // get the inputs from Rviz and store them in variables
-    angle_ = goal.degrees;
-    turn_left_ = goal.turn_left;
+    // Set the turn rate
+    command.angular.z = ang_vel_ * (goal_yaw - yaw_);
     
-    //TODO: get the lin/angular velocity updates here
-    // TODO: might put this somewhere else
-    lin_vel_ = 0.0;
-    ang_vel_ = 0.5;
-    
-    // convert from degrees to radians
-    angle_ = angle_ * M_PI / 180;
-    
-    turn_in_place();
-    
-    turn_in_place_result_.success = true;
-    turn_in_place_as_.setSucceeded(turn_in_place_result_);
-  }
-  
-  /* Function: odom_callback
-     Purpose:  extract the incoming odometry data and update the
-               values accordingly
-  */
-  void odom_callback(const geometry_msgs::Odometry::ConstPtr &msg) {
-    // extract the yaw, pitch, roll values and store them
-    q = tf.transformations.euler_from_quaternion(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w);
-    tf::Matrix3x3 mat(q);
-    mat.getEulerYPR(&yaw_, &pitch_, &roll_);
-  }
-  
-  
-  /*Function: turn_in_place
-    Purpose:  send cmd_vel messages to the drivers to rotate the
-              robot to the desired angle
-  */
-  void turn_in_place() {
-    geometry_msgs::Twist command;
-    
-    if(turn_left_ == false) {
-      // TURNING RIGHT
-      float goal_yaw = yaw_ - angle_;
-      if(goal_yaw < -M_PI) {
-        goal_yaw += 2*M_PI;
-      }
-    } else {
-      // TURNING LEFT
-      float goal_yaw = yaw_ + angle_;
-      if(goal_yaw > M_PI) {
-        goal_yaw -= 2*M_PI;
-      }
+    // Ensure the robot will be turning in the correct direction
+    if(turn_left_ == true && command.angular.z < 0.0) {
+      command.angular.z *= -1;
+    } else if(turn_left_ == false && command.angular.z > 0.0) {
+      command.angular.z *= -1;
     }
     
-    while(abs(goal_yaw - yaw_) > THRESHOLD) {
-      command.angular.z = ang_vel_ * (goal_yaw - yaw_);
-      
-      if(turn_left_ == true && command.angular.z < 0.0) {
-        command.angular.z *= -1;
-      } else if(turn_left_ == false && command.angular.z > 0.0) {
-        command.angular.z *= -1;
-      }
-      turn_in_place_pub_.publish(command)
-    }
-    
-    command.angular.z = 0.0;
-    turn_in_place_pub_.publish(command);
+    // Publish the message to the drivers
+    turn_in_place_publisher_.publish(command);
   }
+    
+  // Stop the robot from moving farther
+  command.angular.z = 0.0;
+  turn_in_place_publisher_.publish(command);
   
-};
+}
 
 /*-----------------------------------------------------------------------------------*/
 
 int main(int argc, char** argv) {
+
+  // TODO: get rid of argc and argv???
   ros::init(argc, argv, "remote_teleop");
   
-  ros::NodeHandle n;
+  ros::NodeHandle nh;
   
-  // TODO: NOT SURE WHAT THIS DOES
-  TurnInPlaceAction turn_in_place_action();
+  ROS_INFO("main: instantiating an object of type RemoteTeleopClass");
+  
+  RemoteTeleopClass remote_teleop_class(&nh);
+  
+  ROS_INFO("main: going into spin; let the callbacks do all the work");
   
   ros::spin();
   
