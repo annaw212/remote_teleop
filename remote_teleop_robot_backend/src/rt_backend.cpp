@@ -3,16 +3,6 @@
  * Purpose: 
  */
 
-#include <ros/ros.h>
-#include <tf/tf.h>
-#include <geometry_msgs/Twist.h>
-#include <nav_msgs/Odometry.h>
-#include <actionlib/server/simple_action_server.h>
-
-#include <remote_teleop_robot_backend/TurnInPlaceAction.h>
-#include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
-#include <remote_teleop_robot_backend/TurnInPlaceResult.h>
-
 #include "rt_backend.h"
 
 /*-----------------------------------------------------------------------------------*/
@@ -22,7 +12,9 @@
 /*-----------------------------------------------------------------------------------*/
 
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
-RemoteTeleopClass::RemoteTeleopClass() {
+RemoteTeleopClass::RemoteTeleopClass():
+    turn_in_place_server_(nh_, "turn_in_place",
+                          boost::bind(&RemoteTeleopClass::turn_in_place_callback, this, _1), false) {
 
   ROS_INFO("in class constructor of RemoteTeleopClass");
   
@@ -68,21 +60,19 @@ void RemoteTeleopClass::initializePublishers() {
 void RemoteTeleopClass::initializeActions() {
   
   // Initialize the turn in place action server and start it
-  turn_in_place_server_(nh_, "turn_in_place", boost::bind(&RemoteTeleopClass::turn_in_place_callback, this, _1), false);
-  
   turn_in_place_server_.start();
   
 }
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleopClass::turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoal& goal) {
+void RemoteTeleopClass::turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr& goal) {
   
   // TODO: gray out rviz plugin buttons when turn is being executed
   
   // Get inputs from Rviz and store them in variables
-  angle_ = goal.degrees;
-  turn_left_ = goal.turn_left;
+  angle_ = goal->degrees;
+  turn_left_ = goal->turn_left;
   
   // Convert from degrees to radians
   angle_ = angle_ * M_PI / 180;
@@ -180,7 +170,7 @@ int main(int argc, char** argv) {
   
   ROS_INFO("main: instantiating an object of type RemoteTeleopClass");
   
-  RemoteTeleopClass remote_teleop_class(&nh);
+  RemoteTeleopClass remote_teleop_class;
   
   ROS_INFO("main: going into spin; let the callbacks do all the work");
   
