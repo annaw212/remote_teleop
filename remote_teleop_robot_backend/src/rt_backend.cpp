@@ -22,9 +22,7 @@
 /*-----------------------------------------------------------------------------------*/
 
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
-RemoteTeleopClass::RemoteTeleopClass(ros::NodeHandle* nodehandle):
-   nh_(*nodehandle),
-   turn_in_place_server_(nh_, "turn_in_place", boost::bind(&RemoteTeleopClass::turn_in_place_callback, this, _1), false) {
+RemoteTeleopClass::RemoteTeleopClass() {
 
   ROS_INFO("in class constructor of RemoteTeleopClass");
   
