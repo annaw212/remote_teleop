@@ -71,7 +71,6 @@ TurnInPlacePanel::TurnInPlacePanel( QWidget* parent )
   topic_layout->addLayout( degrees_layout );
 
   // Create buttons for determining which direction to turn
-  
   // Create a horizontal box for both the buttons to go in so they
   // lay side-by-side
   QHBoxLayout* button_layout = new QHBoxLayout;

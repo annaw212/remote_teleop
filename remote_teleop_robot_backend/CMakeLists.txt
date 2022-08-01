@@ -138,9 +138,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(remote_teleop_robot_backend src/rt_backend.cpp)
-target_link_libraries(remote_teleop_robot_backend ${catkin_LIBRARIES})
-add_dependencies(remote_teleop_robot_backend remote_teleop_robot_backend_generate_messages_cpp)
+add_executable(turn_in_place_server src/turn_in_place_server.cpp)
+target_link_libraries(turn_in_place_server ${catkin_LIBRARIES})
+add_dependencies(turn_in_place_server remote_teleop_robot_backend_generate_messages_cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

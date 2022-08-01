@@ -3,7 +3,7 @@
  * Purpose: 
  */
 
-#include "rt_backend.h"
+#include "turn_in_place_server.h"
 
 /*-----------------------------------------------------------------------------------*/
 // Define variables here
@@ -12,11 +12,9 @@
 /*-----------------------------------------------------------------------------------*/
 
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
-RemoteTeleopClass::RemoteTeleopClass():
-    turn_in_place_server_(nh_, "turn_in_place",
-                          boost::bind(&RemoteTeleopClass::turn_in_place_callback, this, _1), false) {
+TurnInPlace::TurnInPlace(): turn_in_place_server_(nh_, "turn_in_place", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false) {
 
-  ROS_INFO("in class constructor of RemoteTeleopClass");
+  ROS_INFO("in class constructor of TurnInPlace");
   
   // Initialize the messy stuff
   initializeSubscribers();
@@ -36,18 +34,18 @@ RemoteTeleopClass::RemoteTeleopClass():
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleopClass::initializeSubscribers() {
+void TurnInPlace::initializeSubscribers() {
   
   ROS_INFO("Initializing Subscribers");
   
   // Initialize the odometry subscriber
-  odom_sub_ = nh_.subscribe("odom", 1, &RemoteTeleopClass::odom_callback, this);
+  odom_sub_ = nh_.subscribe("odom", 1, &TurnInPlace::odom_callback, this);
 
 }
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleopClass::initializePublishers() {
+void TurnInPlace::initializePublishers() {
 
   ROS_INFO("Initializing Publishers");
   
@@ -57,7 +55,7 @@ void RemoteTeleopClass::initializePublishers() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleopClass::initializeActions() {
+void TurnInPlace::initializeActions() {
   
   // Initialize the turn in place action server and start it
   turn_in_place_server_.start();
@@ -66,7 +64,7 @@ void RemoteTeleopClass::initializeActions() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleopClass::turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr& goal) {
+void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr& goal) {
   
   // TODO: gray out rviz plugin buttons when turn is being executed
   
@@ -92,7 +90,7 @@ void RemoteTeleopClass::turn_in_place_callback(const remote_teleop_robot_backend
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleopClass::odom_callback(const nav_msgs::Odometry& msg) {
+void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
   
   // TODO: this was really difficult to convert from python to c++, so I hope this works
   
@@ -113,7 +111,7 @@ void RemoteTeleopClass::odom_callback(const nav_msgs::Odometry& msg) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleopClass::turn_in_place() {
+void TurnInPlace::turn_in_place() {
   
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -168,9 +166,9 @@ int main(int argc, char** argv) {
   
   ros::NodeHandle nh;
   
-  ROS_INFO("main: instantiating an object of type RemoteTeleopClass");
+  ROS_INFO("main: instantiating an object of type TurnInPlace");
   
-  RemoteTeleopClass remote_teleop_class;
+  TurnInPlace remote_teleop_class;
   
   ROS_INFO("main: going into spin; let the callbacks do all the work");
   

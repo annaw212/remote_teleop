@@ -26,8 +26,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TURNINPLACE_PANEL_H
-#define TURNINPLACE_PANEL_H
+#ifndef TELEOPNAV_PANEL_H
+#define TELEOPNAV_PANEL_H
 
 #ifndef Q_MOC_RUN
 # include <ros/ros.h>
@@ -40,8 +40,8 @@ class QLineEdit;
 namespace remote_teleop_rviz_plugin
 {
 
-// Declare the TurnInPlacePanel class of type rviz panel
-class TurnInPlacePanel: public rviz::Panel
+// Declare the TeleopNavPanel class of type rviz panel
+class TeleopNavPanel: public rviz::Panel
 {
 // This class uses Qt slots and is a subclass of QObject, so it needs
 // the Q_OBJECT macro.
@@ -49,7 +49,7 @@ Q_OBJECT
 public:
 
   // QWidget subclass constructor
-  TurnInPlacePanel( QWidget* parent = 0 );
+  TeleopNavPanel( QWidget* parent = 0 );
 
   // Declare overrides of rviz::Panel functions for saving 
   // and loading from config file
@@ -59,41 +59,41 @@ public:
 
 public Q_SLOTS:
   
-  // Once the 'turn left' button has been pushed, this function is called to handle
-  // the assignment of internal variables and call the sendTurnGoal function
-  void setTurnGoalLeft();
-  
-  // Once the 'turn right' button has been pushed, this function is called to handle
-  // the assignment of internal variables and call the sendTurnGoal function
-  void setTurnGoalRight();
+  // Once the 'confirm navigation' button has been pushed, this function is called
+  // to handle the assignment of internal variables and call the sendNavGoal function
+  void setNavGoal();
 
 
 protected Q_SLOTS:
 
-  // sendTurnGoal() checks the validity of the publisher and ROS,
+  // sendNavGoal() checks the validity of the publisher and ROS,
   // creates a message of the desired type, assigns the fields of
   // that message to values, and then publishes the message
-  void sendTurnGoal();
+  void sendNavGoal();
 
 
 protected:
-
+  
+  // TODO: Get rid of this
   // One-line text editor for entering the degrees to turn by in
   QLineEdit* degrees_topic_editor_;
 
 
   // The ROS publisher for the degrees and direction to turn in
-  ros::Publisher turn_goal_publisher_;
+  ros::Publisher nav_goal_publisher_;
 
   // The ROS node handle.
   ros::NodeHandle nh_;
 
   // Internal variables for storing the degrees and direction commands in
+  // TODO: update variables
   float degrees_;
   bool turn_left_;
+  
+  float x_, y_, z_;
 
 };
 
 } 
 
-#endif // TURNINPLACE_PANEL_H
+#endif // TELEOP_PANEL_H

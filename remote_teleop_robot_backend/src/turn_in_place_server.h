@@ -1,5 +1,5 @@
-#ifndef RT_BACKEND_H
-#define RT_BACKEND_H
+#ifndef TURNINPLACE_H
+#define TURNINPLACE_H
 
 #include <stdlib.h>
 
@@ -13,11 +13,11 @@
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceResult.h>
 
-class RemoteTeleopClass {
+class TurnInPlace {
 
 public:
 
-  RemoteTeleopClass();
+  TurnInPlace();
 
 private:
 
@@ -56,4 +56,4 @@ private:
 };
 
 
-#endif // RT_BACKEND_H
+#endif // TURNINPLACE_H
