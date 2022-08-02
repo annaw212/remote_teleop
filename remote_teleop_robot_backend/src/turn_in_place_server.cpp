@@ -81,7 +81,7 @@ void TurnInPlace::initializeActions() {
 
 void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr& goal) {
 
-  ROS_INFO("Turn in place callback");
+//  ROS_INFO("Turn in place callback");
   
   // TODO: gray out rviz plugin buttons when turn is being executed
   
@@ -92,7 +92,7 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   // Convert from degrees to radians
   angle_ = angle_ * M_PI / 180;
   
-  ROS_INFO("Angle = %f, Turn left = %d", angle_, turn_left_);
+//  ROS_INFO("Angle = %f, Turn left = %d", angle_, turn_left_);
   
   // TODO: update vel vars here, OR move this somewhere else
   lin_vel_ = 0.0;
@@ -148,7 +148,7 @@ void TurnInPlace::turn_in_place() {
   
   float goal_yaw = 0.0;
   
-  ROS_INFO("CURRENT ANGLE = %f", yaw_);
+//  ROS_INFO("CURRENT ANGLE = %f", yaw_);
 //  ROS_INFO("ANGULAR VELOCITY = %f", ang_vel_);
     
   if(turn_left_ == false) {
@@ -159,7 +159,7 @@ void TurnInPlace::turn_in_place() {
     if(goal_yaw < -M_PI) {
       goal_yaw += 2*M_PI;
     }
-    ROS_INFO("Goal angle = %f", goal_yaw);
+//    ROS_INFO("Goal angle = %f", goal_yaw);
   } else {
     // TURNING LEFT
     goal_yaw = yaw_ + angle_;
@@ -168,7 +168,7 @@ void TurnInPlace::turn_in_place() {
     if(goal_yaw > M_PI) {
       goal_yaw -= 2*M_PI;
     }
-    ROS_INFO("Goal angle = %f", goal_yaw);
+//    ROS_INFO("Goal angle = %f", goal_yaw);
   }
   
   // Turn the robot until it reaches the desired angle
@@ -204,14 +204,14 @@ void TurnInPlace::turn_in_place() {
     turn_in_place_publisher_.publish(command);
   }
   
-  ROS_INFO("Goal angle = %f, Current angle = %f", goal_yaw, yaw_);
+//  ROS_INFO("Goal angle = %f, Current angle = %f", goal_yaw, yaw_);
   
   // Stop the robot from moving farther
   command.angular.z = 0.0;
   turn_in_place_publisher_.publish(command);
-  ROS_INFO("%f", command.angular.z);
+//  ROS_INFO("%f", command.angular.z);
   
-  ROS_INFO("Exited the while loop.");
+//  ROS_INFO("Exited the while loop.");
   
   
 }
