@@ -145,14 +145,14 @@ void TurnInPlace::turn_in_place() {
     // TURNING RIGHT
     goal_yaw = yaw_ - angle_;
     // Make sure the goal angle is within a valid range
-    if(goal_yaw < -M_PI) {
+    while(goal_yaw < -M_PI) {
       goal_yaw += 2*M_PI;
     }
   } else {
     // TURNING LEFT
     goal_yaw = yaw_ + angle_;
     // Make sure the goal angle is within a valid range
-    if(goal_yaw > M_PI) {
+    while(goal_yaw > M_PI) {
       goal_yaw -= 2*M_PI;
     }
   }
