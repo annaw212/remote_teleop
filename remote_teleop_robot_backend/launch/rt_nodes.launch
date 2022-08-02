@@ -14,6 +14,6 @@
   </node>
   
   
-  <node pkg="remote_teleop_robot_backend" type="turn_in_place_server" name="turn_in_place" />
+  <node pkg="remote_teleop_robot_backend" type="turn_in_place_server" name="turn_in_place" output="screen" />
 
 </launch>
