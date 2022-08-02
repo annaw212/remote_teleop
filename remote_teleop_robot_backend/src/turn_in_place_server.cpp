@@ -20,7 +20,7 @@
 /*-----------------------------------------------------------------------------------*/
 // Define variables here
 #define THRESHOLD 0.08
-#define MIN_VEL
+#define MIN_VEL 0.08
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -88,11 +88,11 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   // Get inputs from Rviz and store them in variables
   angle_ = goal->degrees;
   turn_left_ = goal->turn_left;
-  
-  ROS_INFO("Degrees = %f, Turn left = %d", angle_, turn_left_);
-  
+    
   // Convert from degrees to radians
   angle_ = angle_ * M_PI / 180;
+  
+  ROS_INFO("Angle = %f, Turn left = %d", angle_, turn_left_);
   
   // TODO: update vel vars here, OR move this somewhere else
   lin_vel_ = 0.0;
@@ -100,8 +100,6 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   
   // Tell robot to turn the desired angle
   turn_in_place();
-  
-  ROS_INFO("Exited the turn in place function");
   
   // Update the turn in place result and success fields
   turn_in_place_result_.success = true;
@@ -135,7 +133,7 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 
 void TurnInPlace::turn_in_place() {
   
-  ROS_INFO("Turn in place function");
+//  ROS_INFO("Turn in place function");
   
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -149,27 +147,30 @@ void TurnInPlace::turn_in_place() {
   command.angular.y = 0.0;
   
   float goal_yaw = 0.0;
+  
+  ROS_INFO("CURRENT ANGLE = %f", yaw_);
+//  ROS_INFO("ANGULAR VELOCITY = %f", ang_vel_);
     
   if(turn_left_ == false) {
     // TURNING RIGHT
     goal_yaw = yaw_ - angle_;
+//    ROS_INFO("Raw goal angle = %f", goal_yaw);
     // Make sure the goal angle is within a valid range
     if(goal_yaw < -M_PI) {
       goal_yaw += 2*M_PI;
     }
+    ROS_INFO("Goal angle = %f", goal_yaw);
   } else {
     // TURNING LEFT
     goal_yaw = yaw_ + angle_;
+//    ROS_INFO("Raw goal angle = %f", goal_yaw);
     // Make sure the goal angle is within a valid range
     if(goal_yaw > M_PI) {
       goal_yaw -= 2*M_PI;
     }
+    ROS_INFO("Goal angle = %f", goal_yaw);
   }
   
-//  ROS_INFO("GOAL ANGLE TO MEET = %f", goal_yaw);
-  
-  // TODO: Get rid of this
-  ROS_INFO("Goal angle = %f, Current angle = %f", goal_yaw, yaw_);
   // Turn the robot until it reaches the desired angle
   while(abs(goal_yaw - yaw_) > THRESHOLD) {
     
@@ -179,23 +180,38 @@ void TurnInPlace::turn_in_place() {
     // Ensure the robot will be turning in the correct direction
     if(turn_left_ == true && command.angular.z < 0.0) {
       command.angular.z *= -1;
+      if (command.angular.z < MIN_VEL) {
+        command.angular.z = MIN_VEL;
+      } 
+      
     } else if(turn_left_ == false && command.angular.z > 0.0) {
       command.angular.z *= -1;
+      if (command.angular.z > -MIN_VEL) {
+        command.angular.z = -MIN_VEL;
+      } 
+    }
+    
+    if (turn_left_ == true && command.angular.z > ang_vel_) {
+      command.angular.z = ang_vel_;
+    } else if (turn_left_ == true && abs(command.angular.z) > ang_vel_) {
+      command.angular.z = -ang_vel_;
     }
     // TODO: get rid of this
-    ROS_INFO("%f\t%f\t%f", goal_yaw, yaw_, command.angular.z);
+//    ROS_INFO("%f", command.angular.z);
+//    ROS_INFO("%f\t%f\t%f", goal_yaw, yaw_, command.angular.z);
     
     // Publish the message to the drivers
     turn_in_place_publisher_.publish(command);
-    
   }
   
-  
-  ROS_INFO("Exited the while loop.");
+  ROS_INFO("Goal angle = %f, Current angle = %f", goal_yaw, yaw_);
   
   // Stop the robot from moving farther
   command.angular.z = 0.0;
   turn_in_place_publisher_.publish(command);
+  ROS_INFO("%f", command.angular.z);
+  
+  ROS_INFO("Exited the while loop.");
   
   
 }
