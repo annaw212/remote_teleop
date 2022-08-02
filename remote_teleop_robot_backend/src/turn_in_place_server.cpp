@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <tf/tf.h>
+#include <ros/rate.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <actionlib/server/simple_action_server.h>
@@ -18,12 +19,13 @@
 
 /*-----------------------------------------------------------------------------------*/
 // Define variables here
-#define THRESHOLD 0.8
+#define THRESHOLD 0.08
+#define MIN_VEL
 
 /*-----------------------------------------------------------------------------------*/
 
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
-TurnInPlace::TurnInPlace(): turn_in_place_server_(nh_, "turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false) {
+TurnInPlace::TurnInPlace(): turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false) {
 
   ROS_INFO("In class constructor of TurnInPlace");
   
@@ -61,7 +63,7 @@ void TurnInPlace::initializePublishers() {
   ROS_INFO("Initializing Publishers");
   
   // Initialize the turn in place publisher
-  turn_in_place_publisher_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+  turn_in_place_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -87,7 +89,7 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   angle_ = goal->degrees;
   turn_left_ = goal->turn_left;
   
-  std::cout << angle_ << ", " << turn_left_ ;
+  ROS_INFO("Degrees = %f, Turn left = %d", angle_, turn_left_);
   
   // Convert from degrees to radians
   angle_ = angle_ * M_PI / 180;
@@ -98,6 +100,8 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   
   // Tell robot to turn the desired angle
   turn_in_place();
+  
+  ROS_INFO("Exited the turn in place function");
   
   // Update the turn in place result and success fields
   turn_in_place_result_.success = true;
@@ -110,22 +114,20 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
 void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 //  ROS_INFO("Getting odometry");
   
-  // TODO: this was really difficult to convert from python to c++, so I hope this works
-  
   // Grab the odometry quaternion values out of the message
   tf::Quaternion q(
     msg.pose.pose.orientation.x,
     msg.pose.pose.orientation.y,
     msg.pose.pose.orientation.z,
     msg.pose.pose.orientation.w);
-    
-//  std::cout << q;
   
   // Turn the quaternion values into a matrix
   tf::Matrix3x3 m(q);
   
   // Extract the euler angles from the matrix
   m.getRPY(roll_, pitch_, yaw_);
+  
+//  ROS_INFO("Yaw = %f, Pitch = %f, Roll = %f", yaw_, pitch_, roll_);
   
 }
 
@@ -137,6 +139,14 @@ void TurnInPlace::turn_in_place() {
   
   // Create message to be sent
   geometry_msgs::Twist command;
+  
+  // Set the unchanging fields
+  // TODO: might not need this --> didn't need it in the python version
+  command.linear.x = 0.0;
+  command.linear.y = 0.0;
+  command.linear.z = 0.0;
+  command.angular.x = 0.0;
+  command.angular.y = 0.0;
   
   float goal_yaw = 0.0;
     
@@ -156,6 +166,10 @@ void TurnInPlace::turn_in_place() {
     }
   }
   
+//  ROS_INFO("GOAL ANGLE TO MEET = %f", goal_yaw);
+  
+  // TODO: Get rid of this
+  ROS_INFO("Goal angle = %f, Current angle = %f", goal_yaw, yaw_);
   // Turn the robot until it reaches the desired angle
   while(abs(goal_yaw - yaw_) > THRESHOLD) {
     
@@ -168,14 +182,21 @@ void TurnInPlace::turn_in_place() {
     } else if(turn_left_ == false && command.angular.z > 0.0) {
       command.angular.z *= -1;
     }
+    // TODO: get rid of this
+    ROS_INFO("%f\t%f\t%f", goal_yaw, yaw_, command.angular.z);
     
     // Publish the message to the drivers
     turn_in_place_publisher_.publish(command);
-  }
     
+  }
+  
+  
+  ROS_INFO("Exited the while loop.");
+  
   // Stop the robot from moving farther
   command.angular.z = 0.0;
   turn_in_place_publisher_.publish(command);
+  
   
 }
 
@@ -192,6 +213,8 @@ int main(int argc, char** argv) {
   TurnInPlace remote_teleop_class;
   
   ROS_INFO("Main: going into spin; let the callbacks do all the work");
+  
+//  ros::Rate rate(100.0);
   
   ros::spin();
   
