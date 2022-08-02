@@ -146,7 +146,6 @@ void TurnInPlace::turn_in_place() {
     goal_yaw = yaw_ - angle_;
     // Make sure the goal angle is within a valid range
     while(goal_yaw < -M_PI) {
-      ROS_INFO("TOO SMALL!!!");
       goal_yaw += 2*M_PI;
     }
   } else {
@@ -154,7 +153,6 @@ void TurnInPlace::turn_in_place() {
     goal_yaw = yaw_ + angle_;
     // Make sure the goal angle is within a valid range
     while(goal_yaw > M_PI) {
-      ROS_INFO("TOO BIG!!!");
       goal_yaw -= 2*M_PI;
     }
   }
