@@ -242,10 +242,6 @@ void processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr
 int main(int argc, char** argv) {
 
   ros::init(argc, argv, "remote_teleop");
-   
-  ROS_INFO("Main: instantiating an object of type TurnInPlace");
-  
-  TurnInPlace remote_teleop_class;
   
   ROS_INFO("Main: creating interactive marker then going into spin");
   
@@ -295,6 +291,11 @@ int main(int argc, char** argv) {
 
   // 'commit' changes and send to all clients
   server.applyChanges();
+  
+  
+  ROS_INFO("Main: instantiating an object of type TurnInPlace");
+  
+  TurnInPlace remote_teleop_class;
   
   
   ros::spin();
