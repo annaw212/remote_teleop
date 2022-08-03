@@ -185,6 +185,8 @@ void TurnInPlace::turn_in_place() {
     
     // Publish the message to the drivers
     turn_in_place_publisher_.publish(command);
+    
+    ROS_INFO("%f, %f, %f", goal_yaw, yaw_ ,command.angular.z);
   }
   
   // Stop the robot once it has reached its goal
@@ -196,9 +198,7 @@ void TurnInPlace::turn_in_place() {
 
 int main(int argc, char** argv) {
 
-  // TODO: get rid of argc and argv???
   ros::init(argc, argv, "remote_teleop");
-//  std::cout << "Testing\n";
    
   ROS_INFO("Main: instantiating an object of type TurnInPlace");
   
@@ -206,7 +206,6 @@ int main(int argc, char** argv) {
   
   ROS_INFO("Main: going into spin; let the callbacks do all the work");
   
-//  ros::Rate rate(100.0);
   
   ros::spin();
   
