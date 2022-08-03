@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Willow Garage, Inc.
+ * Copyright (c) 2008, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,44 +27,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RVIZ_GOAL_TOOL_H
-#define RVIZ_GOAL_TOOL_H
+#ifndef RVIZ_POSE_TOOL_H
+#define RVIZ_POSE_TOOL_H
 
-#ifndef Q_MOC_RUN // See: https://bugreports.qt-project.org/browse/QTBUG-22829
-#include <QObject>
+#include <rviz/ogre_helpers/ogre_vector.h>
+
+#include <QCursor>
 
 #include <ros/ros.h>
 
-#include "pose_tool.h"
-#endif
+#include <rviz/tool.h>
 
-namespace remote_teleop_rviz_plugin
+namespace rviz
 {
 class Arrow;
 class DisplayContext;
-class StringProperty;
 
-class PointClickNavTool : public PoseTool
+class PoseTool : public Tool
 {
-  Q_OBJECT
 public:
-  PointClickNavTool();
-  ~PointClickNavTool() override
-  {
-  }
+  PoseTool();
+  ~PoseTool() override;
+
   void onInitialize() override;
 
+  void activate() override;
+  void deactivate() override;
+
+  int processMouseEvent(ViewportMouseEvent& event) override;
+
 protected:
-  void onPoseSet(double x, double y, double theta) override;
+  virtual void onPoseSet(double x, double y, double theta) = 0;
 
-private Q_SLOTS:
-  void updateTopic();
+  Arrow* arrow_;
 
-private:
-  ros::NodeHandle nh_;
-  ros::Publisher pub_;
+  enum State
+  {
+    Position,
+    Orientation
+  };
+  State state_;
 
-  StringProperty* topic_property_;
+  Ogre::Vector3 pos_;
 };
 
 } // namespace rviz

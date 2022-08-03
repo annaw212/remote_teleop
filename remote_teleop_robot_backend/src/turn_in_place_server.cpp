@@ -15,6 +15,10 @@
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceResult.h>
 
+#include <remote_teleop_robot_backend/PointClickNavAction.h>
+#include <remote_teleop_robot_backend/PointClickNavGoal.h>
+#include <remote_teleop_robot_backend/PointClickNavResult.h>
+
 #include "turn_in_place_server.h"
 
 /*-----------------------------------------------------------------------------------*/
@@ -26,7 +30,10 @@
 /*-----------------------------------------------------------------------------------*/
 
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
-TurnInPlace::TurnInPlace(): turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false) {
+TurnInPlace::TurnInPlace()
+  : turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false)
+  , point_click_server_(nh_, "/point_click_as", boost::bind(&TurnInPlace::point_click_callback, this, _1), false)
+{
 
   ROS_INFO("In class constructor of TurnInPlace");
   
@@ -65,6 +72,9 @@ void TurnInPlace::initializePublishers() {
   
   // Initialize the turn in place publisher
   turn_in_place_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
+  
+  // Initialize the point and click publisher
+  point_click_nav_publisher_ = nh_.advertise<geometry_msgs::Twist> ("cmd_vel", 5);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -75,6 +85,9 @@ void TurnInPlace::initializeActions() {
   
   // Start the turn in place action server
   turn_in_place_server_.start();
+  
+  // Start the point click action server
+  point_click_server_.start();
   
 }
 
@@ -101,6 +114,18 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   // Update the turn in place result and success fields
   turn_in_place_result_.success = true;
   turn_in_place_server_.setSucceeded(turn_in_place_result_);
+  
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& goal) {
+  
+  // TODO: do something
+  
+  // Update the turn in place result and success fields
+  point_click_result_.success = true;
+  point_click_server_.setSucceeded(point_click_result_);
   
 }
 
