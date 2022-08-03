@@ -26,8 +26,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TELEOPNAV_PANEL_H
-#define TELEOPNAV_PANEL_H
+#ifndef POINTCLICKNAV_PANEL_H
+#define POINTCLICKNAV_PANEL_H
 
 #ifndef Q_MOC_RUN
 # include <ros/ros.h>
@@ -40,8 +40,8 @@ class QLineEdit;
 namespace remote_teleop_rviz_plugin
 {
 
-// Declare the TeleopNavPanel class of type rviz panel
-class TeleopNavPanel: public rviz::Panel
+// Declare the PointClickNavPanel class of type rviz panel
+class PointClickNavPanel: public rviz::Panel
 {
 // This class uses Qt slots and is a subclass of QObject, so it needs
 // the Q_OBJECT macro.
@@ -49,7 +49,7 @@ Q_OBJECT
 public:
 
   // QWidget subclass constructor
-  TeleopNavPanel( QWidget* parent = 0 );
+  PointClickNavPanel( QWidget* parent = 0 );
 
   // Declare overrides of rviz::Panel functions for saving 
   // and loading from config file
@@ -59,7 +59,7 @@ public:
 
 public Q_SLOTS:
   
-  // Once the 'confirm navigation' button has been pushed, this function is called
+  // Once the 'confirm coordinates' button has been pushed, this function is called
   // to handle the assignment of internal variables and call the sendNavGoal function
   void setNavGoal();
 
@@ -85,15 +85,17 @@ protected:
   // The ROS node handle.
   ros::NodeHandle nh_;
 
-  // Internal variables for storing the degrees and direction commands in
-  // TODO: update variables
-  float degrees_;
-  bool turn_left_;
-  
-  float x_, y_, z_;
+  // Internal variables for storing coordinates in
+  float position_x_;
+  float position_y_;
+  float position_z_;
+  float orientation_x_;
+  float orientation_y_;
+  float orientation_z_;
+  float orientation_w_;
 
 };
 
 } 
 
-#endif // TELEOP_PANEL_H
+#endif // POINTCLICKNAV_PANEL_H
