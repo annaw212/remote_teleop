@@ -20,7 +20,7 @@
 /*-----------------------------------------------------------------------------------*/
 
 // Define variables here
-#define THRESHOLD 0.08
+#define THRESHOLD 0.03
 #define MIN_VEL 0.08
 
 /*-----------------------------------------------------------------------------------*/
@@ -126,8 +126,6 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::turn_in_place() {
-
-  ROS_INFO("Turn in Place Function");
   
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -185,8 +183,6 @@ void TurnInPlace::turn_in_place() {
     
     // Publish the message to the drivers
     turn_in_place_publisher_.publish(command);
-    
-    ROS_INFO("%f, %f, %f", goal_yaw, yaw_ ,command.angular.z);
   }
   
   // Stop the robot once it has reached its goal
