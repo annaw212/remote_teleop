@@ -57,18 +57,18 @@ TurnInPlacePanel::TurnInPlacePanel( QWidget* parent )
   QVBoxLayout* topic_layout = new QVBoxLayout;
   
   // Create a horizontal box for the degrees input box
-  QHBoxLayout* degrees_layout = new QHBoxLayout;
-  // Add a title for the input box
-  degrees_layout->addWidget( new QLabel( "Degrees to turn:" ));
-  // Create the input box
-  degrees_topic_editor_ = new QLineEdit;
-  // Set the input to only accept integers
-  QValidator* validator = new QIntValidator(0, 100, this);
-  degrees_topic_editor_->setValidator(validator);
-  // Add the input box to the horizontal layout
-  degrees_layout->addWidget( degrees_topic_editor_ );
-  // Add the horizontal box to be the first item in the vertical box
-  topic_layout->addLayout( degrees_layout );
+//  QHBoxLayout* degrees_layout = new QHBoxLayout;
+//  // Add a title for the input box
+//  degrees_layout->addWidget( new QLabel( "Degrees to turn:" ));
+//  // Create the input box
+//  degrees_topic_editor_ = new QLineEdit;
+//  // Set the input to only accept integers
+//  QValidator* validator = new QIntValidator(0, 100, this);
+//  degrees_topic_editor_->setValidator(validator);
+//  // Add the input box to the horizontal layout
+//  degrees_layout->addWidget( degrees_topic_editor_ );
+//  // Add the horizontal box to be the first item in the vertical box
+//  topic_layout->addLayout( degrees_layout );
 
   // Create buttons for determining which direction to turn
   // Create a horizontal box for both the buttons to go in so they
@@ -106,12 +106,12 @@ void TurnInPlacePanel::setTurnGoalLeft()
 {
 
   // Get the input from the degrees input box
-  QString str = degrees_topic_editor_->text();
+//  QString str = degrees_topic_editor_->text();
   
   // Convert the variable from string to float
   // and set the internal variable value
   // NOTE: if the string is empty, the variable just becomes 0.0
-  degrees_ = str.toFloat();
+  degrees_ = 30.0;
   
   // Set the turn_left_ internal variable
   turn_left_ = true;
@@ -125,12 +125,12 @@ void TurnInPlacePanel::setTurnGoalLeft()
 void TurnInPlacePanel::setTurnGoalRight()
 {
   // Get the input from the degrees input box
-  QString str = degrees_topic_editor_->text();
+//  QString str = degrees_topic_editor_->text();
   
   // Convert the variable from string to float
   // and set the internal variable value
   // NOTE: if the string is empty, the variable just becomes 0.0
-  degrees_ = str.toFloat();
+  degrees_ = 30.0;
   
   // Set the turn_left_ internal variable
   turn_left_ = false;
