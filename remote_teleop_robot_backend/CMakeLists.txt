@@ -144,6 +144,10 @@ add_executable(turn_in_place_server src/turn_in_place_server.cpp)
 target_link_libraries(turn_in_place_server ${catkin_LIBRARIES})
 add_dependencies(turn_in_place_server remote_teleop_robot_backend_generate_messages_cpp)
 
+add_executable(interactive_marker_server src/interactive_marker_server.cpp)
+target_link_libraries(interactive_marker_server ${catkin_LIBRARIES})
+add_dependencies(interactive_marker_server remote_teleop_robot_backend_generate_messages_cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
