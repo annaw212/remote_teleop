@@ -50,6 +50,9 @@ TurnInPlace::TurnInPlace()
   roll_ = 0.0;
   pitch_ = 0.0;
   yaw_ = 0.0;
+  
+  turn_in_place_running_ = false;
+  point_and_click_running_ = false;
 
 }
 
@@ -97,6 +100,11 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   
   // TODO: gray out rviz plugin buttons when turn is being executed
   
+  // Set a variable to "claim" the drivers
+  turn_in_place_running_ = true;
+  
+  // TODO: check if point_and_click is running
+  
   // Get inputs from Rviz and store them in variables
   angle_ = goal->degrees;
   turn_left_ = goal->turn_left;
@@ -115,11 +123,18 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   turn_in_place_result_.success = true;
   turn_in_place_server_.setSucceeded(turn_in_place_result_);
   
+  turn_in_place_running_ = false;
+  
 }
 
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& goal) {
+  
+  // Set a variable to "claim" the drivers
+  point_and_click_running_ = true;
+  
+  // TODO: check if turn in place is running
   
   // TODO: do something
   
@@ -127,6 +142,7 @@ void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointC
   point_click_result_.success = true;
   point_click_server_.setSucceeded(point_click_result_);
   
+  point_and_click_running_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/

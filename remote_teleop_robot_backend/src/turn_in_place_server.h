@@ -52,6 +52,9 @@ private:
   tfScalar pitch_;
   tfScalar yaw_;
   
+  bool turn_in_place_running_;
+  bool point_and_click_running_;
+  
   // Member methods
   void initializeSubscribers();
   void initializePublishers();

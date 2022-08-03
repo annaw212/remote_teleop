@@ -6,7 +6,7 @@ import time
 import math
 
 from remote_teleop_robot_backend.msg import TurnInPlaceAction, TurnInPlaceActionGoal, TurnInPlaceResult
-from remote_teleop_robot_backend.msg import SetNavGoalAction, SetNavGoalActionGoal, SetNavGoalResult
+from remote_teleop_robot_backend.msg import PointClickNavAction, PointClickNavActionGoal, PointClickNavResult
 from geometry_msgs.msg import Twist, PoseStamped
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
@@ -80,14 +80,14 @@ class RemoteTeleopClass():
     def __init__(self, turn_in_place_pub_topic, set_nav_goal_pub_topic, odom_sub_topic):
         # create messages that are used to publish result
         self._turn_in_place_result = TurnInPlaceResult()
-        self._set_nav_goal_result = SetNavGoalResult()
+        self._set_nav_goal_result = PointClickNavResult()
         
         # create the turn in place action server and start it
         self._turn_in_place_server = actionlib.SimpleActionServer("turn_in_place_as", TurnInPlaceAction, self.turn_in_place_callback, False)
         self._turn_in_place_server.start()
         
         # create the set nav goal action server and start it
-        self._set_nav_goal_server = actionlib.SimpleActionServer("set_nav_goal_as", SetNavGoalAction, self.set_nav_goal_callback, False)
+        self._set_nav_goal_server = actionlib.SimpleActionServer("point_click_nav_as", PointClickNavAction, self.set_nav_goal_callback, False)
         self._set_nav_goal_server.start()
         
         # create the turn in place cmd vel publisher
