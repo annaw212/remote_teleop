@@ -247,7 +247,7 @@ int main(int argc, char** argv) {
   
   // create an interactive marker server on the topic namespace simple_marker
   interactive_markers::InteractiveMarkerServer server("simple_marker");
-
+  
   // create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
   int_marker.header.frame_id = "base_link";
