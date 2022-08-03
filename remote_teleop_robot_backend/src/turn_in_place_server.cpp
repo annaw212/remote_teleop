@@ -126,6 +126,8 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::turn_in_place() {
+
+  ROS_INFO("Turn in Place Function");
   
   // Create message to be sent
   geometry_msgs::Twist command;
