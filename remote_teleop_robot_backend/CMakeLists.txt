@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   geometry_msgs
   roscpp
+  interactive_markers
+  visualization_msgs
 )
 
 ## System dependencies are found with CMake's conventions

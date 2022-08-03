@@ -48,7 +48,7 @@ namespace remote_teleop_rviz_plugin
 // TurnInPlacePanel class assignment
 TurnInPlacePanel::TurnInPlacePanel( QWidget* parent )
   : rviz::Panel( parent )
-  , degrees_( 0 )
+  , degrees_( 30.0 )
   , turn_left_( true )
 {
   
@@ -56,7 +56,7 @@ TurnInPlacePanel::TurnInPlacePanel( QWidget* parent )
   // Vertical box layout so that everything stacks nicely
   QVBoxLayout* topic_layout = new QVBoxLayout;
   
-  // Create a horizontal box for the degrees input box
+//  // Create a horizontal box for the degrees input box
 //  QHBoxLayout* degrees_layout = new QHBoxLayout;
 //  // Add a title for the input box
 //  degrees_layout->addWidget( new QLabel( "Degrees to turn:" ));

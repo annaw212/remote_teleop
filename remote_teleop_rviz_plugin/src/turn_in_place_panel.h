@@ -79,7 +79,7 @@ protected Q_SLOTS:
 protected:
 
   // One-line text editor for entering the degrees to turn by in
-  QLineEdit* degrees_topic_editor_;
+/*  QLineEdit* degrees_topic_editor_;*/
 
 
   // The ROS publisher for the degrees and direction to turn in
