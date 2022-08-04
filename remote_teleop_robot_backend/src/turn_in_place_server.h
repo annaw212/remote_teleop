@@ -51,6 +51,13 @@ private:
   tfScalar roll_;
   tfScalar pitch_;
   tfScalar yaw_;
+  float pos_x_;
+  float pos_y_;
+  float pos_z_;
+  float or_x_;
+  float or_y_;
+  float or_z_;
+  float or_w_;
   
   bool turn_in_place_running_;
   bool point_and_click_running_;
