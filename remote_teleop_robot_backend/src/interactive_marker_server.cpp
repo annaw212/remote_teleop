@@ -66,15 +66,30 @@ visualization_msgs::InteractiveMarkerControl& makeBoxControl( visualization_msgs
 /*----------------------------------------------------------------------------------------------*/
 
 
-
 /*----------------------------------------------------------------------------------------------*/
 
 void processFeedback(
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback )
 {
-  ROS_INFO_STREAM( /*feedback->marker_name << /*": POSITION ("
-      << feedback->pose.position.x << ", " << feedback->pose.position.y
-      << ", " << feedback->pose.position.z << ") ORIENTATION (" <<*/ feedback->pose.orientation.x << "\t" << feedback->pose.orientation.y << "\t" << feedback->pose.orientation.z << "\t" << feedback->pose.orientation.w);
+//  ROS_INFO_STREAM(feedback->pose.position.x << "\t" << feedback->pose.position.y
+//      << "\t" << feedback->pose.position.z /* << ") ORIENTATION (" <<feedback->pose.orientation.x << "\t" << feedback->pose.orientation.y << "\t" << feedback->pose.orientation.z << "\t" << feedback->pose.orientation.w*/);
+      
+  // Grab the odometry quaternion values out of the message
+  tf::Quaternion q(
+    feedback->pose.orientation.x,
+    feedback->pose.orientation.y,
+    feedback->pose.orientation.z,
+    feedback->pose.orientation.w);
+  
+  // Turn the quaternion values into a matrix
+  tf::Matrix3x3 m(q);
+  
+  tfScalar roll, pitch, yaw;
+  
+  // Extract the euler angles from the matrix
+  m.getRPY(roll, pitch, yaw);
+  
+  ROS_INFO("%f\t%f\t%f", roll, pitch, yaw);
   
   ros::NodeHandle nh_;
   ros::Publisher pose_publisher_ = nh_.advertise<remote_teleop_robot_backend::PointClickNavActionGoal>("point_click_as/goal", 1);

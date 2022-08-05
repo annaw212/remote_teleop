@@ -71,6 +71,7 @@ private:
   void point_click_callback(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& goal);
   void odom_callback(const nav_msgs::Odometry& msg);
   void turn_in_place();
+  void navigate();
 };
 
 

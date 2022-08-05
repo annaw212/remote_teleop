@@ -4,6 +4,7 @@
  */
 
 #include <ros/ros.h>
+#include <cmath>
 #include <iostream>
 #include <tf/tf.h>
 #include <geometry_msgs/Twist.h>
@@ -49,6 +50,13 @@ TurnInPlace::TurnInPlace()
   roll_ = 0.0;
   pitch_ = 0.0;
   yaw_ = 0.0;
+  pos_x_ = 0.0;
+  pos_y_ = 0.0;
+  pos_z_ = 0.0;
+  or_x_ = 0.0;
+  or_y_ = 0.0;
+  or_z_ = 0.0;
+  or_w_ = 0.0;
   
   turn_in_place_running_ = false;
   point_and_click_running_ = false;
@@ -239,6 +247,34 @@ void TurnInPlace::turn_in_place() {
   // Stop the robot once it has reached its goal
   command.angular.z = 0.0;
   turn_in_place_publisher_.publish(command);  
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void TurnInPlace::navigate() {
+  // Calculate the a, b, c distance values between robot and goal
+  float travel_dist;
+  travel_dist = sqrt(pow(pos_x_, 2) + pow(pos_y_, 2));
+  // Calculate angle to turn by to be facing goal location head on
+  // if pos_x_ is negative, turn left, otherwise turn right
+  
+  // We first calculate the angle in the inner corner of the unit circle of the
+  // triangle created by pos_x_, pos_y_, and travel_dist (hypoteneuse).
+  // However, depending on whether we are on the top half or bottom half of the 
+  // unit circle, this will mean we are either calculating the angle by which to turn,
+  // OR the angle out of 90 degrees that we are not turning.
+  // If we are on the bottom half, we are calculating the angle to turn, but because
+  // it is on the bottom half, we also have to add 90 degrees because the robot
+  // always considers itself to be pointed "forward". I hope this makes sense tmrw
+  float theta1;
+  theta1 = acos(pos_x_ / travel_dist);
+  if(pos_y_ < 0.0) {
+    theta1 += M_PI/2; // 90 degrees
+  } else {
+    theta1 = M_PI/2 - theta1;
+  }
+  // Calculate angle to turn by from goal to goal orientation
+  
 }
 
 /*-----------------------------------------------------------------------------------*/
