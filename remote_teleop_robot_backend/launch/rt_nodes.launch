@@ -16,6 +16,6 @@
   
   <node pkg="remote_teleop_robot_backend" type="turn_in_place_server" name="turn_in_place" output="screen" />
   
-  <node pkg="remote_teleop_robot_backend" type="interactive_marker_server" name="rt_interactive_marker" output="screen" />
+  <node pkg="remote_teleop_robot_backend" type="interactive_marker_server" name="interactive_marker_server" output="screen" />
 
 </launch>
