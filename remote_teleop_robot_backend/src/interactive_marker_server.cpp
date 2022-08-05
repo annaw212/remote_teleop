@@ -92,7 +92,7 @@ void processFeedback(
   // Extract the euler angles from the matrix
   m.getRPY(roll, pitch, yaw);
   
-  ROS_INFO("%f\t%f\t%f", roll, pitch, yaw);
+  ROS_INFO_STREAM(roll << "\t" << pitch << "\t" << yaw);
   
   ros::NodeHandle nh_;
   ros::Publisher pose_publisher_ = nh_.advertise<remote_teleop_robot_backend::PointClickNavActionGoal>("point_click_as/goal", 1);
