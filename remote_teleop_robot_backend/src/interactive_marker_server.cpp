@@ -33,7 +33,10 @@
 #include <tf/transform_broadcaster.h>
 #include <interactive_markers/interactive_marker_server.h>
 #include <geometry_msgs/PoseStamped.h>
-#include "remote_teleop_robot_backend/PointClickNavActionGoal.h"
+#include <remote_teleop_robot_backend/PointClickNavAction.h>
+#include <remote_teleop_robot_backend/PointClickNavGoal.h>
+#include <remote_teleop_robot_backend/PointClickNavResult.h>
+#include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
 
 /*----------------------------------------------------------------------------------------------*/
 
