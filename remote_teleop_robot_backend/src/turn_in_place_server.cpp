@@ -137,6 +137,8 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& goal) {
+
+  ROS_INFO("Point click callback function reached.");
   
   // Set a variable to "claim" the drivers
   point_and_click_running_ = true;
