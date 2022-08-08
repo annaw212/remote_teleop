@@ -154,7 +154,7 @@ void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointC
   or_z_ = goal->goal_pose.pose.orientation.z;
   or_w_ = goal->goal_pose.pose.orientation.w;
   
-  ROS_INFO("%f %f %f \t\t %f %f %f %f", pos_x_, pos_y_, pos_z_, or_x_, or_y_, or_z_, or_w_);
+  ROS_INFO_STREAM("CB: " << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
   
   // Robot's self is always at 
   
