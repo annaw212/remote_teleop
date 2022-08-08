@@ -93,26 +93,28 @@ void processFeedback(
   ros::Publisher pose_publisher_ = nh_.advertise<remote_teleop_robot_backend::PointClickNavActionGoal>("point_click_as/goal", 1);
   
   // TODO: publish message to the topic here and subscribe to the topic in the nav 
-  
-  remote_teleop_robot_backend::PointClickNavActionGoal msg;
-  
-  msg.header.stamp = ros::Time::now();
-  msg.header.frame_id = "base_link";
-  msg.goal_id.stamp = ros::Time::now();
-  msg.goal_id.id = "message";
-  
-  msg.goal.goal_pose.header.stamp = ros::Time::now();
-  msg.goal.goal_pose.header.frame_id = "base_link";
-  
-  msg.goal.goal_pose.pose.position.x = feedback->pose.position.x;
-  msg.goal.goal_pose.pose.position.y = feedback->pose.position.y;
-  msg.goal.goal_pose.pose.position.z = feedback->pose.position.z;
-  msg.goal.goal_pose.pose.orientation.x = feedback->pose.orientation.x;
-  msg.goal.goal_pose.pose.orientation.y = feedback->pose.orientation.y;
-  msg.goal.goal_pose.pose.orientation.z = feedback->pose.orientation.z;
-  msg.goal.goal_pose.pose.orientation.w = feedback->pose.orientation.w;
-  
-  pose_publisher_.publish(msg);
+  if( ros::ok() && pose_publisher_) {
+    ROS_INFO("Got here");
+    remote_teleop_robot_backend::PointClickNavActionGoal msg;
+    
+    msg.header.stamp = ros::Time::now();
+    msg.header.frame_id = "base_link";
+    msg.goal_id.stamp = ros::Time::now();
+    msg.goal_id.id = "message";
+    
+    msg.goal.goal_pose.header.stamp = ros::Time::now();
+    msg.goal.goal_pose.header.frame_id = "base_link";
+    
+    msg.goal.goal_pose.pose.position.x = feedback->pose.position.x;
+    msg.goal.goal_pose.pose.position.y = feedback->pose.position.y;
+    msg.goal.goal_pose.pose.position.z = feedback->pose.position.z;
+    msg.goal.goal_pose.pose.orientation.x = feedback->pose.orientation.x;
+    msg.goal.goal_pose.pose.orientation.y = feedback->pose.orientation.y;
+    msg.goal.goal_pose.pose.orientation.z = feedback->pose.orientation.z;
+    msg.goal.goal_pose.pose.orientation.w = feedback->pose.orientation.w;
+    
+    pose_publisher_.publish(msg);
+  }
   
 }
 
