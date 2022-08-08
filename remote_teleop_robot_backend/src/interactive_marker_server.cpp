@@ -97,30 +97,30 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
   m.getRPY(roll, pitch, yaw);
   
   ros::NodeHandle nh_;
-  ros::Publisher pose_publisher_ = nh_.advertise<remote_teleop_robot_backend::PointClickNavActionGoal>("/point_click_as/goal", 5);
+  ros::Publisher pose_publisher_ = nh_.advertise<visualization_msgs::InteractiveMarkerUpdate>("/point_click_as/goal", 5);
   
   // Publish message to the topic here and subscribe to the topic in the nav 
   if( ros::ok() && pose_publisher_ ) {
-    remote_teleop_robot_backend::PointClickNavActionGoal msg;
+    visualization_msgs::InteractiveMarkerUpdate msg;
 //    msg.markers[0].header.stamp = ros::Time::now();
 //    msg.markers[0].header.frame_id = "base_link";
 //    ROS_INFO("B2");
     
-//    msg.markers[0].pose.position.x = feedback->pose.position.x;
-//    msg.markers[0].pose.position.y = feedback->pose.position.y;
-//    msg.markers[0].pose.position.z = feedback->pose.position.z;
-//    msg.markers[0].pose.orientation.x = feedback->pose.orientation.x;
-//    msg.markers[0].pose.orientation.y = feedback->pose.orientation.y;
-//    msg.markers[0].pose.orientation.z = feedback->pose.orientation.z;
-//    msg.markers[0].pose.orientation.w = feedback->pose.orientation.w;
-    msg.goal.goal_pose.position.x = feedback->pose.position.x;
-    msg.goal.goal_pose.position.y = feedback->pose.position.y;
-    msg.goal.goal_pose.position.z = feedback->pose.position.z;
-    msg.goal.goal_pose.orientation.x = feedback->pose.orientation.x;
-    msg.goal.goal_pose.orientation.y = feedback->pose.orientation.y;
-    msg.goal.goal_pose.orientation.z = feedback->pose.orientation.z;
-    msg.goal.goal_pose.orientation.w = feedback->pose.orientation.w;
-    ROS_INFO_STREAM("POS: (" << msg.goal.goal_pose.position.x << ", " << msg.goal.goal_pose.position.y << ", " << msg.goal.goal_pose.position.z << ")\t| OR: (" << msg.goal.goal_pose.orientation.x << ", " << msg.goal.goal_pose.orientation.y << ", " << msg.goal.goal_pose.orientation.z << ", " << msg.goal.goal_pose.orientation.w << ")");
+    msg.markers[0].pose.position.x = feedback->pose.position.x;
+    msg.markers[0].pose.position.y = feedback->pose.position.y;
+    msg.markers[0].pose.position.z = feedback->pose.position.z;
+    msg.markers[0].pose.orientation.x = feedback->pose.orientation.x;
+    msg.markers[0].pose.orientation.y = feedback->pose.orientation.y;
+    msg.markers[0].pose.orientation.z = feedback->pose.orientation.z;
+    msg.markers[0].pose.orientation.w = feedback->pose.orientation.w;
+//    msg.goal.goal_pose.position.x = feedback->pose.position.x;
+//    msg.goal.goal_pose.position.y = feedback->pose.position.y;
+//    msg.goal.goal_pose.position.z = feedback->pose.position.z;
+//    msg.goal.goal_pose.orientation.x = feedback->pose.orientation.x;
+//    msg.goal.goal_pose.orientation.y = feedback->pose.orientation.y;
+//    msg.goal.goal_pose.orientation.z = feedback->pose.orientation.z;
+//    msg.goal.goal_pose.orientation.w = feedback->pose.orientation.w;
+//    ROS_INFO_STREAM("POS: (" << msg.goal.goal_pose.position.x << ", " << msg.goal.goal_pose.position.y << ", " << msg.goal.goal_pose.position.z << ")\t| OR: (" << msg.goal.goal_pose.orientation.x << ", " << msg.goal.goal_pose.orientation.y << ", " << msg.goal.goal_pose.orientation.z << ", " << msg.goal.goal_pose.orientation.w << ")");
     pose_publisher_.publish(msg);
   }
   
