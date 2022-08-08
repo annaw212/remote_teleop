@@ -5,7 +5,7 @@
 ## First start with some standard catkin stuff.
 cmake_minimum_required(VERSION 3.0.2)
 project(remote_teleop_rviz_plugin)
-find_package(catkin REQUIRED COMPONENTS rviz)
+find_package(catkin REQUIRED COMPONENTS rviz roscpp)
 find_package(catkin REQUIRED remote_teleop_robot_backend)
 catkin_package()
 include_directories(${catkin_INCLUDE_DIRS})
@@ -62,7 +62,7 @@ add_library(${PROJECT_NAME} ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${catkin_LIBRARIES})
 ## END_TUTORIAL
 
-## Install rules
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 
 install(TARGETS
   ${PROJECT_NAME}
