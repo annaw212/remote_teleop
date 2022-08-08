@@ -101,9 +101,7 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
   
   // Publish message to the topic here and subscribe to the topic in the nav 
   if( ros::ok() && pose_publisher_ ) {
-    ROS_INFO("A");
     remote_teleop_robot_backend::PointClickNavActionGoal msg;
-    ROS_INFO("B");
 //    msg.markers[0].header.stamp = ros::Time::now();
 //    msg.markers[0].header.frame_id = "base_link";
 //    ROS_INFO("B2");
@@ -116,16 +114,14 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
 //    msg.markers[0].pose.orientation.z = feedback->pose.orientation.z;
 //    msg.markers[0].pose.orientation.w = feedback->pose.orientation.w;
     msg.goal.goal_pose.position.x = feedback->pose.position.x;
-    float y = feedback->pose.position.y;
-    float z = feedback->pose.position.z;
-    float a = feedback->pose.orientation.x;
-    float b = feedback->pose.orientation.y;
-    float c = feedback->pose.orientation.z;
-    float d = feedback->pose.orientation.w;
-//    ROS_INFO_STREAM("POS: (" << msg.goal.goal_pose.pose.position.x << ", " << msg.goal.goal_pose.pose.position.y << ", " << msg.goal.goal_pose.pose.position.z << ")\t| OR: (" << msg.goal.goal_pose.pose.orientation.x << ", " << msg.goal.goal_pose.pose.orientation.y << ", " << msg.goal.goal_pose.pose.orientation.z << ", " << msg.goal.goal_pose.pose.orientation.w << ")");
-    ROS_INFO("C");
+    msg.goal.goal_pose.position.y = feedback->pose.position.y;
+    msg.goal.goal_pose.position.z = feedback->pose.position.z;
+    msg.goal.goal_pose.orientation.x = feedback->pose.orientation.x;
+    msg.goal.goal_pose.orientation.y = feedback->pose.orientation.y;
+    msg.goal.goal_pose.orientation.z = feedback->pose.orientation.z;
+    msg.goal.goal_pose.orientation.w = feedback->pose.orientation.w;
+    ROS_INFO_STREAM("POS: (" << msg.goal.goal_pose.position.x << ", " << msg.goal.goal_pose.position.y << ", " << msg.goal.goal_pose.position.z << ")\t| OR: (" << msg.goal.goal_pose.orientation.x << ", " << msg.goal.goal_pose.orientation.y << ", " << msg.goal.goal_pose.orientation.z << ", " << msg.goal.goal_pose.orientation.w << ")");
     pose_publisher_.publish(msg);
-    ROS_INFO("D");
   }
   
 }
