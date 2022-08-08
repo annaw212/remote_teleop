@@ -17,6 +17,7 @@
 
 #include <remote_teleop_robot_backend/PointClickNavAction.h>
 #include <remote_teleop_robot_backend/PointClickNavGoal.h>
+#include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
 
 #include "turn_in_place_server.h"
