@@ -74,7 +74,7 @@ void TurnInPlace::initializeSubscribers() {
   // Initialize the odometry subscriber
   odom_sub_ = nh_.subscribe("/odom", 1, &TurnInPlace::odom_callback, this);
   
-  nav_sub_ = nh_.subscribe("/remote_teleop_interactive_marker/update", 1, &TurnInPlace::test_callback, this);
+  nav_sub_ = nh_.subscribe("/geometry_msgs/Pose", 1, &TurnInPlace::test_callback, this);
 
 }
 
