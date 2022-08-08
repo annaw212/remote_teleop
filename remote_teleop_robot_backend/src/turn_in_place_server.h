@@ -42,8 +42,7 @@ private:
   
   // The ROS subscriber for receiving odometry value updates
   ros::Subscriber odom_sub_;
-  ros::Subscriber int_marker_sub_;
-  
+
   // Internal variables
   float angle_;
   bool turn_left_;
