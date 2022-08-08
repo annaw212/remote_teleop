@@ -124,7 +124,7 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
     float d = feedback->pose.orientation.w;
 //    ROS_INFO_STREAM("POS: (" << msg.goal.goal_pose.pose.position.x << ", " << msg.goal.goal_pose.pose.position.y << ", " << msg.goal.goal_pose.pose.position.z << ")\t| OR: (" << msg.goal.goal_pose.pose.orientation.x << ", " << msg.goal.goal_pose.pose.orientation.y << ", " << msg.goal.goal_pose.pose.orientation.z << ", " << msg.goal.goal_pose.pose.orientation.w << ")");
     ROS_INFO("C");
-//    pose_publisher_.publish(msg);
+    pose_publisher_.publish(msg);
     ROS_INFO("D");
   }
   
