@@ -190,7 +190,7 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::test_callback(const geometry_msgs::Pose& msg) {
+void TurnInPlace::test_callback(const visualization_msgs::InteractiveMarkerUpdate& msg) {
   ROS_INFO("Got here");
 //  pos_x_ = msg.markers[0].pose.position.x;
 //  pos_y_ = msg.markers[0].pose.position.y;

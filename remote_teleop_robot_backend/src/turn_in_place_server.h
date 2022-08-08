@@ -72,7 +72,7 @@ private:
   void turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr& goal);
   void point_click_callback(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& goal);
   void odom_callback(const nav_msgs::Odometry& msg);
-  void test_callback(const geometry_msgs::Pose& msg);
+  void test_callback(const visualization_msgs::InteractiveMarkerUpdate& msg);
   void turn_in_place();
   void navigate();
 };
