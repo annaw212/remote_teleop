@@ -10,6 +10,7 @@
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <actionlib/server/simple_action_server.h>
+#include <visualization_msgs/InteractiveMarkerUpdate.h>
 
 #include <remote_teleop_robot_backend/TurnInPlaceAction.h>
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
@@ -73,7 +74,7 @@ void TurnInPlace::initializeSubscribers() {
   // Initialize the odometry subscriber
   odom_sub_ = nh_.subscribe("/odom", 1, &TurnInPlace::odom_callback, this);
   
-//  int_marker_sub_ = nh_.subscribe("/point_click_as/goal", 1, &TurnInPlace::point_click_callback, this);
+  nav_sub_ = nh_.subscribe("/remote_teleop_interactive_marker/update", 1, &TurnInPlace::test_callback, this);
 
 }
 
@@ -185,6 +186,14 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
   // Extract the euler angles from the matrix
   m.getRPY(roll_, pitch_, yaw_);
   
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void TurnInPlace::test_callback(const visualization_msgs::InteractiveMarkerUpdate& msg) {
+  ROS_INFO("Got here");
+  
+  return;
 }
 
 /*-----------------------------------------------------------------------------------*/

@@ -8,6 +8,7 @@
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <actionlib/server/simple_action_server.h>
+#include <visualization_msgs/InteractiveMarkerUpdate.h>
 
 #include <remote_teleop_robot_backend/TurnInPlaceAction.h>
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
@@ -42,6 +43,7 @@ private:
   
   // The ROS subscriber for receiving odometry value updates
   ros::Subscriber odom_sub_;
+  ros::Subscriber nav_sub_;
 
   // Internal variables
   float angle_;
@@ -70,6 +72,7 @@ private:
   void turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr& goal);
   void point_click_callback(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& goal);
   void odom_callback(const nav_msgs::Odometry& msg);
+  void test_callback(const visualization_msgs::InteractiveMarkerUpdate& msg);
   void turn_in_place();
   void navigate();
 };
