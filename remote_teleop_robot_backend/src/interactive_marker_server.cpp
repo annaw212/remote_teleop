@@ -90,7 +90,7 @@ void processFeedback(
   m.getRPY(roll, pitch, yaw);
   
   ros::NodeHandle nh_;
-  ros::Publisher pose_publisher_ = nh_.advertise<remote_teleop_robot_backend::PointClickNavActionGoal>("point_click_as/goal", 1);
+  ros::Publisher pose_publisher_ = nh_.advertise<remote_teleop_robot_backend::PointClickNavActionGoal>("point_click_as/goal", 5);
   
   // TODO: publish message to the topic here and subscribe to the topic in the nav 
   if( ros::ok() && pose_publisher_) {
