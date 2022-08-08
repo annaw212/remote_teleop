@@ -266,7 +266,7 @@ void TurnInPlace::navigate() {
   // If we are on the bottom half, we are calculating the angle to turn, but because
   // it is on the bottom half, we also have to add 90 degrees because the robot
   // always considers itself to be pointed "forward". I hope this makes sense tmrw
-  float theta1;
+  float theta1, theta2;
   theta1 = acos(pos_x_ / travel_dist);
   if(pos_y_ < 0.0) {
     theta1 += M_PI/2; // 90 degrees
@@ -274,6 +274,35 @@ void TurnInPlace::navigate() {
     theta1 = M_PI/2 - theta1;
   }
   // Calculate angle to turn by from goal to goal orientation
+  // Grab the odometry quaternion values out of the message
+  tf::Quaternion nav_q(
+    or_x_,
+    or_y_,
+    or_z_,
+    or_w_);
+  
+  tf::Matrix3x3 nav_mat(nav_q);
+  
+  tfScalar r, p, y;
+    
+  nav_mat.getRPY(r, p, y);
+  
+  if( y < 0.0) {
+    // TURN RIGHT
+    
+    // TODO: angle_ = yaw_ + y OR yaw_ - y or y - yaw_?
+  } else if( y > 0.0) {
+    // TURN LEFT
+    
+  }
+  
+  // Navigate the robot to the desired location
+  
+  // Turn the robot the correct direction
+  angle_ = theta1;
+  
+  
+  
   
 }
 
