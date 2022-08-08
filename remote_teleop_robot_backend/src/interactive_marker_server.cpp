@@ -26,17 +26,27 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
+ 
+ #include <stdlib.h>
 
 #include <ros/ros.h>
 #include <tf/tf.h>
-#include <tf/transform_broadcaster.h>
-#include <interactive_markers/interactive_marker_server.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Twist.h>
+#include <nav_msgs/Odometry.h>
+#include <actionlib/server/simple_action_server.h>
+
+#include <remote_teleop_robot_backend/TurnInPlaceAction.h>
+#include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
+#include <remote_teleop_robot_backend/TurnInPlaceResult.h>
+
 #include <remote_teleop_robot_backend/PointClickNavAction.h>
 #include <remote_teleop_robot_backend/PointClickNavGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
 #include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
+
+#include <tf/transform_broadcaster.h>
+#include <interactive_markers/interactive_marker_server.h>
+#include <geometry_msgs/PoseStamped.h>
 
 /*----------------------------------------------------------------------------------------------*/
 
@@ -69,11 +79,8 @@ visualization_msgs::InteractiveMarkerControl& makeBoxControl( visualization_msgs
 
 /*----------------------------------------------------------------------------------------------*/
 
-void processFeedback(
-    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback )
-{
-//  ROS_INFO_STREAM("POS: " << feedback->pose.position.x << "\t" << feedback->pose.position.y << "\t" << feedback->pose.position.z  << "\t|\tOR: " << feedback->pose.orientation.x << "\t" << feedback->pose.orientation.y << "\t" << feedback->pose.orientation.z << "\t" << feedback->pose.orientation.w);
-      
+void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback )
+{      
   // Grab the odometry quaternion values out of the message
   tf::Quaternion q(
     feedback->pose.orientation.x,
@@ -92,7 +99,7 @@ void processFeedback(
   ros::NodeHandle nh_;
   ros::Publisher pose_publisher_ = nh_.advertise<remote_teleop_robot_backend::PointClickNavActionGoal>("point_click_as/goal", 5);
   
-  // TODO: publish message to the topic here and subscribe to the topic in the nav 
+  // Publish message to the topic here and subscribe to the topic in the nav 
   if( ros::ok() && pose_publisher_) {
     remote_teleop_robot_backend::PointClickNavActionGoal msg;
     
