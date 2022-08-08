@@ -94,7 +94,6 @@ void processFeedback(
   
   // TODO: publish message to the topic here and subscribe to the topic in the nav 
   if( ros::ok() && pose_publisher_) {
-    ROS_INFO("Got here");
     remote_teleop_robot_backend::PointClickNavActionGoal msg;
     
     msg.header.stamp = ros::Time::now();
@@ -112,7 +111,7 @@ void processFeedback(
     msg.goal.goal_pose.pose.orientation.y = feedback->pose.orientation.y;
     msg.goal.goal_pose.pose.orientation.z = feedback->pose.orientation.z;
     msg.goal.goal_pose.pose.orientation.w = feedback->pose.orientation.w;
-    
+    ROS_INFO_STREAM("POS: (" << msg.goal.goal_pose.pose.position.x << ", " << msg.goal.goal_pose.pose.position.y << ", " << msg.goal.goal_pose.pose.position.z << ")\t|\t OR: (" << msg.goal.goal_pose.pose.orientation.x << ", " << msg.goal.goal_pose.pose.orientation.y << ", " << msg.goal.goal_pose.pose.orientation.z << ", " << msg.goal.goal_pose.pose.orientation.w << ")");
     pose_publisher_.publish(msg);
   }
   
