@@ -6,11 +6,4 @@
       A panel widget allowing the user to input turn-in-place commands.
     </description>
   </class>
-  <class name="remote_teleop_rviz_plugin/PointClickNavTool"
-         type="remote_teleop_rviz_plugin::PointClickNavTool"
-         base_class_type="rviz::Tool">
-    <description>
-      Tool for moving the robot short distances by clicking on the desired location.
-    </description>
-  </class>
 </library>
