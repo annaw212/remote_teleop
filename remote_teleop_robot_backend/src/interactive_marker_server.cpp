@@ -102,7 +102,7 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
   // Publish message to the topic here and subscribe to the topic in the nav 
   if( ros::ok() && pose_publisher_ ) {
     ROS_INFO("A");
-    visualization_msgs::InteractiveMarkerUpdate msg;
+    remote_teleop_robot_backend::PointClickNavActionGoal msg;
     ROS_INFO("B");
 //    msg.markers[0].header.stamp = ros::Time::now();
 //    msg.markers[0].header.frame_id = "base_link";
@@ -115,7 +115,7 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
 //    msg.markers[0].pose.orientation.y = feedback->pose.orientation.y;
 //    msg.markers[0].pose.orientation.z = feedback->pose.orientation.z;
 //    msg.markers[0].pose.orientation.w = feedback->pose.orientation.w;
-    float x = feedback->pose.position.x;
+    msg.goal.goal_pose.pose.position.x = feedback->pose.position.x;
     float y = feedback->pose.position.y;
     float z = feedback->pose.position.z;
     float a = feedback->pose.orientation.x;
