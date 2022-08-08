@@ -72,6 +72,8 @@ void TurnInPlace::initializeSubscribers() {
   
   // Initialize the odometry subscriber
   odom_sub_ = nh_.subscribe("/odom", 1, &TurnInPlace::odom_callback, this);
+  
+  int_marker_sub_ = nh_.subscribe("/point_click_as/goal", 1, &TurnInPlace::point_click_callback, this);
 
 }
 
@@ -255,6 +257,8 @@ void TurnInPlace::turn_in_place() {
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::navigate() {
+
+  ROS_INFO("NAVIGATE");
   // Calculate the a, b, c distance values between robot and goal
   float travel_dist;
   travel_dist = sqrt(pow(pos_x_, 2) + pow(pos_y_, 2));
