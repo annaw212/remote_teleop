@@ -192,15 +192,16 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 
 void TurnInPlace::test_callback(const visualization_msgs::InteractiveMarkerUpdate& msg) {
 //  ROS_INFO("Got here");
-  pos_x_ = msg.markers[0].pose.position.x;
-  pos_y_ = msg.markers[0].pose.position.y;
-  pos_z_ = msg.markers[0].pose.position.z;
-  or_x_ = msg.markers[0].pose.orientation.x;
-  or_y_ = msg.markers[0].pose.orientation.y;
-  or_z_ = msg.markers[0].pose.orientation.z;
-  or_w_ = msg.markers[0].pose.orientation.w;
-  
-  ROS_INFO_STREAM(pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
+//  pos_x_ = msg.markers[0].pose.position.x;
+//  pos_y_ = msg.markers[0].pose.position.y;
+//  pos_z_ = msg.markers[0].pose.position.z;
+//  or_x_ = msg.markers[0].pose.orientation.x;
+//  or_y_ = msg.markers[0].pose.orientation.y;
+//  or_z_ = msg.markers[0].pose.orientation.z;
+//  or_w_ = msg.markers[0].pose.orientation.w;
+ 
+  ROS_INFO_STREAM(msg);
+//  ROS_INFO_STREAM(pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
   
   return;
 }
