@@ -56,11 +56,17 @@ private:
   // Internal variables
   float angle_;
   bool turn_left_;
+  
   float lin_vel_;
   float ang_vel_;
+  
+  tfScalar x_;
+  tfScalar y_;
+  tfScalar z_;
   tfScalar roll_;
   tfScalar pitch_;
   tfScalar yaw_;
+  
   float pos_x_;
   float pos_y_;
   float pos_z_;
@@ -83,10 +89,9 @@ private:
   void processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
   void odom_callback(const nav_msgs::Odometry& msg);
   
-  
-  
   void turn_in_place();
-  void navigate();
+  void nav_planning();
+  void navigate(float angle, bool turn_left, float dist);
 };
 
 

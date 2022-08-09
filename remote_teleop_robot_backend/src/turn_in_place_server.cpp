@@ -53,6 +53,9 @@ TurnInPlace::TurnInPlace()
   turn_left_ = true;
   lin_vel_ = 0.0;
   ang_vel_ = 0.0;
+  x_ = 0.0;
+  y_ = 0.0;
+  z_ = 0.0;
   roll_ = 0.0;
   pitch_ = 0.0;
   yaw_ = 0.0;
@@ -272,6 +275,11 @@ void TurnInPlace::point_click_callback() {
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
+
+  // Grab the odometry position values out of the message
+  x_ = msg.pose.pose.position.x;
+  y_ = msg.pose.pose.position.y;
+  z_ = msg.pose.pose.position.z;
   
   // Grab the odometry quaternion values out of the message
   tf::Quaternion q(
@@ -287,24 +295,6 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
   m.getRPY(roll_, pitch_, yaw_);
   
 }
-
-/*-----------------------------------------------------------------------------------*/
-
-//void TurnInPlace::test_callback(const visualization_msgs::InteractiveMarkerUpdate& msg) {
-//  ROS_INFO("Got here");
-////  pos_x_ = msg.markers[0].pose.position.x;
-////  pos_y_ = msg.markers[0].pose.position.y;
-////  pos_z_ = msg.markers[0].pose.position.z;
-////  or_x_ = msg.markers[0].pose.orientation.x;
-////  or_y_ = msg.markers[0].pose.orientation.y;
-////  or_z_ = msg.markers[0].pose.orientation.z;
-////  or_w_ = msg.markers[0].pose.orientation.w;
-// 
-////  ROS_INFO_STREAM(msg);
-////  ROS_INFO_STREAM(pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
-//  
-//  return;
-//}
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -375,11 +365,15 @@ void TurnInPlace::turn_in_place() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::navigate() {
+void TurnInPlace::nav_planning() {
+
+// TODO: ideally this function is called after the user has confirmed the coordinates that they want
+// so it would be called when called by the rviz plugin
 
   ROS_INFO("NAVIGATE");
   // Calculate the a, b, c distance values between robot and goal
   float travel_dist;
+  bool turn_left1, turn_left2;
   travel_dist = sqrt(pow(pos_x_, 2) + pow(pos_y_, 2));
   // Calculate angle to turn by to be facing goal location head on
   // if pos_x_ is negative, turn left, otherwise turn right
@@ -392,43 +386,129 @@ void TurnInPlace::navigate() {
   // If we are on the bottom half, we are calculating the angle to turn, but because
   // it is on the bottom half, we also have to add 90 degrees because the robot
   // always considers itself to be pointed "forward". I hope this makes sense tmrw
-  float theta1, theta2;
-  theta1 = acos(pos_x_ / travel_dist);
-  if(pos_y_ < 0.0) {
-    theta1 += M_PI/2; // 90 degrees
-  } else {
-    theta1 = M_PI/2 - theta1;
+  float theta1;
+  tfScalar r, t, theta2;
+  
+  if (pos_x_ > 0.0) {
+    // Turning right
+    
+    turn_left1 = false;
+    
+    if (pos_y_ > 0.0) {
+      theta1 = acos(pos_y_ / travel_dist);
+    } else if (pos_y_ < 0.0) {
+      theta1 = M_PI/2 + acos(pos_x_ / travel_dist);
+    } else if (pos_y_ == 0.0) {
+      theta1 = M_PI/2;
+    }
+    
+  } else if (pos_x_ < 0.0) {
+    // Turning left
+    
+    turn_left1 = true;
+    
+    if (pos_y_ > 0.0) {
+      theta1 = acos(pos_y_ / travel_dist);
+    } else if (pos_y_ < 0.0) {
+      theta1 = M_PI/2 + acos(pos_x_ / travel_dist);
+    } else if (pos_y_ == 0.0) {
+      theta1 = -M_PI/2;
+    }
+    
+  } else if (pos_x_ == 0.0) {
+    // Turning around
+    
+    turn_left1 = true;
+    
+    if (pos_y_ != 0.0) {
+      theta1 = M_PI;
+    } else {
+      theta1 = 0.0;
+    }
   }
+  
   // Calculate angle to turn by from goal to goal orientation
   // Grab the odometry quaternion values out of the message
-  tf::Quaternion nav_q(
+  tf::Quaternion q(
     or_x_,
     or_y_,
     or_z_,
     or_w_);
   
-  tf::Matrix3x3 nav_mat(nav_q);
-  
-  tfScalar r, p, y;
+  tf::Matrix3x3 m(q);
     
-  nav_mat.getRPY(r, p, y);
+  m.getRPY(r, t, theta2);
   
-  if( y < 0.0) {
+  if( theta2 < 0.0) {
     // TURN RIGHT
     
+    turn_left2 = false;
+    
+    theta2 = theta2 + yaw_;
+    
     // TODO: angle_ = yaw_ + y OR yaw_ - y or y - yaw_?
-  } else if( y > 0.0) {
+  } else if( theta2 > 0.0) {
     // TURN LEFT
     
+    turn_left2 = true;
+    
+    theta2 = theta2 - yaw_;
+    
+  }
+
+  // 1) Turn to face goal location
+  navigate(theta1, turn_left1, 0.0);
+  // 2) Drive to goal location
+  navigate(0.0, true, travel_dist);
+  // 3) Turn robot to goal orientation
+  navigate(theta2, turn_left2, 0.0);
+  
+  // TODO: assuming this is being called by an action server, we need to set the success
+  // message values
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void TurnInPlace::navigate(float angle, bool turn_left, float dist) {
+
+  float goal_dist;
+  
+  // Create message to be sent
+  geometry_msgs::Twist command;
+  
+  // Set the fields
+  command.linear.x = 0.0;
+  command.linear.y = 0.0;
+  command.linear.z = 0.0;
+  command.angular.x = 0.0;
+  command.angular.y = 0.0;
+  command.angular.z = 0.0;
+  
+  if (angle == 0.0 && dist == 0.0) {
+    // Do nothing
+    return;
   }
   
-  // Navigate the robot to the desired location
+  if (angle == 0.0) {
+    goal_dist = x_ + dist;
+    // Drive straight
+    while (abs(goal_dist - x_) > THRESHOLD) {
+      // Set the linear velocity
+      command.linear.x = lin_vel_ * (goal_dist - x_);
+      // Publish the command
+      point_click_nav_publisher_.publish(command);
+    }
+    // Stop the robot from moving
+    command.linear.x = lin_vel_ * (goal_dist - x_);
+    point_click_nav_publisher_.publish(command);
+  }
   
-  // Turn the robot the correct direction
-  angle_ = theta1;
-  
-  
-  
+  if (dist == 0.0) {
+    // Turn in place
+    angle_ = angle;
+    turn_left_ = turn_left;
+    turn_in_place();
+  }
   
 }
 
