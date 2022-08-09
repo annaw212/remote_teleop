@@ -141,13 +141,6 @@ visualization_msgs::InteractiveMarkerControl& TurnInPlace::makeMarkerControl(vis
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::initializeMarkers() {
-  
-  ROS_INFO("Creating interactive marker");
-  
-  // Create an interactive marker server on the topic namespace simple_marker
-//  interactive_markers::InteractiveMarkerServer server("remote_teleop_interactive_marker");
-  
-  ROS_INFO("Initialized marker server");
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
@@ -189,8 +182,6 @@ void TurnInPlace::initializeMarkers() {
   // tell the server to call processFeedback() when feedback arrives for it
   marker_server_.insert(int_marker, boost::bind(&TurnInPlace::processFeedback, this, _1));
 //  marker_server_.setCallback(int_marker.name, boost::bind(&TurnInPlace::processFeedback, this, _1));
-  
-  ROS_INFO("Server inserted marker");
 
   // 'commit' changes and send to all clients
   marker_server_.applyChanges();
@@ -235,7 +226,6 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
 
 void TurnInPlace::processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback ) {
   
-  ROS_INFO("Process Feedback");
   pos_x_ = feedback->pose.position.x;
   pos_y_ = feedback->pose.position.y;
   pos_z_ = feedback->pose.position.z;
