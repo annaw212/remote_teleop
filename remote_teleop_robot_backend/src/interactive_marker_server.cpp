@@ -27,7 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
  
- #include <stdlib.h>
+
+#include <stdlib.h>
 
 #include <ros/ros.h>
 #include <tf/tf.h>
@@ -88,7 +89,7 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
     feedback->pose.orientation.z,
     feedback->pose.orientation.w);
   
-  // Turn the quaternion values into a matrix
+  // Turn the quaternion values into a matrix TODO: don't know why I did that
   tf::Matrix3x3 m(q);
   
   tfScalar roll, pitch, yaw;

@@ -7,10 +7,14 @@
 #include <cmath>
 #include <iostream>
 #include <tf/tf.h>
+#include <tf/transform_broadcaster.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <actionlib/server/simple_action_server.h>
+#include <visualization_msgs/Marker.h>
 #include <visualization_msgs/InteractiveMarkerUpdate.h>
+#include <visualization_msgs/InteractiveMarkerControl.h>
+#include <interactive_markers/interactive_marker_server.h>
 
 #include <remote_teleop_robot_backend/TurnInPlaceAction.h>
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
@@ -33,9 +37,7 @@
 
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
 TurnInPlace::TurnInPlace()
-  : turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false)
-  , point_click_server_(nh_, "/point_click_as", boost::bind(&TurnInPlace::point_click_callback, this, _1), false)
-{
+  : turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false) {
 
   ROS_INFO("In class constructor of TurnInPlace");
   
@@ -43,6 +45,7 @@ TurnInPlace::TurnInPlace()
   initializeSubscribers();
   initializePublishers();
   initializeActions();
+  initializeMarkers();
   
   // Initialize the internal variables
   angle_ = 0.0;
@@ -74,7 +77,7 @@ void TurnInPlace::initializeSubscribers() {
   // Initialize the odometry subscriber
   odom_sub_ = nh_.subscribe("/odom", 1, &TurnInPlace::odom_callback, this);
   
-  nav_sub_ = nh_.subscribe("/geometry_msgs/Pose", 1, &TurnInPlace::test_callback, this);
+//  nav_sub_ = nh_.subscribe("/geometry_msgs/Pose", 1, &TurnInPlace::test_callback, this);
 
 }
 
@@ -101,8 +104,92 @@ void TurnInPlace::initializeActions() {
   turn_in_place_server_.start();
   
   // Start the point click action server
-  point_click_server_.start();
+//  point_click_server_.start();
   
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void TurnInPlace::initializeMarkers() {
+  
+  ROS_INFO("Creating interactive marker");
+  
+  // Create an interactive marker server on the topic namespace simple_marker
+  interactive_markers::InteractiveMarkerServer server("remote_teleop_interactive_marker");
+
+  // Create an interactive marker for our server
+  visualization_msgs::InteractiveMarker int_marker;
+  int_marker.header.frame_id = "base_link";
+  int_marker.header.stamp=ros::Time::now();
+  int_marker.name = "simple_6dof";
+  int_marker.description = "Simple 6-DOF Control";
+
+  // Create the box marker and the non-interactive control which contains the box
+  makeMarkerControl( int_marker );
+  
+  visualization_msgs::InteractiveMarkerControl control;
+  
+  control.orientation.w = 1;
+  control.orientation.x = 1;
+  control.orientation.y = 0;
+  control.orientation.z = 0;
+  control.name = "move_x";
+  control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
+  int_marker.controls.push_back(control);
+
+  control.orientation.w = 1;
+  control.orientation.x = 0;
+  control.orientation.y = 0;
+  control.orientation.z = 1;
+  control.name = "move_y";
+  control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
+  int_marker.controls.push_back(control);
+  
+  control.orientation.w = 1;
+  control.orientation.x = 0;
+  control.orientation.y = 1;
+  control.orientation.z = 0;
+  control.name = "rotate_z";
+  control.interaction_mode = visualization_msgs::InteractiveMarkerControl::ROTATE_AXIS;
+  int_marker.controls.push_back(control);
+
+  // Add the interactive marker to our collection &
+  // tell the server to call processFeedback() when feedback arrives for it
+  server.insert(int_marker, boost::bind(&TurnInPlace::processFeedback, this, _1));
+
+  // 'commit' changes and send to all clients
+  server.applyChanges();
+  
+  return;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+visualization_msgs::Marker TurnInPlace::makeMarker() {
+  
+  visualization_msgs::Marker marker;
+  marker.type = visualization_msgs::Marker::ARROW;
+  marker.scale.x = 1.0;
+  marker.scale.y = 0.45;
+  marker.scale.z = 0.45;
+  marker.color.r = 1.0;
+  marker.color.g = 0.5;
+  marker.color.b = 0.5;
+  marker.color.a = 1.0;
+  
+  return marker;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+visualization_msgs::InteractiveMarkerControl& TurnInPlace::makeMarkerControl(visualization_msgs::InteractiveMarker& msg) {
+
+  visualization_msgs::InteractiveMarkerControl control;
+  control.always_visible = true;
+  control.markers.push_back( makeMarker() );
+  msg.controls.push_back( control );
+  
+  return msg.controls.back();
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -140,33 +227,49 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& goal) {
+void TurnInPlace::processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback ) {
+  
+  ROS_INFO("Process Feedback");
+  pos_x_ = feedback->pose.position.x;
+  pos_y_ = feedback->pose.position.y;
+  pos_z_ = feedback->pose.position.z;
+  
+  or_x_ = feedback->pose.orientation.x;
+  or_y_ = feedback->pose.orientation.y;
+  or_z_ = feedback->pose.orientation.z;
+  or_w_ = feedback->pose.orientation.w;
+  
+  // TODO: trigger navigation from these values
+}
+/*-----------------------------------------------------------------------------------*/
+
+void TurnInPlace::point_click_callback() {
 
   ROS_INFO("Point click callback function reached.");
-  
-  // Set a variable to "claim" the drivers
-  point_and_click_running_ = true;
-  
-  // TODO: check if turn in place is running
-  
-  // Get the values from the goal
-  pos_x_ = goal->goal_pose.position.x;
-  pos_y_ = goal->goal_pose.position.y;
-  pos_z_ = goal->goal_pose.position.z;
-  or_x_ = goal->goal_pose.orientation.x;
-  or_y_ = goal->goal_pose.orientation.y;
-  or_z_ = goal->goal_pose.orientation.z;
-  or_w_ = goal->goal_pose.orientation.w;
-  
-  ROS_INFO_STREAM("CB: " << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
-  
-  // Robot's self is always at 
-  
-  // Update the turn in place result and success fields
-  point_click_result_.success = true;
-  point_click_server_.setSucceeded(point_click_result_);
-  
-  point_and_click_running_ = false;
+//  
+////  // Set a variable to "claim" the drivers
+////  point_and_click_running_ = true;
+////  
+////  // TODO: check if turn in place is running
+////  
+////  // Get the values from the goal
+////  pos_x_ = goal->goal_pose.position.x;
+////  pos_y_ = goal->goal_pose.position.y;
+////  pos_z_ = goal->goal_pose.position.z;
+////  or_x_ = goal->goal_pose.orientation.x;
+////  or_y_ = goal->goal_pose.orientation.y;
+////  or_z_ = goal->goal_pose.orientation.z;
+////  or_w_ = goal->goal_pose.orientation.w;
+////  
+////  ROS_INFO_STREAM("CB: " << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
+//  
+//  // Robot's self is always at 
+//  
+//  // Update the turn in place result and success fields
+//  point_click_result_.success = true;
+//  point_click_server_.setSucceeded(point_click_result_);
+//  
+//  point_and_click_running_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -190,21 +293,21 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::test_callback(const visualization_msgs::InteractiveMarkerUpdate& msg) {
-  ROS_INFO("Got here");
-//  pos_x_ = msg.markers[0].pose.position.x;
-//  pos_y_ = msg.markers[0].pose.position.y;
-//  pos_z_ = msg.markers[0].pose.position.z;
-//  or_x_ = msg.markers[0].pose.orientation.x;
-//  or_y_ = msg.markers[0].pose.orientation.y;
-//  or_z_ = msg.markers[0].pose.orientation.z;
-//  or_w_ = msg.markers[0].pose.orientation.w;
- 
-//  ROS_INFO_STREAM(msg);
-//  ROS_INFO_STREAM(pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
-  
-  return;
-}
+//void TurnInPlace::test_callback(const visualization_msgs::InteractiveMarkerUpdate& msg) {
+//  ROS_INFO("Got here");
+////  pos_x_ = msg.markers[0].pose.position.x;
+////  pos_y_ = msg.markers[0].pose.position.y;
+////  pos_z_ = msg.markers[0].pose.position.z;
+////  or_x_ = msg.markers[0].pose.orientation.x;
+////  or_y_ = msg.markers[0].pose.orientation.y;
+////  or_z_ = msg.markers[0].pose.orientation.z;
+////  or_w_ = msg.markers[0].pose.orientation.w;
+// 
+////  ROS_INFO_STREAM(msg);
+////  ROS_INFO_STREAM(pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
+//  
+//  return;
+//}
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -343,7 +446,6 @@ int main(int argc, char** argv) {
   TurnInPlace remote_teleop_class;
   
   ROS_INFO("Main: going into spin");
-  
   
   ros::spin();
   

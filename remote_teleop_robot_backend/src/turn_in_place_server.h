@@ -5,10 +5,14 @@
 
 #include <ros/ros.h>
 #include <tf/tf.h>
+#include <tf/transform_broadcaster.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <actionlib/server/simple_action_server.h>
+#include <visualization_msgs/Marker.h>
 #include <visualization_msgs/InteractiveMarkerUpdate.h>
+#include <visualization_msgs/InteractiveMarkerControl.h>
+#include <interactive_markers/interactive_marker_server.h>
 
 #include <remote_teleop_robot_backend/TurnInPlaceAction.h>
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
@@ -31,7 +35,7 @@ private:
   
   // ROS action servers
   actionlib::SimpleActionServer<remote_teleop_robot_backend::TurnInPlaceAction> turn_in_place_server_;
-  actionlib::SimpleActionServer<remote_teleop_robot_backend::PointClickNavAction> point_click_server_;
+//  actionlib::SimpleActionServer<remote_teleop_robot_backend::PointClickNavAction> point_click_server_;
 
   // ROS publishers
   ros::Publisher turn_in_place_publisher_;
@@ -68,11 +72,16 @@ private:
   void initializeSubscribers();
   void initializePublishers();
   void initializeActions();
+  void initializeMarkers();
 
   void turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr& goal);
-  void point_click_callback(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& goal);
+  void point_click_callback();
+  void processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
   void odom_callback(const nav_msgs::Odometry& msg);
-  void test_callback(const visualization_msgs::InteractiveMarkerUpdate& msg);
+  
+  visualization_msgs::Marker makeMarker();
+  visualization_msgs::InteractiveMarkerControl& makeMarkerControl(visualization_msgs::InteractiveMarker& msg);
+  
   void turn_in_place();
   void navigate();
 };
