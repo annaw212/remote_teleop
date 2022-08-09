@@ -109,7 +109,7 @@ void TurnInPlace::initializeActions() {
   turn_in_place_server_.start();
   
   // Start the point click action server
-//  point_click_server_.start();
+  point_click_server_.start();
   
 }
 
