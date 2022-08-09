@@ -239,7 +239,7 @@ void TurnInPlace::processFeedback( const visualization_msgs::InteractiveMarkerFe
   or_z_ = feedback->pose.orientation.z;
   or_w_ = feedback->pose.orientation.w;
   
-  ROS_INFO_STREAM("CB: " << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
+//  ROS_INFO_STREAM("CB: " << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
   // TODO: trigger navigation from these values
 }
 /*-----------------------------------------------------------------------------------*/
@@ -447,7 +447,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     theta2 = theta2 - yaw_;
   }
   
-  ROS_INFO("%f", theta1);
+  ROS_INFO("%f", theta1 * 180 / M_PI);
   
   // NAVIGATE
 
