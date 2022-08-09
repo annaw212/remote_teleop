@@ -38,7 +38,7 @@
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
 TurnInPlace::TurnInPlace()
   : turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false)
-  , marker_server_("rt_interactive_marker") {
+  , marker_server_("interactive_marker_server") {
 
   ROS_INFO("In class constructor of TurnInPlace");
   
