@@ -38,7 +38,8 @@
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
 TurnInPlace::TurnInPlace()
   : turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false)
-  , marker_server_("interactive_marker_server") {
+  , point_click_server_(nh_, "/point_click_as", boost::bind(&TurnInPlace::nav_planning, this, _1), false)
+  ,marker_server_("interactive_marker_server") {
 
   ROS_INFO("In class constructor of TurnInPlace");
   
@@ -365,7 +366,7 @@ void TurnInPlace::turn_in_place() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::nav_planning() {
+void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {
 
 // TODO: ideally this function is called after the user has confirmed the coordinates that they want
 // so it would be called when called by the rviz plugin
@@ -446,14 +447,16 @@ void TurnInPlace::nav_planning() {
     theta2 = theta2 - yaw_;
   }
   
+  ROS_INFO("%f", theta1);
+  
   // NAVIGATE
 
   // 1) Turn to face goal location
-  navigate(theta1, turn_left1, 0.0);
-  // 2) Drive to goal location
-  navigate(0.0, true, travel_dist);
-  // 3) Turn robot to goal orientation
-  navigate(theta2, turn_left2, 0.0);
+//  navigate(theta1, turn_left1, 0.0);
+//  // 2) Drive to goal location
+//  navigate(0.0, true, travel_dist);
+//  // 3) Turn robot to goal orientation
+//  navigate(theta2, turn_left2, 0.0);
   
   // TODO: assuming this is being called by an action server, we need to set the success
   // message values

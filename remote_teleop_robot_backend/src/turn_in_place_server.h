@@ -38,7 +38,7 @@ private:
   
   // ROS action servers
   actionlib::SimpleActionServer<remote_teleop_robot_backend::TurnInPlaceAction> turn_in_place_server_;
-//  actionlib::SimpleActionServer<remote_teleop_robot_backend::PointClickNavAction> point_click_server_;
+  actionlib::SimpleActionServer<remote_teleop_robot_backend::PointClickNavAction> point_click_server_;
   interactive_markers::InteractiveMarkerServer marker_server_;
 
   // ROS publishers
@@ -90,7 +90,7 @@ private:
   void odom_callback(const nav_msgs::Odometry& msg);
   
   void turn_in_place();
-  void nav_planning();
+  void nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg);
   void navigate(float angle, bool turn_left, float dist);
 };
 
