@@ -17,6 +17,6 @@
     <param name="source_z" type="double" value="0.0" />
   </node>
   
-  <node pkg="remote_teleop_robot_backend" type="turn_in_place_server" name="turn_in_place" output="screen" />
+  <node pkg="remote_teleop_robot_backend" type="remote_teleop_server" name="remote_teleop" output="screen" />
 
 </launch>
