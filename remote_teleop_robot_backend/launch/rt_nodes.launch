@@ -17,15 +17,6 @@
     <param name="source_z" type="double" value="0.0" />
   </node>
   
-  <node pkg="dynamic_reconfigure" type="dynparam" name="downward_image_full_rotate" args="set_from_parameters image_rotater_downward_color">
-    <param name="target_x" type="double" value="10.0" />
-    <param name="target_y" type="double" value="2.0" />
-    <param name="target_z" type="double" value="1.0" />
-    <param name="source_x" type="double" value="0.0" />
-    <param name="source_y" type="double" value="-1.0" />
-    <param name="source_z" type="double" value="0.0" />
-  </node>
-  
   <node pkg="remote_teleop_robot_backend" type="remote_teleop_server" name="remote_teleop" output="screen" />
 
 </launch>
