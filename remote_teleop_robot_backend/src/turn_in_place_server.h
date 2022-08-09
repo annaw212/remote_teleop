@@ -27,6 +27,9 @@ class TurnInPlace {
 public:
 
   TurnInPlace();
+  
+  visualization_msgs::Marker makeMarker();
+  visualization_msgs::InteractiveMarkerControl& makeMarkerControl(visualization_msgs::InteractiveMarker& msg);
 
 private:
 
@@ -47,7 +50,7 @@ private:
   
   // The ROS subscriber for receiving odometry value updates
   ros::Subscriber odom_sub_;
-  ros::Subscriber nav_sub_;
+//  ros::Subscriber nav_sub_;
 
   // Internal variables
   float angle_;
@@ -79,8 +82,7 @@ private:
   void processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
   void odom_callback(const nav_msgs::Odometry& msg);
   
-  visualization_msgs::Marker makeMarker();
-  visualization_msgs::InteractiveMarkerControl& makeMarkerControl(visualization_msgs::InteractiveMarker& msg);
+  
   
   void turn_in_place();
   void navigate();

@@ -42,10 +42,11 @@ TurnInPlace::TurnInPlace()
   ROS_INFO("In class constructor of TurnInPlace");
   
   // Initialize the messy stuff
+  initializeMarkers();
   initializeSubscribers();
   initializePublishers();
   initializeActions();
-  initializeMarkers();
+  
   
   // Initialize the internal variables
   angle_ = 0.0;
@@ -116,6 +117,8 @@ void TurnInPlace::initializeMarkers() {
   
   // Create an interactive marker server on the topic namespace simple_marker
   interactive_markers::InteractiveMarkerServer server("remote_teleop_interactive_marker");
+  
+  ROS_INFO("Initialized marker server");
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
@@ -155,7 +158,10 @@ void TurnInPlace::initializeMarkers() {
 
   // Add the interactive marker to our collection &
   // tell the server to call processFeedback() when feedback arrives for it
-  server.insert(int_marker, boost::bind(&TurnInPlace::processFeedback, this, _1));
+//  server.insert(int_marker, boost::bind(&TurnInPlace::processFeedback, this, _1));
+  server.setCallback(int_marker.name, boost::bind(&TurnInPlace::processFeedback, this, _1));
+  
+  ROS_INFO("Server inserted marker");
 
   // 'commit' changes and send to all clients
   server.applyChanges();
@@ -239,6 +245,7 @@ void TurnInPlace::processFeedback( const visualization_msgs::InteractiveMarkerFe
   or_z_ = feedback->pose.orientation.z;
   or_w_ = feedback->pose.orientation.w;
   
+  ROS_INFO_STREAM("CB: " << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
   // TODO: trigger navigation from these values
 }
 /*-----------------------------------------------------------------------------------*/
