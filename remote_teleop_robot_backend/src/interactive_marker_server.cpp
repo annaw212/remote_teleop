@@ -98,13 +98,14 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
   
   ros::NodeHandle nh_;
   ros::Publisher pose_publisher_ = nh_.advertise<visualization_msgs::InteractiveMarkerUpdate>("/point_click_as/goal", 5);
+  ros::Rate rate(1);
+  rate.sleep();
   
   // Publish message to the topic here and subscribe to the topic in the nav 
   if( ros::ok() && pose_publisher_ ) {
     visualization_msgs::InteractiveMarkerUpdate msg;
 //    msg.markers[0].header.stamp = ros::Time::now();
 //    msg.markers[0].header.frame_id = "base_link";
-//    ROS_INFO("B2");
     
     msg.markers[0].pose.position.x = feedback->pose.position.x;
     msg.markers[0].pose.position.y = feedback->pose.position.y;
