@@ -374,26 +374,19 @@ void TurnInPlace::nav_planning() {
   // Calculate the a, b, c distance values between robot and goal
   float travel_dist;
   bool turn_left1, turn_left2;
-  travel_dist = sqrt(pow(pos_x_, 2) + pow(pos_y_, 2));
-  // Calculate angle to turn by to be facing goal location head on
-  // if pos_x_ is negative, turn left, otherwise turn right
-  
-  // We first calculate the angle in the inner corner of the unit circle of the
-  // triangle created by pos_x_, pos_y_, and travel_dist (hypoteneuse).
-  // However, depending on whether we are on the top half or bottom half of the 
-  // unit circle, this will mean we are either calculating the angle by which to turn,
-  // OR the angle out of 90 degrees that we are not turning.
-  // If we are on the bottom half, we are calculating the angle to turn, but because
-  // it is on the bottom half, we also have to add 90 degrees because the robot
-  // always considers itself to be pointed "forward". I hope this makes sense tmrw
   float theta1;
   tfScalar r, t, theta2;
   
+  // Calculate the distance needed to travel
+  // TODO: depending on how rviz considers the robot to be located, might need to use robot's x_, y_, z_ coords to calculate this hypoteneuse
+  travel_dist = sqrt(pow(pos_x_, 2) + pow(pos_y_, 2));
+  
+  // Calculate the angle to turn in order to face the goal destination
   if (pos_x_ > 0.0) {
     // Turning right
-    
     turn_left1 = false;
     
+    // Set the angle
     if (pos_y_ > 0.0) {
       theta1 = acos(pos_y_ / travel_dist);
     } else if (pos_y_ < 0.0) {
@@ -404,9 +397,9 @@ void TurnInPlace::nav_planning() {
     
   } else if (pos_x_ < 0.0) {
     // Turning left
-    
     turn_left1 = true;
     
+    // Set the angle
     if (pos_y_ > 0.0) {
       theta1 = acos(pos_y_ / travel_dist);
     } else if (pos_y_ < 0.0) {
@@ -416,10 +409,10 @@ void TurnInPlace::nav_planning() {
     }
     
   } else if (pos_x_ == 0.0) {
-    // Turning around
-    
+    // Turning around, this variable can be set to anything
     turn_left1 = true;
     
+    // Set the angle
     if (pos_y_ != 0.0) {
       theta1 = M_PI;
     } else {
@@ -428,7 +421,6 @@ void TurnInPlace::nav_planning() {
   }
   
   // Calculate angle to turn by from goal to goal orientation
-  // Grab the odometry quaternion values out of the message
   tf::Quaternion q(
     or_x_,
     or_y_,
@@ -440,21 +432,21 @@ void TurnInPlace::nav_planning() {
   m.getRPY(r, t, theta2);
   
   if( theta2 < 0.0) {
-    // TURN RIGHT
-    
+    // Turning right
     turn_left2 = false;
     
+    // Set the angle
     theta2 = theta2 + yaw_;
-    
-    // TODO: angle_ = yaw_ + y OR yaw_ - y or y - yaw_?
+
   } else if( theta2 > 0.0) {
-    // TURN LEFT
-    
+    // Turning left    
     turn_left2 = true;
     
+    // Set the angle
     theta2 = theta2 - yaw_;
-    
   }
+  
+  // NAVIGATE
 
   // 1) Turn to face goal location
   navigate(theta1, turn_left1, 0.0);
