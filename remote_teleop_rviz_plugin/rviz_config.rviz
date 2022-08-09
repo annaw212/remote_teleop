@@ -6,7 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /InteractiveMarkers1
+        - /Image1
+        - /InteractiveMarkers1/Status1
       Splitter Ratio: 0.5
     Tree Height: 312
   - Class: rviz/Selection
@@ -125,7 +126,7 @@ Visualization Manager:
       Show Axes: false
       Show Descriptions: true
       Show Visual Aids: false
-      Update Topic: /remote_teleop_interactive_marker/update
+      Update Topic: /rt_interactive_marker/update
       Value: true
   Enabled: true
   Global Options:
@@ -155,7 +156,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 17.370386123657227
+      Distance: 12.659051895141602
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -171,9 +172,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9397968649864197
+      Pitch: 0.8297969698905945
       Target Frame: <Fixed Frame>
-      Yaw: 3.125399112701416
+      Yaw: 3.0853970050811768
     Saved: ~
 Window Geometry:
   Displays:

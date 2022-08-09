@@ -37,7 +37,8 @@
 
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
 TurnInPlace::TurnInPlace()
-  : turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false) {
+  : turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false)
+  , marker_server_("rt_interactive_marker") {
 
   ROS_INFO("In class constructor of TurnInPlace");
   
@@ -45,8 +46,7 @@ TurnInPlace::TurnInPlace()
   initializeMarkers();
   initializeSubscribers();
   initializePublishers();
-  initializeActions();
-  
+  initializeActions();  
   
   // Initialize the internal variables
   angle_ = 0.0;
@@ -111,12 +111,41 @@ void TurnInPlace::initializeActions() {
 
 /*-----------------------------------------------------------------------------------*/
 
+visualization_msgs::Marker TurnInPlace::makeMarker() {
+  
+  visualization_msgs::Marker marker;
+  marker.type = visualization_msgs::Marker::ARROW;
+  marker.scale.x = 1.0;
+  marker.scale.y = 0.45;
+  marker.scale.z = 0.45;
+  marker.color.r = 1.0;
+  marker.color.g = 0.5;
+  marker.color.b = 0.5;
+  marker.color.a = 1.0;
+  
+  return marker;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+visualization_msgs::InteractiveMarkerControl& TurnInPlace::makeMarkerControl(visualization_msgs::InteractiveMarker& msg) {
+
+  visualization_msgs::InteractiveMarkerControl control;
+  control.always_visible = true;
+  control.markers.push_back( makeMarker() );
+  msg.controls.push_back( control );
+  
+  return msg.controls.back();
+}
+
+/*-----------------------------------------------------------------------------------*/
+
 void TurnInPlace::initializeMarkers() {
   
   ROS_INFO("Creating interactive marker");
   
   // Create an interactive marker server on the topic namespace simple_marker
-  interactive_markers::InteractiveMarkerServer server("remote_teleop_interactive_marker");
+//  interactive_markers::InteractiveMarkerServer server("remote_teleop_interactive_marker");
   
   ROS_INFO("Initialized marker server");
 
@@ -158,44 +187,15 @@ void TurnInPlace::initializeMarkers() {
 
   // Add the interactive marker to our collection &
   // tell the server to call processFeedback() when feedback arrives for it
-//  server.insert(int_marker, boost::bind(&TurnInPlace::processFeedback, this, _1));
-  server.setCallback(int_marker.name, boost::bind(&TurnInPlace::processFeedback, this, _1));
+  marker_server_.insert(int_marker, boost::bind(&TurnInPlace::processFeedback, this, _1));
+//  marker_server_.setCallback(int_marker.name, boost::bind(&TurnInPlace::processFeedback, this, _1));
   
   ROS_INFO("Server inserted marker");
 
   // 'commit' changes and send to all clients
-  server.applyChanges();
+  marker_server_.applyChanges();
   
   return;
-}
-
-/*-----------------------------------------------------------------------------------*/
-
-visualization_msgs::Marker TurnInPlace::makeMarker() {
-  
-  visualization_msgs::Marker marker;
-  marker.type = visualization_msgs::Marker::ARROW;
-  marker.scale.x = 1.0;
-  marker.scale.y = 0.45;
-  marker.scale.z = 0.45;
-  marker.color.r = 1.0;
-  marker.color.g = 0.5;
-  marker.color.b = 0.5;
-  marker.color.a = 1.0;
-  
-  return marker;
-}
-
-/*-----------------------------------------------------------------------------------*/
-
-visualization_msgs::InteractiveMarkerControl& TurnInPlace::makeMarkerControl(visualization_msgs::InteractiveMarker& msg) {
-
-  visualization_msgs::InteractiveMarkerControl control;
-  control.always_visible = true;
-  control.markers.push_back( makeMarker() );
-  msg.controls.push_back( control );
-  
-  return msg.controls.back();
 }
 
 /*-----------------------------------------------------------------------------------*/

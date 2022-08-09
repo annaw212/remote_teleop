@@ -39,6 +39,7 @@ private:
   // ROS action servers
   actionlib::SimpleActionServer<remote_teleop_robot_backend::TurnInPlaceAction> turn_in_place_server_;
 //  actionlib::SimpleActionServer<remote_teleop_robot_backend::PointClickNavAction> point_click_server_;
+  interactive_markers::InteractiveMarkerServer marker_server_;
 
   // ROS publishers
   ros::Publisher turn_in_place_publisher_;
