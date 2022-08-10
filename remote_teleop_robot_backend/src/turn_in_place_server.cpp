@@ -368,7 +368,7 @@ void TurnInPlace::turn_in_place() {
 
 void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {
 
-  ROS_INFO_STREAM("(" << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << ")" << "(" << or_x_ << ", " << or_y_ << ", " << or_z_ << ", " << or_w_ << ")");
+  
   
   // Store values of position and orientation in local variables so they don't change during calculations
   float x = pos_x_;
@@ -378,6 +378,8 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   float b = or_y_;
   float c = or_z_;
   float d = or_w_;
+  
+  
   
   // TODO: might want to store the values of x, y, z, and orientation in local variables so they aren't being changed
   
@@ -466,6 +468,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   }
 //  // 3) Turn robot to goal orientation
 //  navigate(theta2, turn_left2, 0.0);
+  ROS_INFO_STREAM("(" << x << ", " << y << ", " << z << ")" << "\t(" << a << ", " << b << ", " << c << ", " << d << ")" << "\t(" << r << ", " << t << ", " << theta2 << ")");
   ROS_INFO_STREAM("t1 = " << theta1 << "\tl1 = " << turn_left1 << "\tt2 = " << theta2 << "\tl2 = " << turn_left2 << "\tDist = " << travel_dist);
   
   // Update the turn in place result and success fields
