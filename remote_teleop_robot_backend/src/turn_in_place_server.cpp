@@ -438,7 +438,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   ROS_INFO_STREAM(x << ", " << y << "\t" << x_ << ", " << y_ << "\t" << x_ + x << ", " << y_ + y);
   theta1 = atan2(y, x);
   ROS_INFO_STREAM(theta1);
-  theta1 = 0;
+//  theta1 = 0;
   travel_dist = 0;
   
   // NAVIGATE
