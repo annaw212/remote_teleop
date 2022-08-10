@@ -403,8 +403,8 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     if (x > 0.0) {
       theta1 = acos(x / travel_dist);
     } else if (x < 0.0) {
-      theta1 = M_PI/2 + acos(y / travel_dist);
-      ROS_INFO_STREAM(theta1 << "\t" << M_PI - theta1 << "\t" << acos(y/travel_dist));
+      theta1 = acos(y / travel_dist);
+//      ROS_INFO_STREAM(theta1 << "\t" << M_PI - theta1 << "\t" << acos(y/travel_dist));
     } else if (x == 0.0) {
       theta1 = M_PI/2;
     }
