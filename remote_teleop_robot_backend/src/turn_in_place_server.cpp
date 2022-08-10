@@ -485,7 +485,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
 
 void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_dist, float dist) {
 
-  float goal_x, goal_y;
+  float goal_x, goal_y, start_x, start_y;
   
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -508,13 +508,15 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
     ROS_INFO("DRIVE STRAIGHT");
     goal_x = x_ + x_dist;
     goal_y = y_ + y_dist;
+    start_x = x_;
+    start_y = y_;
     
     // Drive straight
-    while (sqrt(pow(x_ - goal_x, 2) + pow(y_ - goal_y, 2)) > THRESHOLD) {
+    while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) > THRESHOLD) {
       // Set the linear velocity
       command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)), lin_vel_ * abs((goal_y - y_)));
       
-      ROS_INFO_STREAM(sqrt(pow(x_ - goal_x, 2) + pow(y_ - goal_y, 2)));
+      ROS_INFO_STREAM(dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))));
       
       if (command.linear.x > lin_vel_) {
         command.linear.x = lin_vel_;
