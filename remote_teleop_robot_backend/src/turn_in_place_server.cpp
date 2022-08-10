@@ -375,10 +375,10 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
 
   ROS_INFO("NAVIGATE");
   // Calculate the a, b, c distance values between robot and goal
-  float travel_dist;
-  bool turn_left1, turn_left2;
-  float theta1;
-  tfScalar r, t, theta2;
+  float travel_dist = 0.0;
+  bool turn_left1 = true, turn_left2 = true;
+  float theta1 = 0.0;
+  tfScalar r, t, theta2 = 0.0;
   
   // Calculate the distance needed to travel
   // TODO: depending on how rviz considers the robot to be located, might need to use robot's x_, y_, z_ coords to calculate this hypoteneuse
