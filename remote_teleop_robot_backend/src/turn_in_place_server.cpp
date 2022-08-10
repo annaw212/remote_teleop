@@ -52,7 +52,7 @@ TurnInPlace::TurnInPlace()
   // Initialize the internal variables
   angle_ = 0.0;
   turn_left_ = true;
-  lin_vel_ = 0.5;
+  lin_vel_ = 0.1;
   ang_vel_ = 0.5;
   x_ = 0.0;
   y_ = 0.0;
@@ -212,9 +212,9 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   angle_ = angle_ * M_PI / 180;
   
   // TODO: update vel vars here, OR move this somewhere else
-  lin_vel_ = 0.5;
-  ang_vel_ = 0.5;
-  
+//  lin_vel_ = 0.5;
+//  ang_vel_ = 0.5;
+//  
   // Tell robot to turn the desired angle
   turn_in_place();
   
@@ -509,12 +509,12 @@ void TurnInPlace::navigate(float angle, bool turn_left, float dist) {
     goal_dist = x_ + dist;
     ROS_INFO_STREAM(dist);
     // Drive straight
-    while (abs(goal_dist - x_) > THRESHOLD) {
+    while (abs(x_ - goal_dist) > THRESHOLD) {
       ROS_INFO_STREAM(goal_dist - x_);
 //      goal_dist = x_;
       // Set the linear velocity
-//      command.linear.x = lin_vel_ * (goal_dist - x_);
-      command.linear.x = 0.1;
+      command.linear.x = lin_vel_ * (x_ - goal_dist);
+//      command.linear.x = 0.1;
       // Publish the command
       point_click_nav_publisher_.publish(command);
     }
