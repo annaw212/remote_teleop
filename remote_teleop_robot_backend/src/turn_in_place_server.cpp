@@ -368,6 +368,8 @@ void TurnInPlace::turn_in_place() {
 
 void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {
 
+  ROS_INFO_STREAM("(" << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << ")");
+
 // TODO: ideally this function is called after the user has confirmed the coordinates that they want
 // so it would be called when called by the rviz plugin
 
@@ -447,7 +449,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     theta2 = theta2 - yaw_;
   }
   
-  ROS_INFO("%f", theta1 * 180 / M_PI);
+  ROS_INFO_STREAM("Theta1 = " << theta1 * 180 / M_PI << "\tLeft1 = " << turn_left1 << "\tTheta2 = " << theta2 * 180 / M_PI << "\tLeft2 = " << turn_left2 << "\tDist = " << travel_dist);
   
   // NAVIGATE
 
