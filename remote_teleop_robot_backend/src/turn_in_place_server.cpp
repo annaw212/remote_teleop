@@ -323,6 +323,7 @@ void TurnInPlace::turn_in_place() {
     while(goal_yaw < -M_PI) {
       goal_yaw += 2*M_PI;
     }
+    ROS_INFO_STREAM(goal_yaw);
   } else {
     // TURNING LEFT
     goal_yaw = yaw_ + angle_;
@@ -330,6 +331,7 @@ void TurnInPlace::turn_in_place() {
     while(goal_yaw > M_PI) {
       goal_yaw -= 2*M_PI;
     }
+    ROS_INFO_STREAM(goal_yaw);
   }
   
   // Turn the robot until it reaches the desired angle
