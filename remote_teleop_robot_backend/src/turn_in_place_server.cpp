@@ -387,7 +387,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   // Calculate the a, b, c distance values between robot and goal
   float travel_dist = 0.0;
   bool turn_left1 = true, turn_left2 = true;
-  float theta1 = 0.0;
+  double theta1 = 0.0;
   tfScalar r, t, theta2 = 0.0;
   
   // Calculate the distance needed to travel
@@ -435,7 +435,9 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   }
   
   theta1 = abs(theta1);
-  
+  theta1 = atan2(y - y_, x - x_);
+  ROS_INFO_STREAM(theta1);
+  theta1 = 0;
   
   // NAVIGATE
 
