@@ -511,8 +511,9 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
     // Drive straight
     while (abs(goal_x - x_) > THRESHOLD || abs(goal_y - y_)) {
 //      ROS_INFO_STREAM(abs(goal_dist - x_));
-//      ROS_INFO_STREAM(x_dist << ", " << y_dist);
-//      ROS_INFO_STREAM(x_ << ", " << y_);
+      ROS_INFO("\n\n");
+      ROS_INFO_STREAM(x_dist << ", " << y_dist);
+      ROS_INFO_STREAM(x_ << ", " << y_);
       ROS_INFO_STREAM(goal_x - x_ << ", " << goal_y - y_);
 //      goal_x = x_;
 //      goal_y = y_;
