@@ -52,8 +52,8 @@ TurnInPlace::TurnInPlace()
   // Initialize the internal variables
   angle_ = 0.0;
   turn_left_ = true;
-  lin_vel_ = 0.0;
-  ang_vel_ = 0.0;
+  lin_vel_ = 0.5;
+  ang_vel_ = 0.5;
   x_ = 0.0;
   y_ = 0.0;
   z_ = 0.0;
@@ -438,9 +438,9 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   // NAVIGATE
 
   // 1) Turn to face goal location
-//  navigate(theta1, turn_left1, 0.0);
+  navigate(theta1, turn_left1, 0.0);
 //  // 2) Drive to goal location
-//  navigate(0.0, true, travel_dist);
+  navigate(0.0, true, travel_dist);
 
   // Calculate angle to turn by from goal to goal orientation
   tf::Quaternion q(
@@ -468,7 +468,9 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     theta2 = theta2 - yaw_;
   }
 //  // 3) Turn robot to goal orientation
-//  navigate(theta2, turn_left2, 0.0);
+  navigate(theta2, turn_left2, 0.0);
+  
+  
   ROS_INFO_STREAM("(" << x << ", " << y << ", " << z << ")" << "\t(" << a << ", " << b << ", " << c << ", " << d << ")" << "\t(" << r << ", " << t << ", " << theta2 << ")");
   ROS_INFO_STREAM("t1 = " << theta1 << "\tl1 = " << turn_left1 << "\tt2 = " << theta2 << "\tl2 = " << turn_left2 << "\tDist = " << travel_dist);
   
@@ -495,11 +497,13 @@ void TurnInPlace::navigate(float angle, bool turn_left, float dist) {
   command.angular.z = 0.0;
   
   if (angle == 0.0 && dist == 0.0) {
+    ROS_INFO("DO NOTHING");
     // Do nothing
     return;
   }
   
   if (angle == 0.0) {
+    ROS_INFO("DRIVE STRAIGHT");
     goal_dist = x_ + dist;
     // Drive straight
     while (abs(goal_dist - x_) > THRESHOLD) {
@@ -514,6 +518,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float dist) {
   }
   
   if (dist == 0.0) {
+    ROS_INFO("TURN IN PLACE");
     // Turn in place
     angle_ = angle;
     turn_left_ = turn_left;
