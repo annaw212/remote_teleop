@@ -4,11 +4,29 @@
   
   <node pkg="image_rotate" type="image_rotate" name="image_rotater" args="image:=/camera_upward/left/image_raw rotated/image:=camera_upward/left/image_raw/rotated" />
   
-  <node pkg="image_rotate" type="image_rotate" name="image_rotater_upward_color" args="image:=/camera_upward/color/image_raw rotated/image:=camera_upward/color/image_raw/rotated" />
+  <node pkg="image_rotate" type="image_rotate" name="image_rotater_upward_color" args="image:=/camera_upward/color/image_raw rotated/image:=camera_upward/color/image_raw/rotated _input_frame_id:=camera_upward_rgb_optical_frame _use_camera_info:=false" />
   
-  <node pkg="image_rotate" type="image_rotate" name="image_rotater_downward_color" args="image:=/camera_downward/color/image_raw rotated/image:=camera_downward/color/image_raw/rotated" />
+  <node pkg="image_rotate" type="image_rotate" name="image_rotater_downward_color" args="image:=/camera_downward/color/image_raw rotated/image:=camera_downward/color/image_raw/rotated _input_frame_id:=camera_downward_rgb_optical_frame _use_camera_info:=false" />
   
   <node pkg="dynamic_reconfigure" type="dynparam" name="image_full_rotate" args="set_from_parameters image_rotater">
+    <param name="target_x" type="double" value="10.0" />
+    <param name="target_y" type="double" value="2.0" />
+    <param name="target_z" type="double" value="1.0" />
+    <param name="source_x" type="double" value="0.0" />
+    <param name="source_y" type="double" value="-1.0" />
+    <param name="source_z" type="double" value="0.0" />
+  </node>
+  
+  <node pkg="dynamic_reconfigure" type="dynparam" name="downward_rotate" args="set_from_parameters image_rotater_downward_color">
+    <param name="target_x" type="double" value="10.0" />
+    <param name="target_y" type="double" value="2.0" />
+    <param name="target_z" type="double" value="1.0" />
+    <param name="source_x" type="double" value="0.0" />
+    <param name="source_y" type="double" value="-1.0" />
+    <param name="source_z" type="double" value="0.0" />
+  </node>
+  
+  <node pkg="dynamic_reconfigure" type="dynparam" name="upward_rotate" args="set_from_parameters image_rotater_upward_color">
     <param name="target_x" type="double" value="10.0" />
     <param name="target_y" type="double" value="2.0" />
     <param name="target_z" type="double" value="1.0" />
