@@ -449,7 +449,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     theta2 = theta2 - yaw_;
   }
   
-  ROS_INFO_STREAM("Theta1 = " << theta1 * 180 / M_PI << "\tLeft1 = " << turn_left1 << "\tTheta2 = " << theta2 * 180 / M_PI << "\tLeft2 = " << turn_left2 << "\tDist = " << travel_dist);
+  ROS_INFO_STREAM("Theta1 = " << theta1 << "\tLeft1 = " << turn_left1 << "\tTheta2 = " << theta2 << "\tLeft2 = " << turn_left2 << "\tDist = " << travel_dist);
   
   // NAVIGATE
 
