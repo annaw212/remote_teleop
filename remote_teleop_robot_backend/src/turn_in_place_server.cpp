@@ -442,6 +442,8 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   if (abs(theta1) <= ANGLE_THRESHOLD) {
     theta1 = 0;
+  } else if (abs(M_PI - theta1) <= ANGLE_THRESHOLD) {
+    theta1 = M_PI;
   }
 //  theta1 = 0;
   travel_dist = 0;
