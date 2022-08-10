@@ -212,7 +212,7 @@ void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::Turn
   angle_ = angle_ * M_PI / 180;
   
   // TODO: update vel vars here, OR move this somewhere else
-  lin_vel_ = 0.0;
+  lin_vel_ = 0.5;
   ang_vel_ = 0.5;
   
   // Tell robot to turn the desired angle
@@ -403,7 +403,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     if (x > 0.0) {
       theta1 = acos(x / travel_dist);
     } else if (x < 0.0) {
-      theta1 = M_PI/2 + acos(y / travel_dist);
+      theta1 = M_PI/2 - acos(y / travel_dist);
     } else if (x == 0.0) {
       theta1 = M_PI/2;
     }
