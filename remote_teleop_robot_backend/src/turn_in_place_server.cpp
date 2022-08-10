@@ -369,10 +369,18 @@ void TurnInPlace::turn_in_place() {
 void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {
 
   ROS_INFO_STREAM("(" << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << ")");
-
-// TODO: ideally this function is called after the user has confirmed the coordinates that they want
-// so it would be called when called by the rviz plugin
-
+  
+  // Store values of position and orientation in local variables so they don't change during calculations
+  float x = pos_x_;
+  float y = pos_y_;
+  float z = pos_z_;
+  float a = or_x_;
+  float b = or_y_;
+  float c = or_z_;
+  float d = or_w_;
+  
+  // TODO: might want to store the values of x, y, z, and orientation in local variables so they aren't being changed
+  
   ROS_INFO("NAVIGATE");
   // Calculate the a, b, c distance values between robot and goal
   float travel_dist = 0.0;
@@ -382,53 +390,61 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   // Calculate the distance needed to travel
   // TODO: depending on how rviz considers the robot to be located, might need to use robot's x_, y_, z_ coords to calculate this hypoteneuse
-  travel_dist = sqrt(pow(pos_x_, 2) + pow(pos_y_, 2));
+  travel_dist = sqrt(pow(x, 2) + pow(y, 2));
   
   // Calculate the angle to turn in order to face the goal destination
-  if (pos_x_ > 0.0) {
+  if (y < 0.0) {
     // Turning right
     turn_left1 = false;
     
     // Set the angle
-    if (pos_y_ > 0.0) {
-      theta1 = acos(pos_y_ / travel_dist);
-    } else if (pos_y_ < 0.0) {
-      theta1 = M_PI/2 + acos(pos_x_ / travel_dist);
-    } else if (pos_y_ == 0.0) {
+    if (x > 0.0) {
+      theta1 = acos(x / travel_dist);
+    } else if (x < 0.0) {
+      theta1 = M_PI/2 + acos(y / travel_dist);
+    } else if (x == 0.0) {
       theta1 = M_PI/2;
     }
     
-  } else if (pos_x_ < 0.0) {
+  } else if (y > 0.0) {
     // Turning left
     turn_left1 = true;
     
     // Set the angle
-    if (pos_y_ > 0.0) {
-      theta1 = acos(pos_y_ / travel_dist);
-    } else if (pos_y_ < 0.0) {
-      theta1 = M_PI/2 + acos(pos_x_ / travel_dist);
-    } else if (pos_y_ == 0.0) {
-      theta1 = -M_PI/2;
+    if (x > 0.0) {
+      theta1 = acos(x / travel_dist);
+    } else if (x < 0.0) {
+      theta1 = M_PI/2 + acos(y / travel_dist);
+    } else if (x == 0.0) {
+      theta1 = M_PI/2;
     }
     
-  } else if (pos_x_ == 0.0) {
+  } else if (y == 0.0) {
     // Turning around, this variable can be set to anything
     turn_left1 = true;
     
     // Set the angle
-    if (pos_y_ != 0.0) {
+    if (x < 0.0) {
       theta1 = M_PI;
     } else {
       theta1 = 0.0;
     }
-  }
+  } 
   
+  
+  // NAVIGATE
+
+  // 1) Turn to face goal location
+//  navigate(theta1, turn_left1, 0.0);
+//  // 2) Drive to goal location
+//  navigate(0.0, true, travel_dist);
+
   // Calculate angle to turn by from goal to goal orientation
   tf::Quaternion q(
-    or_x_,
-    or_y_,
-    or_z_,
-    or_w_);
+    a,
+    b,
+    c,
+    d);
   
   tf::Matrix3x3 m(q);
     
@@ -448,17 +464,9 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     // Set the angle
     theta2 = theta2 - yaw_;
   }
-  
-  ROS_INFO_STREAM("Theta1 = " << theta1 << "\tLeft1 = " << turn_left1 << "\tTheta2 = " << theta2 << "\tLeft2 = " << turn_left2 << "\tDist = " << travel_dist);
-  
-  // NAVIGATE
-
-  // 1) Turn to face goal location
-//  navigate(theta1, turn_left1, 0.0);
-//  // 2) Drive to goal location
-//  navigate(0.0, true, travel_dist);
 //  // 3) Turn robot to goal orientation
 //  navigate(theta2, turn_left2, 0.0);
+  ROS_INFO_STREAM("t1 = " << theta1 << "\tl1 = " << turn_left1 << "\tt2 = " << theta2 << "\tl2 = " << turn_left2 << "\tDist = " << travel_dist);
   
   // Update the turn in place result and success fields
   point_click_result_.success = true;
