@@ -368,7 +368,7 @@ void TurnInPlace::turn_in_place() {
 
 void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {
 
-  ROS_INFO_STREAM("(" << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << ")");
+  ROS_INFO_STREAM("(" << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << ")" << "(" << or_x_ << ", " << or_y_ << ", " << or_z_ << ", " << or_w_ << ")");
   
   // Store values of position and orientation in local variables so they don't change during calculations
   float x = pos_x_;
