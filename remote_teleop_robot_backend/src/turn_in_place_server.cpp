@@ -518,7 +518,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
       // Set the linear velocity
       command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)), lin_vel_ * abs((goal_y - y_)));
       
-      ROS_INFO_STREAM(dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))));
+//      ROS_INFO_STREAM(dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))));
       
       if (command.linear.x > lin_vel_) {
         command.linear.x = lin_vel_;
