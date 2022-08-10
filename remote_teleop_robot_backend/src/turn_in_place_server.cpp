@@ -440,9 +440,9 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   // NAVIGATE
 
   // 1) Turn to face goal location
-  navigate(theta1, turn_left1, 0.0);
+  navigate(theta1, turn_left1, 0.0, 0.0);
 //  // 2) Drive to goal location
-  navigate(0.0, true, travel_dist);
+  navigate(0.0, true, x, y);
 
   // Calculate angle to turn by from goal to goal orientation
   tf::Quaternion q(
@@ -470,7 +470,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     theta2 = theta2 - yaw_;
   }
 //  // 3) Turn robot to goal orientation
-  navigate(theta2, turn_left2, 0.0);
+  navigate(theta2, turn_left2, 0.0, 0.0);
   
   
   ROS_INFO_STREAM("(" << x << ", " << y << ", " << z << ")" << "\t(" << a << ", " << b << ", " << c << ", " << d << ")" << "\t(" << r << ", " << t << ", " << theta2 << ")");
@@ -483,9 +483,9 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::navigate(float angle, bool turn_left, float dist) {
+void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_dist) {
 
-  float goal_dist;
+  float goal_x, goal_y;
   
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -498,7 +498,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float dist) {
   command.angular.y = 0.0;
   command.angular.z = 0.0;
   
-  if (angle == 0.0 && dist == 0.0) {
+  if (angle == 0.0 && x_dist == 0.0 && y_dist == 0.0) {
     ROS_INFO("DO NOTHING");
     // Do nothing
     return;
@@ -506,31 +506,31 @@ void TurnInPlace::navigate(float angle, bool turn_left, float dist) {
   
   if (angle == 0.0) {
     ROS_INFO("DRIVE STRAIGHT");
-    goal_dist = x_ + dist;
-    ROS_INFO_STREAM(dist);
+    goal_x = x_ + x_dist;
+    goal_y = y_ + y_dist;
     // Drive straight
-    while (abs(goal_dist - x_) > THRESHOLD) {
-      ROS_INFO_STREAM(abs(goal_dist - x_));
-      ROS_INFO_STREAM(x_ << ", " << y_ << ", " << z_);
-      goal_dist = x_;
+    while (abs(goal_x - x_) > THRESHOLD && abs(goal_y - y_)) {
+//      ROS_INFO_STREAM(abs(goal_dist - x_));
+      ROS_INFO_STREAM(x_ << ", " << y_);
+      goal_x = x_;
+      goal_y = y_;
       // Set the linear velocity
-      command.linear.x = lin_vel_ * (goal_dist - x_);
+      command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)), lin_vel_ * abs((goal_y - y_)));
       
       if (command.linear.x > lin_vel_) {
         command.linear.x = lin_vel_;
       } else if (command.linear.x < MIN_VEL) {
         command.linear.x = MIN_VEL;
       }
-//      command.linear.x = 0.1;
       // Publish the command
       point_click_nav_publisher_.publish(command);
     }
     // Stop the robot from moving
-    command.linear.x = lin_vel_ * (goal_dist - x_);
+    command.linear.x = 0.0;
     point_click_nav_publisher_.publish(command);
   }
   
-  if (dist == 0.0) {
+  if (x_dist == 0.0 && y_dist == 0.0) {
     ROS_INFO("TURN IN PLACE");
     // Turn in place
     angle_ = angle;

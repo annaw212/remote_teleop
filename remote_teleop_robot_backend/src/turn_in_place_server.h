@@ -91,7 +91,7 @@ private:
   
   void turn_in_place();
   void nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg);
-  void navigate(float angle, bool turn_left, float dist);
+  void navigate(float angle, bool turn_left, float x_dist, float y_dist);
 };
 
 
