@@ -432,7 +432,9 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     } else {
       theta1 = 0.0;
     }
-  } 
+  }
+  
+  theta1 = abs(theta1);
   
   
   // NAVIGATE
@@ -505,10 +507,13 @@ void TurnInPlace::navigate(float angle, bool turn_left, float dist) {
   if (angle == 0.0) {
     ROS_INFO("DRIVE STRAIGHT");
     goal_dist = x_ + dist;
+    ROS_INFO_STREAM(dist);
     // Drive straight
     while (abs(goal_dist - x_) > THRESHOLD) {
+      ROS_INFO_STREAM(goal_dist - x_);
       // Set the linear velocity
-      command.linear.x = lin_vel_ * (goal_dist - x_);
+//      command.linear.x = lin_vel_ * (goal_dist - x_);
+      command.linear.x = 0;
       // Publish the command
       point_click_nav_publisher_.publish(command);
     }
