@@ -32,6 +32,7 @@
 // Define variables here
 #define THRESHOLD 0.03
 #define MIN_VEL 0.08
+#define ANGLE_THRESHOLD 0.035
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -394,50 +395,54 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   // TODO: depending on how rviz considers the robot to be located, might need to use robot's x_, y_, z_ coords to calculate this hypoteneuse
   travel_dist = sqrt(pow(x, 2) + pow(y, 2));
   
-  // Calculate the angle to turn in order to face the goal destination
-  if (y < 0.0) {
-    // Turning right
-    turn_left1 = false;
-    
-    // Set the angle
-    if (x > 0.0) {
-      theta1 = acos(x / travel_dist);
-    } else if (x < 0.0) {
-      theta1 = acos(y / travel_dist);
-//      ROS_INFO_STREAM(theta1 << "\t" << M_PI - theta1 << "\t" << acos(y/travel_dist));
-    } else if (x == 0.0) {
-      theta1 = M_PI/2;
-    }
-    
-  } else if (y > 0.0) {
-    // Turning left
-    turn_left1 = true;
-    
-    // Set the angle
-    if (x > 0.0) {
-      theta1 = acos(x / travel_dist);
-    } else if (x < 0.0) {
-      theta1 = M_PI/2 + acos(y / travel_dist);
-    } else if (x == 0.0) {
-      theta1 = M_PI/2;
-    }
-    
-  } else if (y == 0.0) {
-    // Turning around, this variable can be set to anything
-    turn_left1 = true;
-    
-    // Set the angle
-    if (x < 0.0) {
-      theta1 = M_PI;
-    } else {
-      theta1 = 0.0;
-    }
-  }
-  
-  theta1 = abs(theta1);
+//  // Calculate the angle to turn in order to face the goal destination
+//  if (y < 0.0) {
+//    // Turning right
+//    turn_left1 = false;
+//    
+//    // Set the angle
+//    if (x > 0.0) {
+//      theta1 = acos(x / travel_dist);
+//    } else if (x < 0.0) {
+//      theta1 = acos(y / travel_dist);
+////      ROS_INFO_STREAM(theta1 << "\t" << M_PI - theta1 << "\t" << acos(y/travel_dist));
+//    } else if (x == 0.0) {
+//      theta1 = M_PI/2;
+//    }
+//    
+//  } else if (y > 0.0) {
+//    // Turning left
+//    turn_left1 = true;
+//    
+//    // Set the angle
+//    if (x > 0.0) {
+//      theta1 = acos(x / travel_dist);
+//    } else if (x < 0.0) {
+//      theta1 = M_PI/2 + acos(y / travel_dist);
+//    } else if (x == 0.0) {
+//      theta1 = M_PI/2;
+//    }
+//    
+//  } else if (y == 0.0) {
+//    // Turning around, this variable can be set to anything
+//    turn_left1 = true;
+//    
+//    // Set the angle
+//    if (x < 0.0) {
+//      theta1 = M_PI;
+//    } else {
+//      theta1 = 0.0;
+//    }
+//  }
+//  
+//  theta1 = abs(theta1);
   ROS_INFO_STREAM(x << ", " << y << "\t" << x_ << ", " << y_ << "\t" << x_ + x << ", " << y_ + y);
   theta1 = atan2(y, x);
   ROS_INFO_STREAM(theta1);
+  
+  if (abs(theta1) <= ANGLE_THRESHOLD) {
+    theta1 = 0;
+  }
 //  theta1 = 0;
   travel_dist = 0;
   
