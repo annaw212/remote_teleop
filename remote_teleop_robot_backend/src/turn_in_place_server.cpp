@@ -509,8 +509,8 @@ void TurnInPlace::navigate(float angle, bool turn_left, float dist) {
     goal_dist = x_ + dist;
     ROS_INFO_STREAM(dist);
     // Drive straight
-    while (abs(x_ - goal_dist) > THRESHOLD) {
-      ROS_INFO_STREAM(x_ - goal_dist);
+    while (abs(goal_dist - x_) > THRESHOLD) {
+      ROS_INFO_STREAM(goal_dist - x_);
 //      goal_dist = x_;
       // Set the linear velocity
       command.linear.x = lin_vel_ * (goal_dist - x_);
