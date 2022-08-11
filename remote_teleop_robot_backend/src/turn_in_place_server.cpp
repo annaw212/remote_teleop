@@ -319,21 +319,22 @@ void TurnInPlace::turn_in_place() {
   if(turn_left_ == false) {
     // TURNING RIGHT
     goal_yaw = yaw_ - angle_;
-
     // Make sure the goal angle is within a valid range
     while(goal_yaw < -M_PI) {
       goal_yaw += 2*M_PI;
+    }
+    // Since 180 is always a left turn in navigate, need to make sure it's not out of bounds
+    while(goal_yaw > M_PI) {
+      goal_yaw -= 2*M_PI;
     }
     
   } else {
     // TURNING LEFT
     goal_yaw = yaw_ + angle_;
-    
     // Make sure the goal angle is within a valid range
     while(goal_yaw > M_PI) {
       goal_yaw -= 2*M_PI;
     }
-    
     // Since 180 is always a left turn in navigate, need to make sure it's not out of bounds
     while(goal_yaw < -M_PI) {
       goal_yaw += 2*M_PI;
