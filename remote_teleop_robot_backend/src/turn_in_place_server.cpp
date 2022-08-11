@@ -282,6 +282,10 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
   x_ = msg.pose.pose.position.x;
   y_ = msg.pose.pose.position.y;
   z_ = msg.pose.pose.position.z;
+  a_ = msg.pose.pose.orientation.x;
+  b_ = msg.pose.pose.orientation.y;
+  c_ = msg.pose.pose.orientation.z;
+  d_ = msg.pose.pose.orientation.w;
   
   // Grab the odometry quaternion values out of the message
   tf::Quaternion q(
@@ -389,6 +393,21 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   float c = or_z_;
   float d = or_w_;
   
+  tf::Quaternion quat(
+    a_,
+    b_,
+    c_,
+    d_
+  );
+  
+  tf::Matrix3x3 mat(quat);
+  
+  tfScalar j,k,l;
+  
+  
+  mat.getRPY(j,k,l);
+  
+  ROS_INFO_STREAM("Current Orientation: (" << j << ", " << k << ", " << l << ")");
   
   
   // TODO: might want to store the values of x, y, z, and orientation in local variables so they aren't being changed
@@ -425,6 +444,19 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   navigate(theta1, turn_left1, 0.0, 0.0, 0.0);
 //  // 2) Drive to goal location
   navigate(0.0, true, x, y, travel_dist);
+  
+  tf::Quaternion quat1(
+    a_,
+    b_,
+    c_,
+    d_);
+  
+  tf::Matrix3x3 mat1(quat1);
+  
+  
+  mat1.getRPY(j,k,l);
+  
+  ROS_INFO_STREAM("Post-Drive Orientation: (" << j << ", " << k << ", " << l << ")");
 
   // Calculate angle to turn by from goal to goal orientation
   tf::Quaternion q(
@@ -436,6 +468,8 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   tf::Matrix3x3 m(q);
     
   m.getRPY(r, t, theta2);
+  
+  ROS_INFO_STREAM("Goal Orientation: (" << r << ", " << t << ", " << theta2 << ")");
   
   if( theta2 < 0.0) {
     // Turning right

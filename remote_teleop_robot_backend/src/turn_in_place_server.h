@@ -63,6 +63,10 @@ private:
   tfScalar x_;
   tfScalar y_;
   tfScalar z_;
+  tfScalar a_;
+  tfScalar b_;
+  tfScalar c_;
+  tfScalar d_;
   tfScalar roll_;
   tfScalar pitch_;
   tfScalar yaw_;
