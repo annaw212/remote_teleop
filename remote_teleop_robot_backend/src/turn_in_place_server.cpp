@@ -412,6 +412,12 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     theta1 = M_PI;
   }
   
+  if (theta1 < 0.0) {
+    turn_left1 = false;
+  } else {
+    turn_left1 = true;
+  }
+  
   // NAVIGATE
 
   // 1) Turn to face goal location
