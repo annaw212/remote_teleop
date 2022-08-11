@@ -39,6 +39,7 @@
 #include <QString>
 
 #include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
+#include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
 
 #include "turn_in_place_panel.h"
 
@@ -85,8 +86,15 @@ TurnInPlacePanel::TurnInPlacePanel( QWidget* parent )
   turn_right_button_->setText(tr("Turn Right"));
   button_layout->addWidget( turn_right_button_ );
   
+  // Create a button for turning right and add to the horizontal box
+  QPushButton* confirm_coords_ = new QPushButton(this);
+  confirm_coords_->setText(tr("Confirm Coordinates"));
+
+  
   // Add the horizontal box to the vertical box layout
   topic_layout->addLayout( button_layout );
+  
+  topic_layout->addWidget( confirm_coords_ );
 
   // Set the layout
   setLayout( topic_layout );
@@ -98,6 +106,7 @@ TurnInPlacePanel::TurnInPlacePanel( QWidget* parent )
   // NOTE: both the inputs to the signal and slot functions need to be the same
   connect(turn_left_button_, SIGNAL(released()), this, SLOT(setTurnGoalLeft()));
   connect(turn_right_button_, SIGNAL(released()), this, SLOT(setTurnGoalRight()));
+  connect(confirm_coords_, SIGNAL(released()), this, SLOT(sendNavGoal()));
 }
 
 // setTurnGoalLeft() sets the degrees and direction variables and calls
@@ -159,6 +168,18 @@ void TurnInPlacePanel::sendTurnGoal()
   }
 }
 
+void TurnInPlacePanel::sendNavGoal() {
+  
+  if( ros::ok() && nav_goal_publisher_ ) {
+    
+    remote_teleop_robot_backend::PointClickNavActionGoal msg;
+    
+    msg.goal.coords_confimed = true;
+    
+    nav_goal_publisher_.publish( msg );
+  }
+}
+
 // Save all configuration data from this panel to the given
 // Config object.  It is important here that you call save()
 // on the parent class so the class id and panel name get saved.
@@ -173,6 +194,7 @@ void TurnInPlacePanel::load( const rviz::Config& config )
 {
   rviz::Panel::load( config );
   turn_goal_publisher_ = nh_.advertise<remote_teleop_robot_backend::TurnInPlaceActionGoal>( "turn_in_place_as/goal", 1 );
+  nav_goal_publisher_ = nh_.advertise<remote_teleop_robot_backend::PointClickNavActionGoal>( "point_click_as/goal", 1 );
   Q_EMIT configChanged();
 }
 

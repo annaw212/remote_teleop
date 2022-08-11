@@ -74,6 +74,8 @@ protected Q_SLOTS:
   // creates a message of the desired type, assigns the fields of
   // that message to values, and then publishes the message
   void sendTurnGoal();
+  
+  void sendNavGoal();
 
 
 protected:
@@ -84,6 +86,7 @@ protected:
 
   // The ROS publisher for the degrees and direction to turn in
   ros::Publisher turn_goal_publisher_;
+  ros::Publisher nav_goal_publisher_;
 
   // The ROS node handle.
   ros::NodeHandle nh_;
