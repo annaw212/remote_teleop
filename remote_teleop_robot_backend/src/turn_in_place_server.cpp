@@ -447,10 +447,10 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
 //  // 3) Turn robot to goal orientation
   navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
   
-  
-  ROS_INFO_STREAM("(" << x << ", " << y << ", " << z << ")" << "\t(" << a << ", " << b << ", " << c << ", " << d << ")" << "\t(" << r << ", " << t << ", " << theta2 << ")");
-  ROS_INFO_STREAM("t1 = " << theta1 << "\tl1 = " << turn_left1 << "\tt2 = " << theta2 << "\tl2 = " << turn_left2 << "\tDist = " << travel_dist);
-  
+//  
+//  ROS_INFO_STREAM("(" << x << ", " << y << ", " << z << ")" << "\t(" << a << ", " << b << ", " << c << ", " << d << ")" << "\t(" << r << ", " << t << ", " << theta2 << ")");
+//  ROS_INFO_STREAM("t1 = " << theta1 << "\tl1 = " << turn_left1 << "\tt2 = " << theta2 << "\tl2 = " << turn_left2 << "\tDist = " << travel_dist);
+//  
   // Update the turn in place result and success fields
   point_click_result_.success = true;
   point_click_server_.setSucceeded(point_click_result_);
@@ -474,13 +474,13 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
   command.angular.z = 0.0;
   
   if (angle == 0.0 && dist == 0.0) {
-    ROS_INFO("DO NOTHING");
+//    ROS_INFO("DO NOTHING");
     // Do nothing
     return;
   }
   
   if (angle == 0.0) {
-    ROS_INFO("DRIVE STRAIGHT");
+//    ROS_INFO("DRIVE STRAIGHT");
     goal_x = x_ + x_dist;
     goal_y = y_ + y_dist;
     start_x = x_;
@@ -507,7 +507,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
   }
   
   if (dist == 0.0) {
-    ROS_INFO("TURN IN PLACE");
+//    ROS_INFO("TURN IN PLACE");
     // Turn in place
     angle_ = angle;
     turn_left_ = turn_left;
