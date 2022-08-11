@@ -392,7 +392,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   // TODO: might want to store the values of x, y, z, and orientation in local variables so they aren't being changed
   
-  ROS_INFO("NAVIGATE");
+//  ROS_INFO("NAVIGATE");
   // Calculate the a, b, c distance values between robot and goal
   float travel_dist = 0.0;
   bool turn_left1 = true, turn_left2 = true;
@@ -404,7 +404,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   // Calculate the angle needed to turn to face goal point
   theta1 = atan2(y, x);
-  ROS_INFO_STREAM(theta1);
+//  ROS_INFO_STREAM(theta1);
   
   if (abs(theta1) <= ANGLE_THRESHOLD) {
     theta1 = 0;
