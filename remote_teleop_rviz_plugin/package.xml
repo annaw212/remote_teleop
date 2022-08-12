@@ -26,5 +26,6 @@
   <export>
       <rosdoc config="${prefix}/rosdoc.yaml"/>
       <rviz plugin="${prefix}/plugin_description.xml"/>
+      <costmap_2d plugin="${prefix}/costmap_plugins.xml"/>
   </export>
 </package>

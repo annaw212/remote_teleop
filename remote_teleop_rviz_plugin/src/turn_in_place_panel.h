@@ -66,6 +66,8 @@ public Q_SLOTS:
   // Once the 'turn right' button has been pushed, this function is called to handle
   // the assignment of internal variables and call the sendTurnGoal function
   void setTurnGoalRight();
+  
+  void setVelGoal();
 
 
 protected Q_SLOTS:
@@ -76,6 +78,8 @@ protected Q_SLOTS:
   void sendTurnGoal();
   
   void sendNavGoal();
+  
+  void sendVelGoal();
 
 
 protected:
@@ -87,6 +91,7 @@ protected:
   // The ROS publisher for the degrees and direction to turn in
   ros::Publisher turn_goal_publisher_;
   ros::Publisher nav_goal_publisher_;
+  ros::Publisher vel_goal_publisher_;
 
   // The ROS node handle.
   ros::NodeHandle nh_;
@@ -94,6 +99,8 @@ protected:
   // Internal variables for storing the degrees and direction commands in
   float degrees_;
   bool turn_left_;
+  float lin_vel_;
+  float ang_vel_;
 
 };
 

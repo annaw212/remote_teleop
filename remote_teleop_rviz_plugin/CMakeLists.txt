@@ -40,6 +40,8 @@ set(SRC_FILES
   src/imu_visual.cpp
   src/plant_flag_tool.cpp
   src/turn_in_place_panel.cpp
+#  src/point_click_nav_panel.cpp
+#  src/costmap.cpp
 )
 
 ## An rviz plugin is just a shared library, so here we declare the
