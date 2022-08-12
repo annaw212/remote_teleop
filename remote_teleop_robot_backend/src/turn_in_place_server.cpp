@@ -305,6 +305,8 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::turn_in_place() {
+
+  ROS_INFO("Turn in place");
   
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -500,6 +502,8 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_dist, float dist) {
+
+  ROS_INFO("Navigate");
 
   float goal_x, goal_y, start_x, start_y;
   
