@@ -8,8 +8,10 @@
 #include <iostream>
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
+#include <tf2_ros/buffer.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
+#include <costmap_2d/costmap_2d_ros.h>
 #include <actionlib/server/simple_action_server.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/InteractiveMarkerUpdate.h>
@@ -604,6 +606,9 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "remote_teleop");
 
   ROS_INFO("Main: instantiating an object of type TurnInPlace");
+  
+  tf2_ros::Buffer tl(ros::Duration(10));
+  costmap_2d::Costmap2DROS costmap("costmap_rt", tl);
   
   TurnInPlace remote_teleop_class;
   
