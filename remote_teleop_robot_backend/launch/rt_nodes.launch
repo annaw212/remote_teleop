@@ -48,6 +48,14 @@
   <!-- Publishes the remote teleop node -->
   <node pkg="remote_teleop_robot_backend" type="remote_teleop_server" name="remote_teleop" output="screen" />
   
-  <node pkg="remote_teleop_robot_backend" type="my_costmap" name="rt_costmap" output="screen" />
+  <!-- Publishes the costmap node stuff -->
+  
+  <node pkg="tf" type="static_transform_publisher" name="tf_costmap" args="0 0 0 0 0 0 /map /base_link 100" />
+  <node pkg="costmap_2d" type="costmap_2d_markers" name="rt_voxel_visualizer" output="screen">
+    <remap from="voxel_grid" to="rt_costmap/voxel_grid" />
+  </node>
+  <node pkg="costmap_2d" type="costmap_2d_node" name="rt_costmap_node" output="screen">
+    <rosparam file="$(find remote_teleop_robot_backend)/launch/costmap.yaml" command="load" ns="rt_costmap" />
+  </node>
 
 </launch>
