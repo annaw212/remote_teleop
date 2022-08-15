@@ -147,9 +147,9 @@ add_executable(remote_teleop_server src/remote_teleop_server.cpp)
 target_link_libraries(remote_teleop_server ${catkin_LIBRARIES})
 add_dependencies(remote_teleop_server remote_teleop_robot_backend_generate_messages_cpp)
 
-#add_executable(my_costmap src/costmap.cpp)
-#target_link_libraries(my_costmap ${catkin_LIBRARIES})
-#add_dependencies(my_costmap remote_teleop_robot_backend_generate_messages_cpp)
+add_executable(my_costmap src/costmap.cpp)
+target_link_libraries(my_costmap ${catkin_LIBRARIES})
+add_dependencies(my_costmap remote_teleop_robot_backend_generate_messages_cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

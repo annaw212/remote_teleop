@@ -47,5 +47,7 @@
   
   <!-- Publishes the remote teleop node -->
   <node pkg="remote_teleop_robot_backend" type="remote_teleop_server" name="remote_teleop" output="screen" />
+  
+  <node pkg="remote_teleop_robot_backend" type="my_costmap" name="rt_costmap" output="screen" />
 
 </launch>

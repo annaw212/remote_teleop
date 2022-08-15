@@ -607,9 +607,6 @@ int main(int argc, char** argv) {
 
   ROS_INFO("Main: instantiating an object of type TurnInPlace");
   
-  tf2_ros::Buffer tl(ros::Duration(0));
-  costmap_2d::Costmap2DROS costmap("costmap_rt", tl);
-  
   TurnInPlace remote_teleop_class;
   
   ROS_INFO("Main: going into spin");
