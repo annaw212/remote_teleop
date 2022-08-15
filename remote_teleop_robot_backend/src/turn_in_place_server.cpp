@@ -565,7 +565,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
         command.linear.x = MIN_VEL;
       }
       // Publish the command
-      ROS_INFO_STREAM("DRIVE STRAIGHT" << command.angular.x);
+//      ROS_INFO_STREAM("DRIVE STRAIGHT" << command.angular.x);
       point_click_nav_publisher_.publish(command);
     }
     // Stop the robot from moving
