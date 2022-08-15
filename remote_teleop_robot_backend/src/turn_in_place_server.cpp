@@ -486,20 +486,44 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   ROS_INFO_STREAM("Goal Orientation: (" << r << ", " << t << ", " << theta2 << ")");
   
-  if( theta2 < 0.0) {
-    // Turning right
-    turn_left2 = false;
-    
-    // Set the angle
-//    theta2 = theta2 + yaw_;
-
-  } else if( theta2 > 0.0) {
-    // Turning left    
-    turn_left2 = true;
-    
-    // Set the angle
-//    theta2 = theta2 - yaw_;
+  theta2 = theta2 - yaw_;
+  
+  ROS_INFO_STREAM("Goal angle to turn: " << theta2);
+  
+  
+  while(theta2 > M_PI) {
+    theta2 -= 2*M_PI;
   }
+  
+  while(theta2 < -M_PI) {
+    theta2+= 2*M_PI;
+  }
+  
+  
+  
+  if(theta2 < 0.0) {
+    turn_left2 = false;
+    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 < "R");
+  } else if(theta2 > 0.0) {
+    turn_left2 = true;
+    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 < "L");
+  }
+  
+  
+//  if( theta2 < 0.0) {
+//    // Turning right
+//    turn_left2 = false;
+//    
+//    // Set the angle
+////    theta2 = theta2 + yaw_;
+
+//  } else if( theta2 > 0.0) {
+//    // Turning left    
+//    turn_left2 = true;
+//    
+//    // Set the angle
+////    theta2 = theta2 - yaw_;
+//  }
   
 //  ROS_INFO_STREAM("Yaw = " << yaw_ << "\tTheta2 = " << theta2);
 //  // 3) Turn robot to goal orientation
