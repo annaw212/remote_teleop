@@ -384,10 +384,7 @@ void TurnInPlace::turn_in_place() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {
-
-  ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
-  
+void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {  
   
   // Store values of position and orientation in local variables so they don't change during calculations
   float x = pos_x_;
@@ -412,7 +409,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   mat.getRPY(j,k,l);
   
-  ROS_INFO_STREAM("Original orientation: (" << j << ", " << k << ", " << l << ")");
+  ROS_INFO_STREAM("\nOriginal orientation: (" << j << ", " << k << ", " << l << ")");
   
   
   // TODO: might want to store the values of x, y, z, and orientation in local variables so they aren't being changed
@@ -499,6 +496,8 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     // Set the angle
     theta2 = theta2 - yaw_;
   }
+  
+  ROS_INFO_STREAM("Theta2 = " << theta2);
 //  // 3) Turn robot to goal orientation
   navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
   tf::Quaternion quat2(
