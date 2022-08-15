@@ -348,6 +348,8 @@ void TurnInPlace::turn_in_place() {
       goal_yaw += 2*M_PI;
     }
   }
+  
+  ROS_INFO_STREAM("turn in place function goal angle to turn: " << goal_yaw);
 //  ROS_INFO("got here 2");
   // Turn the robot until it reaches the desired angle
   while(abs(goal_yaw - yaw_) > THRESHOLD) {
