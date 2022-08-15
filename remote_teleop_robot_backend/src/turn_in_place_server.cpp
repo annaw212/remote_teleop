@@ -349,7 +349,7 @@ void TurnInPlace::turn_in_place() {
     }
   }
   
-  ROS_INFO_STREAM("turn in place function goal angle to turn: " << goal_yaw);
+  ROS_INFO_STREAM("Goal final angle: " << goal_yaw << "\tAmt to turn: " << angle_);
 //  ROS_INFO("got here 2");
   // Turn the robot until it reaches the desired angle
   while(abs(goal_yaw - yaw_) > THRESHOLD) {
@@ -411,7 +411,9 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   mat.getRPY(j,k,l);
   
-  ROS_INFO_STREAM("\nOriginal orientation: (" << j << ", " << k << ", " << l << ")");
+  ROS_INFO_STREAM("\n");
+  
+  ROS_INFO_STREAM("Original orientation: (" << j << ", " << k << ", " << l << ")");
   
   
   // TODO: might want to store the values of x, y, z, and orientation in local variables so they aren't being changed
@@ -547,7 +549,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
   }
   
   if (angle == 0.0) {
-//    ROS_INFO("DRIVE STRAIGHT");
+    ROS_INFO("DRIVE STRAIGHT");
     goal_x = x_ + x_dist;
     goal_y = y_ + y_dist;
     start_x = x_;
