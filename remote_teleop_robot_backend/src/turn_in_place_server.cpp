@@ -503,10 +503,10 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   if(theta2 < 0.0) {
     turn_left2 = false;
-    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 < "R");
+    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 << "R");
   } else if(theta2 > 0.0) {
     turn_left2 = true;
-    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 < "L");
+    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 << "L");
   }
   
   
