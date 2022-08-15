@@ -53,7 +53,7 @@ TurnInPlace::TurnInPlace()
   // Initialize the internal variables
   angle_ = 0.0;
   turn_left_ = true;
-  lin_vel_ = 0.1;
+  lin_vel_ = 0.5;
   ang_vel_ = 0.5;
   x_ = 0.0;
   y_ = 0.0;
@@ -509,25 +509,11 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 << "L");
   }
   
-  
-//  if( theta2 < 0.0) {
-//    // Turning right
-//    turn_left2 = false;
-//    
-//    // Set the angle
-////    theta2 = theta2 + yaw_;
 
-//  } else if( theta2 > 0.0) {
-//    // Turning left    
-//    turn_left2 = true;
-//    
-//    // Set the angle
-////    theta2 = theta2 - yaw_;
-//  }
-  
-//  ROS_INFO_STREAM("Yaw = " << yaw_ << "\tTheta2 = " << theta2);
-//  // 3) Turn robot to goal orientation
+
+  // 3) Turn robot to goal orientation
   navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
+  
   tf::Quaternion quat2(
     a_,
     b_,
@@ -538,13 +524,13 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   ROS_INFO_STREAM("Final Orientation: (" << j << ", " << k << ", " << l << ")");
   
-//  
-//  ROS_INFO_STREAM("(" << x << ", " << y << ", " << z << ")" << "\t(" << a << ", " << b << ", " << c << ", " << d << ")" << "\t(" << r << ", " << t << ", " << theta2 << ")");
-//  ROS_INFO_STREAM("t1 = " << theta1 << "\tl1 = " << turn_left1 << "\tt2 = " << theta2 << "\tl2 = " << turn_left2 << "\tDist = " << travel_dist);
-//  
+
   // Update the turn in place result and success fields
   point_click_result_.success = true;
   point_click_server_.setSucceeded(point_click_result_);
+  
+  // TODO: snap the interactive marker back to (0,0,0)
+  initializeMarkers();
 }
 
 /*-----------------------------------------------------------------------------------*/
