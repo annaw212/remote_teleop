@@ -497,7 +497,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     theta2 = theta2 - yaw_;
   }
   
-  ROS_INFO_STREAM("Theta2 = " << theta2);
+  ROS_INFO_STREAM("Yaw = " << yaw_ << "\tTheta2 = " << theta2);
 //  // 3) Turn robot to goal orientation
   navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
   tf::Quaternion quat2(
