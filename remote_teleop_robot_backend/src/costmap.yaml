@@ -34,7 +34,7 @@ global_costmap:
       footprint_padding: 0.03
       update_frequency: 1.0
       publish_frequency: 1.0
-      global_frame: map
+      global_frame: odom
       robot_base_frame: base_link
       use_sim_time: True
       robot_radius: 0.4 # radius set and used, so no footprint points
