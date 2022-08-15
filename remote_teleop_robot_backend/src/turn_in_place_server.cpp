@@ -349,7 +349,7 @@ void TurnInPlace::turn_in_place() {
     }
   }
   
-  ROS_INFO_STREAM("Goal final angle: " << goal_yaw << "\tAmt to turn: " << angle_);
+  ROS_INFO_STREAM("Goal final angle: " << goal_yaw * 180 / M_PI<< "\tAmt to turn: " << angle_* 180 / M_PI);
 //  ROS_INFO("got here 2");
   // Turn the robot until it reaches the desired angle
   while(abs(goal_yaw - yaw_) > THRESHOLD) {
@@ -457,7 +457,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   tf::Matrix3x3 mat0(quat0);
   mat0.getRPY(j,k,l);
   
-  ROS_INFO_STREAM("Pre-Drive Orientation: (" << j << ", " << k << ", " << l << ")");
+  ROS_INFO_STREAM("Pre-Drive Orientation: (" << j * 180 / M_PI<< ", " << k * 180 / M_PI<< ", " << l* 180 / M_PI << ")");
 //  // 2) Drive to goal location
   navigate(0.0, true, x, y, travel_dist);
   
@@ -471,7 +471,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
 
   mat1.getRPY(j,k,l);
   
-  ROS_INFO_STREAM("Post-Drive Orientation: (" << j << ", " << k << ", " << l << ")");
+  ROS_INFO_STREAM("Post-Drive Orientation: (" << j * 180 / M_PI<< ", " << k * 180 / M_PI<< ", " << l * 180 / M_PI<< ")");
 
   // Calculate angle to turn by from goal to goal orientation
   tf::Quaternion q(
@@ -484,11 +484,11 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     
   m.getRPY(r, t, theta2);
   
-  ROS_INFO_STREAM("Goal Orientation: (" << r << ", " << t << ", " << theta2 << ")");
+  ROS_INFO_STREAM("Goal Orientation: (" << r* 180 / M_PI << ", " << t* 180 / M_PI << ", " << theta2 * 180 / M_PI<< ")");
   
   theta2 = theta2 - theta1;
   
-  ROS_INFO_STREAM("Goal angle to turn: " << theta2);
+  ROS_INFO_STREAM("Goal angle to turn: " << theta2* 180 / M_PI);
   
   
   while(theta2 > M_PI) {
@@ -503,10 +503,10 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   if(theta2 < 0.0) {
     turn_left2 = false;
-    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 << "R");
+    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 * 180 / M_PI << "R");
   } else if(theta2 > 0.0) {
     turn_left2 = true;
-    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 << "L");
+    ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 * 180 / M_PI<< "L");
   }
   
 
@@ -522,14 +522,14 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   tf::Matrix3x3 mat2(quat2);
   mat2.getRPY(j,k,l);
   
-  ROS_INFO_STREAM("Final Orientation: (" << j << ", " << k << ", " << l << ")");
+  ROS_INFO_STREAM("Final Orientation: (" << j* 180 / M_PI << ", " << k* 180 / M_PI << ", " << l* 180 / M_PI << ")");
   
 
   // Update the turn in place result and success fields
   point_click_result_.success = true;
   point_click_server_.setSucceeded(point_click_result_);
   
-  // TODO: snap the interactive marker back to (0,0,0)
+  // Snap the interactive marker back to (0,0,0)
   initializeMarkers();
 }
 
