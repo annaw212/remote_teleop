@@ -308,7 +308,7 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 
 void TurnInPlace::turn_in_place() {
 
-  ROS_INFO("Turn in place");
+//  ROS_INFO("Turn in place");
   
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -323,7 +323,7 @@ void TurnInPlace::turn_in_place() {
   
   float goal_yaw = 0.0;
   
-  ROS_INFO("got here 1");
+//  ROS_INFO("got here 1");
   if(turn_left_ == false) {
     // TURNING RIGHT
     goal_yaw = yaw_ - angle_;
@@ -348,10 +348,10 @@ void TurnInPlace::turn_in_place() {
       goal_yaw += 2*M_PI;
     }
   }
-  ROS_INFO("got here 2");
+//  ROS_INFO("got here 2");
   // Turn the robot until it reaches the desired angle
   while(abs(goal_yaw - yaw_) > THRESHOLD) {
-    ROS_INFO("got here 3");
+//    ROS_INFO("got here 3");
     // Set the turn rate
     command.angular.z = ang_vel_ * (goal_yaw - yaw_);
     
@@ -372,7 +372,7 @@ void TurnInPlace::turn_in_place() {
     } else if (turn_left_ == false && abs(command.angular.z) < MIN_VEL) {
       command.angular.z = -MIN_VEL;
     }
-    ROS_INFO_STREAM("TURN IN PLACE " << command.angular.z);
+//    ROS_INFO_STREAM("TURN IN PLACE " << command.angular.z);
     // Publish the message to the drivers
     turn_in_place_publisher_.publish(command);
   }
