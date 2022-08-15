@@ -67,7 +67,7 @@ public Q_SLOTS:
   // the assignment of internal variables and call the sendTurnGoal function
   void setTurnGoalRight();
   
-  void setVelGoal();
+/*  void setVelGoal();*/
 
 
 protected Q_SLOTS:
@@ -79,7 +79,7 @@ protected Q_SLOTS:
   
   void sendNavGoal();
   
-  void sendVelGoal();
+/*  void sendVelGoal();*/
 
 
 protected:
@@ -91,7 +91,7 @@ protected:
   // The ROS publisher for the degrees and direction to turn in
   ros::Publisher turn_goal_publisher_;
   ros::Publisher nav_goal_publisher_;
-  ros::Publisher vel_goal_publisher_;
+/*  ros::Publisher vel_goal_publisher_;*/
 
   // The ROS node handle.
   ros::NodeHandle nh_;

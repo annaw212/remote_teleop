@@ -197,6 +197,8 @@ void TurnInPlace::initializeMarkers() {
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::turn_in_place_callback(const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr& goal) {
+
+  ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
   
   // TODO: gray out rviz plugin buttons when turn is being executed
   
@@ -321,7 +323,7 @@ void TurnInPlace::turn_in_place() {
   
   float goal_yaw = 0.0;
   
-
+  ROS_INFO("got here 1");
   if(turn_left_ == false) {
     // TURNING RIGHT
     goal_yaw = yaw_ - angle_;
@@ -346,10 +348,10 @@ void TurnInPlace::turn_in_place() {
       goal_yaw += 2*M_PI;
     }
   }
-  
+  ROS_INFO("got here 2");
   // Turn the robot until it reaches the desired angle
   while(abs(goal_yaw - yaw_) > THRESHOLD) {
-    
+    ROS_INFO("got here 3");
     // Set the turn rate
     command.angular.z = ang_vel_ * (goal_yaw - yaw_);
     
@@ -370,7 +372,7 @@ void TurnInPlace::turn_in_place() {
     } else if (turn_left_ == false && abs(command.angular.z) < MIN_VEL) {
       command.angular.z = -MIN_VEL;
     }
-    
+    ROS_INFO_STREAM("TURN IN PLACE " << command.angular.z);
     // Publish the message to the drivers
     turn_in_place_publisher_.publish(command);
   }
@@ -384,6 +386,7 @@ void TurnInPlace::turn_in_place() {
 
 void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {
 
+  ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
   
   
   // Store values of position and orientation in local variables so they don't change during calculations
@@ -409,7 +412,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   mat.getRPY(j,k,l);
   
-  ROS_INFO_STREAM("Current Orientation: (" << j << ", " << k << ", " << l << ")");
+  ROS_INFO_STREAM("Original orientation: (" << j << ", " << k << ", " << l << ")");
   
   
   // TODO: might want to store the values of x, y, z, and orientation in local variables so they aren't being changed
@@ -444,6 +447,16 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
 
   // 1) Turn to face goal location
   navigate(theta1, turn_left1, 0.0, 0.0, 0.0);
+  
+  tf::Quaternion quat0(
+    a_,
+    b_,
+    c_,
+    d_);
+  tf::Matrix3x3 mat0(quat0);
+  mat0.getRPY(j,k,l);
+  
+  ROS_INFO_STREAM("Pre-Drive Orientation: (" << j << ", " << k << ", " << l << ")");
 //  // 2) Drive to goal location
   navigate(0.0, true, x, y, travel_dist);
   
@@ -454,8 +467,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     d_);
   
   tf::Matrix3x3 mat1(quat1);
-  
-  
+
   mat1.getRPY(j,k,l);
   
   ROS_INFO_STREAM("Post-Drive Orientation: (" << j << ", " << k << ", " << l << ")");
@@ -489,6 +501,15 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   }
 //  // 3) Turn robot to goal orientation
   navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
+  tf::Quaternion quat2(
+    a_,
+    b_,
+    c_,
+    d_);
+  tf::Matrix3x3 mat2(quat2);
+  mat2.getRPY(j,k,l);
+  
+  ROS_INFO_STREAM("Final Orientation: (" << j << ", " << k << ", " << l << ")");
   
 //  
 //  ROS_INFO_STREAM("(" << x << ", " << y << ", " << z << ")" << "\t(" << a << ", " << b << ", " << c << ", " << d << ")" << "\t(" << r << ", " << t << ", " << theta2 << ")");
@@ -503,7 +524,7 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
 
 void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_dist, float dist) {
 
-  ROS_INFO("Navigate");
+//  ROS_INFO("Navigate");
 
   float goal_x, goal_y, start_x, start_y;
   
@@ -519,7 +540,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
   command.angular.z = 0.0;
   
   if (angle == 0.0 && dist == 0.0) {
-//    ROS_INFO("DO NOTHING");
+    ROS_INFO("DO NOTHING");
     // Do nothing
     return;
   }
@@ -544,6 +565,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
         command.linear.x = MIN_VEL;
       }
       // Publish the command
+      ROS_INFO_STREAM("DRIVE STRAIGHT" << command.angular.x);
       point_click_nav_publisher_.publish(command);
     }
     // Stop the robot from moving
@@ -552,7 +574,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
   }
   
   if (dist == 0.0) {
-//    ROS_INFO("TURN IN PLACE");
+    ROS_INFO("TURN IN PLACE");
     // Turn in place
     angle_ = angle;
     turn_left_ = turn_left;

@@ -53,6 +53,8 @@ TurnInPlacePanel::TurnInPlacePanel( QWidget* parent )
   : rviz::Panel( parent )
   , degrees_( 30.0 )
   , turn_left_( true )
+  , lin_vel_( 0.0 )
+  , ang_vel_( 0.0 )
 {
   
   // Create box for organizing all elements of the plugin
@@ -96,41 +98,41 @@ TurnInPlacePanel::TurnInPlacePanel( QWidget* parent )
   confirm_coords_->setText(tr("Confirm Coordinates"));
   nav_layout->addWidget( confirm_coords_ );
 
-  // Create box layout for speed sliders
-  QVBoxLayout* slider_layout = new QVBoxLayout;
-  
-  slider_layout->addWidget( new QLabel( "Speed Toggles"));
-  QSlider* lin_vel_slider_ = new QSlider(Qt::Horizontal, this);
-  slider_layout->addWidget( new QLabel( "Linear Velocity:" ));
-  lin_vel_slider_->setRange(0,30);
-  lin_vel_slider_->setTickInterval(1);
-  lin_vel_slider_->setTickPosition(QSlider::TicksBelow);
-  lin_vel_slider_->setValue(5);
-  slider_layout->addWidget( lin_vel_slider_ );
-  QLabel* tmpLabel = new QLabel("0");
-  slider_layout->addWidget( tmpLabel );
-  
-  QSlider* ang_vel_slider_ = new QSlider(Qt::Horizontal, this);
-  slider_layout->addWidget( new QLabel( "Angular Velocity:" ));
-  ang_vel_slider_->setRange(0.0,30.0);
-  ang_vel_slider_->setTickInterval(1);
-  ang_vel_slider_->setTickPosition(QSlider::TicksBelow);
-  ang_vel_slider_->setValue(10.0);
-  slider_layout->addWidget( ang_vel_slider_ );
-  
-  // Add in virtual e-stop button
-  QPushButton* stop_nav_button_ = new QPushButton(this);
-  stop_nav_button_->setText(tr("STOP"));
-  stop_nav_button_->setStyleSheet("font:bold;background-color:red;font-size:36px;height:48px;width:120px");
+//  // Create box layout for speed sliders
+//  QVBoxLayout* slider_layout = new QVBoxLayout;
+//  
+//  slider_layout->addWidget( new QLabel( "Speed Toggles"));
+//  QSlider* lin_vel_slider_ = new QSlider(Qt::Horizontal, this);
+//  slider_layout->addWidget( new QLabel( "Linear Velocity:" ));
+//  lin_vel_slider_->setRange(0,30);
+//  lin_vel_slider_->setTickInterval(1);
+//  lin_vel_slider_->setTickPosition(QSlider::TicksBelow);
+//  lin_vel_slider_->setValue(5);
+//  slider_layout->addWidget( lin_vel_slider_ );
+//  QLabel* tmpLabel = new QLabel("0");
+//  slider_layout->addWidget( tmpLabel );
+//  
+//  QSlider* ang_vel_slider_ = new QSlider(Qt::Horizontal, this);
+//  slider_layout->addWidget( new QLabel( "Angular Velocity:" ));
+//  ang_vel_slider_->setRange(0.0,30.0);
+//  ang_vel_slider_->setTickInterval(1);
+//  ang_vel_slider_->setTickPosition(QSlider::TicksBelow);
+//  ang_vel_slider_->setValue(10.0);
+//  slider_layout->addWidget( ang_vel_slider_ );
+//  
+//  // Add in virtual e-stop button
+//  QPushButton* stop_nav_button_ = new QPushButton(this);
+//  stop_nav_button_->setText(tr("STOP"));
+//  stop_nav_button_->setStyleSheet("font:bold;background-color:red;font-size:36px;height:48px;width:120px");
   
   // Add the horizontal box to the vertical box layout
   topic_layout->addWidget( new QLabel( "Turn in Place" ));
   topic_layout->addLayout( button_layout );
   topic_layout->addWidget( new QLabel( "Point-and-Click Navigation Confirmation"));
   topic_layout->addLayout( nav_layout );
-  topic_layout->addLayout( slider_layout );
+//  topic_layout->addLayout( slider_layout );
 //  topic_layout->addWidget( new QLabel( "Point-and-Click Navigation Confirmation"));
-  topic_layout->addWidget( stop_nav_button_ );
+//  topic_layout->addWidget( stop_nav_button_ );
 
   // Set the layout
   setLayout( topic_layout );
@@ -143,8 +145,8 @@ TurnInPlacePanel::TurnInPlacePanel( QWidget* parent )
   connect(turn_left_button_, SIGNAL(released()), this, SLOT(setTurnGoalLeft()));
   connect(turn_right_button_, SIGNAL(released()), this, SLOT(setTurnGoalRight()));
   connect(confirm_coords_, SIGNAL(released()), this, SLOT(sendNavGoal()));
-  connect(lin_vel_slider_, SIGNAL(sliderReleased()), this, SLOT(setVelGoal()));
-  connect(ang_vel_slider_, SIGNAL(sliderReleased()), this, SLOT(setVelGoal()));
+//  connect(lin_vel_slider_, SIGNAL(sliderReleased()), this, SLOT(setVelGoal()));
+//  connect(ang_vel_slider_, SIGNAL(sliderReleased()), this, SLOT(setVelGoal()));
 }
 
 // setTurnGoalLeft() sets the degrees and direction variables and calls
@@ -186,14 +188,14 @@ void TurnInPlacePanel::setTurnGoalRight()
   sendTurnGoal();
 }
 
-void TurnInPlacePanel::setVelGoal() {
-  
-  // Get the values from the sliders --> maybe something similar to fcn above
-  lin_vel_ = 0.5;
-  ang_vel_ = 1.0;
-  
-  sendVelGoal();
-}
+//void TurnInPlacePanel::setVelGoal() {
+//  
+//  // Get the values from the sliders --> maybe something similar to fcn above
+//  lin_vel_ = 0.5;
+//  ang_vel_ = 1.0;
+//  
+//  sendVelGoal();
+//}
 
 
 // Publish the degrees and direction if ROS is not shutting down and the
@@ -227,19 +229,19 @@ void TurnInPlacePanel::sendNavGoal() {
   }
 }
 
-void TurnInPlacePanel::sendVelGoal() {
-  
-  if( ros::ok() && vel_goal_publisher_ ) {
-    
-    remote_teleop_robot_backend::SpeedToggleActionGoal msg;
-    
-    msg.goal.lin_vel = lin_vel_;
-    msg.goal.ang_vel = ang_vel_;
-    
-//    vel_goal_publisher_.publish( msg );
-    
-  }
-}
+//void TurnInPlacePanel::sendVelGoal() {
+//  
+//  if( ros::ok() && vel_goal_publisher_ ) {
+//    
+//    remote_teleop_robot_backend::SpeedToggleActionGoal msg;
+//    
+//    msg.goal.lin_vel = lin_vel_;
+//    msg.goal.ang_vel = ang_vel_;
+//    
+////    vel_goal_publisher_.publish( msg );
+//    
+//  }
+//}
 
 // Save all configuration data from this panel to the given
 // Config object.  It is important here that you call save()
