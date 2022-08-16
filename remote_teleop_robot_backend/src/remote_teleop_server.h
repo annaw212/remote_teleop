@@ -1,5 +1,5 @@
-#ifndef TURNINPLACE_H
-#define TURNINPLACE_H
+#ifndef REMOTETELEOP_H
+#define REMOTETELEOP_H
 
 #include <stdlib.h>
 
@@ -24,10 +24,10 @@
 #include <remote_teleop_robot_backend/PointClickNavGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
 
-class TurnInPlace {
+class RemoteTeleop {
 
 public:
-  TurnInPlace();
+  RemoteTeleop();
 
 private:
   // The ROS node handle.
@@ -84,7 +84,7 @@ private:
   bool point_and_click_running_;
   bool obstacle_detected_;
   bool reading_costmap_;
-  
+
   std::mutex costmap_mtx_;
 
   // Initialization member methods
@@ -105,7 +105,7 @@ private:
       const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal);
   void point_click_callback(
       const remote_teleop_robot_backend::PointClickNavGoalConstPtr &msg);
-  void processFeedback(
+  void processIntMarkerFeedback(
       const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
   void odom_callback(const nav_msgs::Odometry &msg);
   void costmap_callback(const nav_msgs::OccupancyGrid &grid);
@@ -116,8 +116,8 @@ private:
   // Point click navigate member methods
   void navigate(float angle, bool turn_left, float x_dist, float y_dist,
                 float dist);
-  void obstacle_check(float x1, float y1, float x2, float y2, float dx, float dy,
-                      bool smallSlope);
+  void obstacle_check(float x1, float y1, float x2, float y2, float dx,
+                      float dy, bool smallSlope);
 };
 
-#endif // TURNINPLACE_H
+#endif // RemoteTeleop_H

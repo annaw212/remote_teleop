@@ -41,16 +41,16 @@
 
 // CONSTRUCTOR: this will get called whenever an instance of this class is
 // created
-TurnInPlace::TurnInPlace()
+RemoteTeleop::RemoteTeleop()
     : turn_in_place_server_(
           nh_, "/turn_in_place_as",
-          boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false),
+          boost::bind(&RemoteTeleop::turn_in_place_callback, this, _1), false),
       point_click_server_(
           nh_, "/point_click_as",
-          boost::bind(&TurnInPlace::point_click_callback, this, _1), false),
+          boost::bind(&RemoteTeleop::point_click_callback, this, _1), false),
       int_marker_server_("interactive_marker_server") {
 
-  ROS_INFO("In class constructor of TurnInPlace");
+  ROS_INFO("In class constructor of RemoteTeleop");
 
   // Initialize the messy stuff
   initializeIntMarkers();
@@ -85,21 +85,21 @@ TurnInPlace::TurnInPlace()
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::initializeSubscribers() {
+void RemoteTeleop::initializeSubscribers() {
 
   ROS_INFO("Initializing Subscribers");
 
   // Initialize the odometry subscriber
-  odom_sub_ = nh_.subscribe("/odom", 1, &TurnInPlace::odom_callback, this);
+  odom_sub_ = nh_.subscribe("/odom", 1, &RemoteTeleop::odom_callback, this);
 
   // Initialize the costmap subscriber
   costmap_sub_ = nh_.subscribe("/rt_costmap_node/costmap/costmap", 1,
-                               &TurnInPlace::costmap_callback, this);
+                               &RemoteTeleop::costmap_callback, this);
 }
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::initializePublishers() {
+void RemoteTeleop::initializePublishers() {
 
   ROS_INFO("Initializing Publishers");
 
@@ -113,7 +113,7 @@ void TurnInPlace::initializePublishers() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::initializeActions() {
+void RemoteTeleop::initializeActions() {
 
   ROS_INFO("Starting action servers");
 
@@ -126,7 +126,7 @@ void TurnInPlace::initializeActions() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::initializeIntMarkers() {
+void RemoteTeleop::initializeIntMarkers() {
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
@@ -139,8 +139,10 @@ void TurnInPlace::initializeIntMarkers() {
   // box
   makeIntMarkerControl(int_marker);
 
+  // Create the interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
 
+  // Set the control for movement along the x-axis
   control.orientation.w = 1;
   control.orientation.x = 1;
   control.orientation.y = 0;
@@ -150,6 +152,7 @@ void TurnInPlace::initializeIntMarkers() {
       visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
   int_marker.controls.push_back(control);
 
+  // Set the control for movement along the y-axis
   control.orientation.w = 1;
   control.orientation.x = 0;
   control.orientation.y = 0;
@@ -159,6 +162,7 @@ void TurnInPlace::initializeIntMarkers() {
       visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
   int_marker.controls.push_back(control);
 
+  // Set the control for movement about the z-axis
   control.orientation.w = 1;
   control.orientation.x = 0;
   control.orientation.y = 1;
@@ -169,9 +173,10 @@ void TurnInPlace::initializeIntMarkers() {
   int_marker.controls.push_back(control);
 
   // Add the interactive marker to our collection & tell the server to call
-  // processFeedback() when feedback arrives for it
+  // processIntMarkerFeedback() when feedback arrives for it
   int_marker_server_.insert(
-      int_marker, boost::bind(&TurnInPlace::processFeedback, this, _1));
+      int_marker,
+      boost::bind(&RemoteTeleop::processIntMarkerFeedback, this, _1));
 
   // 'commit' changes and send to all clients
   int_marker_server_.applyChanges();
@@ -181,13 +186,17 @@ void TurnInPlace::initializeIntMarkers() {
 
 /*-----------------------------------------------------------------------------------*/
 
-visualization_msgs::Marker TurnInPlace::makeIntMarker() {
+visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
 
+  // Create a marker
   visualization_msgs::Marker marker;
+  // Assign a type to the marker
   marker.type = visualization_msgs::Marker::ARROW;
+  // Scale the marker
   marker.scale.x = 1.0;
   marker.scale.y = 0.45;
   marker.scale.z = 0.45;
+  // Assign colors to the marker
   marker.color.r = 1.0;
   marker.color.g = 0.5;
   marker.color.b = 0.5;
@@ -199,11 +208,15 @@ visualization_msgs::Marker TurnInPlace::makeIntMarker() {
 /*-----------------------------------------------------------------------------------*/
 
 visualization_msgs::InteractiveMarkerControl &
-TurnInPlace::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
+RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 
+  // Create an interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
+  // Set the control variables
   control.always_visible = true;
+  // Assign a marker to the control
   control.markers.push_back(makeIntMarker());
+  // Assign the control to an interactive marker
   msg.controls.push_back(control);
 
   return msg.controls.back();
@@ -211,7 +224,7 @@ TurnInPlace::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::turn_in_place_callback(
+void RemoteTeleop::turn_in_place_callback(
     const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal) {
 
   ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
@@ -246,13 +259,14 @@ void TurnInPlace::turn_in_place_callback(
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::processFeedback(
+void RemoteTeleop::processIntMarkerFeedback(
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
 
+  // Grab the incoming position info from the marker
   pos_x_ = feedback->pose.position.x;
   pos_y_ = feedback->pose.position.y;
   pos_z_ = feedback->pose.position.z;
-
+  // Grab the incoming orientation info from the marker
   or_x_ = feedback->pose.orientation.x;
   or_y_ = feedback->pose.orientation.y;
   or_z_ = feedback->pose.orientation.z;
@@ -261,7 +275,7 @@ void TurnInPlace::processFeedback(
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::odom_callback(const nav_msgs::Odometry &msg) {
+void RemoteTeleop::odom_callback(const nav_msgs::Odometry &msg) {
 
   // Grab the odometry position values out of the message
   x_ = msg.pose.pose.position.x;
@@ -285,7 +299,7 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry &msg) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::costmap_callback(const nav_msgs::OccupancyGrid &grid) {
+void RemoteTeleop::costmap_callback(const nav_msgs::OccupancyGrid &grid) {
   // Lock the costmap into place so we can read its values
   //  if (reading_costmap_ == true) {
   //    costmap_mtx_.lock();
@@ -297,7 +311,7 @@ void TurnInPlace::costmap_callback(const nav_msgs::OccupancyGrid &grid) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::turn_in_place() {
+void RemoteTeleop::turn_in_place() {
 
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -375,7 +389,7 @@ void TurnInPlace::turn_in_place() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::point_click_callback(
+void RemoteTeleop::point_click_callback(
     const remote_teleop_robot_backend::PointClickNavGoalConstPtr &msg) {
 
   // Store values of position and orientation in local variables so they don't
@@ -535,8 +549,8 @@ void TurnInPlace::point_click_callback(
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::navigate(float angle, bool turn_left, float x_dist,
-                           float y_dist, float dist) {
+void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
+                            float y_dist, float dist) {
 
   // Declare local variables
   float goal_x, goal_y, start_x, start_y;
@@ -600,8 +614,8 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist,
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::obstacle_check(float x1, float y1, float x2, float y2,
-                                 float dx, float dy, bool smallSlope) {
+void RemoteTeleop::obstacle_check(float x1, float y1, float x2, float y2,
+                                  float dx, float dy, bool smallSlope) {
   // Using Brensenham's line algorithm to produce the straight-line coordinates
   // between two points. Taking those points and checking their locations on the
   // obstacle grid to make sure there are no obstacles in the way of navigation.
@@ -660,9 +674,9 @@ int main(int argc, char **argv) {
 
   ros::init(argc, argv, "remote_teleop");
 
-  ROS_INFO("Main: instantiating an object of type TurnInPlace");
+  ROS_INFO("Main: instantiating an object of type RemoteTeleop");
 
-  TurnInPlace remote_teleop_class;
+  RemoteTeleop remote_teleop_class;
 
   ROS_INFO("Main: going into spin");
 
