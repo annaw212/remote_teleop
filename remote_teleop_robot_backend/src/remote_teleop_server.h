@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+#include <mutex>
+
 #include <actionlib/server/simple_action_server.h>
 #include <geometry_msgs/Twist.h>
 #include <interactive_markers/interactive_marker_server.h>
@@ -49,6 +51,7 @@ private:
 
   // The ROS subscriber for receiving odometry value updates
   ros::Subscriber odom_sub_;
+  ros::Subscriber costmap_sub_;
 
   // Internal variables
   float angle_;    // Turn in place angle
@@ -80,6 +83,9 @@ private:
   bool turn_in_place_running_;
   bool point_and_click_running_;
   bool obstacle_detected_;
+  bool reading_costmap_;
+  
+  std::mutex costmap_mtx_;
 
   // Initialization member methods
   void initializeSubscribers();
@@ -102,6 +108,7 @@ private:
   void processFeedback(
       const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
   void odom_callback(const nav_msgs::Odometry &msg);
+  void costmap_callback(const nav_msgs::OccupancyGrid &grid);
 
   // Turn in place member methods
   void turn_in_place();
@@ -109,7 +116,7 @@ private:
   // Point click navigate member methods
   void navigate(float angle, bool turn_left, float x_dist, float y_dist,
                 float dist);
-  void obstacle_check(int x1, int y1, int x2, int y2, int dx, int dy,
+  void obstacle_check(float x1, float y1, float x2, float y2, float dx, float dy,
                       bool smallSlope);
 };
 

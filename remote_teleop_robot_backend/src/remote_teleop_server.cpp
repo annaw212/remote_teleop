@@ -9,6 +9,7 @@
 #include <geometry_msgs/Twist.h>
 #include <interactive_markers/interactive_marker_server.h>
 #include <iostream>
+#include <mutex>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <tf/tf.h>
@@ -79,6 +80,7 @@ TurnInPlace::TurnInPlace()
   turn_in_place_running_ = false;
   point_and_click_running_ = false;
   obstacle_detected_ = false;
+  reading_costmap_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -89,6 +91,10 @@ void TurnInPlace::initializeSubscribers() {
 
   // Initialize the odometry subscriber
   odom_sub_ = nh_.subscribe("/odom", 1, &TurnInPlace::odom_callback, this);
+
+  // Initialize the costmap subscriber
+  costmap_sub_ = nh_.subscribe("/rt_costmap_node/costmap/costmap", 1,
+                               &TurnInPlace::costmap_callback, this);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -279,6 +285,18 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry &msg) {
 
 /*-----------------------------------------------------------------------------------*/
 
+void TurnInPlace::costmap_callback(const nav_msgs::OccupancyGrid &grid) {
+  // Lock the costmap into place so we can read its values
+  //  if (reading_costmap_ == true) {
+  //    costmap_mtx_.lock();
+  //  } else {
+  //    costmap_mtx_.unlock();
+  //  }
+  return;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
 void TurnInPlace::turn_in_place() {
 
   // Create message to be sent
@@ -362,7 +380,7 @@ void TurnInPlace::point_click_callback(
 
   // Store values of position and orientation in local variables so they don't
   // change during calculations
-  float x = pos_x_;
+  float x = pos_x_; // in relation to the robot, which thinks it is at (0,0,0)
   float y = pos_y_;
   float z = pos_z_;
   float a = or_x_;
@@ -398,6 +416,28 @@ void TurnInPlace::point_click_callback(
   } else if (abs(M_PI - theta1) <= ANGLE_THRESHOLD) {
     // If we are turning to an angle within 1-3 degrees of a 180 turn, turn 180
     theta1 = M_PI;
+  }
+
+  // Determine validity of path
+  float x1 = x_;
+  float y1 = y_;
+  float x2 = x1 + x;
+  float y2 = y1 + y;
+  float dx = abs(x2 - x1);
+  float dy = abs(y1 - y1);
+
+  if (dx > dy) {
+    // Slope is less than 1
+    obstacle_check(x1, y1, x2, y2, dx, dy, true);
+  } else {
+    // Slope is greater than 1
+    obstacle_check(x1, y1, x2, y2, dx, dy, false);
+  }
+
+  if (obstacle_detected_ == true) {
+    // Path was not clear -- reset variable and exit function
+    obstacle_detected_ = false;
+    return;
   }
 
   // Determine direction to turn, and turn to face goal location
@@ -560,18 +600,28 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist,
 
 /*-----------------------------------------------------------------------------------*/
 
-void obstacle_check(int x1, int y1, int x2, int y2, int dx, int dy,
-                    bool smallSlope) {
+void TurnInPlace::obstacle_check(float x1, float y1, float x2, float y2,
+                                 float dx, float dy, bool smallSlope) {
   // Using Brensenham's line algorithm to produce the straight-line coordinates
   // between two points. Taking those points and checking their locations on the
   // obstacle grid to make sure there are no obstacles in the way of navigation.
 
+  // Lock the costmap into place so it isn't updating while we are reading the
+  // values
+  // TODO: this might be faulty logic, so make sure to check this out...you know
+  // why things are going wrong if they're going wrong. It's probably because of
+  // this
+  reading_costmap_ = true;
+
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
   for (int i = 0; i <= dx; i++) {
-    cout << x1 << "," << y1 << endl;
 
     // TODO: check the value of the occupancy grid against the path
+    //    if (occupancy_grid[x1][x2] != 0.0) {
+    //      obstacle_detected_ = true;
+    //      return;
+    //    }
 
     // checking either to decrement or increment the value
     // if we have to plot from (0,100) to (100,0)
@@ -580,7 +630,7 @@ void obstacle_check(int x1, int y1, int x2, int y2, int dx, int dy,
     if (pk < 0) {
       // decision value will decide to plot
       // either  x1 or y1 in x's position
-      if (decide == 0) {
+      if (smallSlope == true) {
         // putpixel(x1, y1, RED);
         pk = pk + 2 * dy;
       } else {
@@ -591,7 +641,7 @@ void obstacle_check(int x1, int y1, int x2, int y2, int dx, int dy,
     } else {
       y1 < y2 ? y1++ : y1--;
 
-      if (decide == 0) {
+      if (smallSlope == true) {
 
         // putpixel(x1, y1, RED);
       } else {
@@ -600,6 +650,9 @@ void obstacle_check(int x1, int y1, int x2, int y2, int dx, int dy,
       pk = pk + 2 * dy - 2 * dx;
     }
   }
+
+  // Allow the costmap mutex to be unlocked
+  reading_costmap_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/
