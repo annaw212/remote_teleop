@@ -73,6 +73,7 @@ TurnInPlace::TurnInPlace()
   
   turn_in_place_running_ = false;
   point_and_click_running_ = false;
+  obstacle_detected_ = false;
 
 }
 
@@ -370,7 +371,7 @@ void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointC
   ROS_INFO_STREAM("\n");
   ROS_INFO_STREAM("Original orientation: (" << j << ", " << k << ", " << l << ")");
   
-  // Declare function level variables
+  // Declare local variables
   float travel_dist = 0.0;
   bool turn_left1 = true, turn_left2 = true;
   double theta1 = 0.0;
@@ -391,7 +392,8 @@ void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointC
     theta1 = M_PI;
   }
   
-  // Determine direction to turn
+  // Determine direction to turn, and turn to face goal location
+  // The reason for having the navigation command inside this function instead of having it be like the others, is because we need to change the value of theta1 to be positive if we are turning right, but theta2 is based on theta1's original value, so this is _one_ way to make sure theta1 can keep its original value...
   if (theta1 < 0.0) {
     turn_left1 = false;
     navigate(theta1 * -1, turn_left1, 0.0, 0.0, 0.0);
@@ -402,8 +404,7 @@ void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointC
   
   // NAVIGATE
 
-  // Turn to face goal location
-  
+  // Turn to face goal location - done in the previous chunk of code
   
   //TODO: delete this
   tf::Quaternion quat0(
@@ -490,7 +491,7 @@ void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointC
 
 void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_dist, float dist) {
 
-  // Declare function level variables
+  // Declare local variables
   float goal_x, goal_y, start_x, start_y;
   
   // Create message to be sent
@@ -551,6 +552,48 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
 
 /*-----------------------------------------------------------------------------------*/
 
+void obstacle_check(int x1, int y1, int x2, int y2, int dx, int dy, bool smallSlope) {
+  // Using Brensenham's line algorithm to produce the straight-line coordinates between two points.
+  // Taking those points and checking their locations on the obstacle grid to make sure there are no obstacles in the way of navigation.
+  
+  // Brensenham's line algorithm
+  int pk = 2 * dy - dx;
+  for (int i = 0; i <= dx; i++) {
+    cout << x1 << "," << y1 << endl;
+    
+    // TODO: check the value of the occupancy grid against the path
+    
+    
+    //checking either to decrement or increment the value
+    //if we have to plot from (0,100) to (100,0)
+    x1 < x2 ? x1++ : x1--;
+    
+    if (pk < 0) {
+      //decision value will decide to plot
+      //either  x1 or y1 in x's position
+      if (decide == 0) {
+         // putpixel(x1, y1, RED);
+          pk = pk + 2 * dy;
+      } else {
+        //(y1,x1) is passed in xt
+       // putpixel(y1, x1, YELLOW);
+        pk = pk + 2 * dy;
+      }
+    } else {
+      y1 < y2 ? y1++ : y1--;
+      
+      if (decide == 0) {
+
+          //putpixel(x1, y1, RED);
+      } else {
+        //  putpixel(y1, x1, YELLOW);
+      }
+      pk = pk + 2 * dy - 2 * dx;
+    }
+  }
+}
+
+/*-----------------------------------------------------------------------------------*/
 int main(int argc, char** argv) {
 
   ros::init(argc, argv, "remote_teleop");
