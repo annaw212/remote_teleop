@@ -27,7 +27,7 @@
 #include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
 
-#include "turn_in_place_server.h"
+#include "remote_teleop_server.h"
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -41,13 +41,13 @@
 // CONSTRUCTOR: this will get called whenever an instance of this class is created
 TurnInPlace::TurnInPlace()
   : turn_in_place_server_(nh_, "/turn_in_place_as", boost::bind(&TurnInPlace::turn_in_place_callback, this, _1), false)
-  , point_click_server_(nh_, "/point_click_as", boost::bind(&TurnInPlace::nav_planning, this, _1), false)
-  ,marker_server_("interactive_marker_server") {
+  , point_click_server_(nh_, "/point_click_as", boost::bind(&TurnInPlace::point_click_callback, this, _1), false)
+  , int_marker_server_("interactive_marker_server") {
 
   ROS_INFO("In class constructor of TurnInPlace");
   
   // Initialize the messy stuff
-  initializeMarkers();
+  initializeIntMarkers();
   initializeSubscribers();
   initializePublishers();
   initializeActions();  
@@ -85,8 +85,6 @@ void TurnInPlace::initializeSubscribers() {
   // Initialize the odometry subscriber
   odom_sub_ = nh_.subscribe("/odom", 1, &TurnInPlace::odom_callback, this);
   
-//  nav_sub_ = nh_.subscribe("/geometry_msgs/Pose", 1, &TurnInPlace::test_callback, this);
-
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -118,36 +116,7 @@ void TurnInPlace::initializeActions() {
 
 /*-----------------------------------------------------------------------------------*/
 
-visualization_msgs::Marker TurnInPlace::makeMarker() {
-  
-  visualization_msgs::Marker marker;
-  marker.type = visualization_msgs::Marker::ARROW;
-  marker.scale.x = 1.0;
-  marker.scale.y = 0.45;
-  marker.scale.z = 0.45;
-  marker.color.r = 1.0;
-  marker.color.g = 0.5;
-  marker.color.b = 0.5;
-  marker.color.a = 1.0;
-  
-  return marker;
-}
-
-/*-----------------------------------------------------------------------------------*/
-
-visualization_msgs::InteractiveMarkerControl& TurnInPlace::makeMarkerControl(visualization_msgs::InteractiveMarker& msg) {
-
-  visualization_msgs::InteractiveMarkerControl control;
-  control.always_visible = true;
-  control.markers.push_back( makeMarker() );
-  msg.controls.push_back( control );
-  
-  return msg.controls.back();
-}
-
-/*-----------------------------------------------------------------------------------*/
-
-void TurnInPlace::initializeMarkers() {
+void TurnInPlace::initializeIntMarkers() {
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
@@ -157,7 +126,7 @@ void TurnInPlace::initializeMarkers() {
   int_marker.description = "Simple 6-DOF Control";
 
   // Create the box marker and the non-interactive control which contains the box
-  makeMarkerControl( int_marker );
+  makeIntMarkerControl( int_marker );
   
   visualization_msgs::InteractiveMarkerControl control;
   
@@ -185,15 +154,43 @@ void TurnInPlace::initializeMarkers() {
   control.interaction_mode = visualization_msgs::InteractiveMarkerControl::ROTATE_AXIS;
   int_marker.controls.push_back(control);
 
-  // Add the interactive marker to our collection &
-  // tell the server to call processFeedback() when feedback arrives for it
-  marker_server_.insert(int_marker, boost::bind(&TurnInPlace::processFeedback, this, _1));
-//  marker_server_.setCallback(int_marker.name, boost::bind(&TurnInPlace::processFeedback, this, _1));
+  // Add the interactive marker to our collection & tell the server to call processFeedback() when feedback arrives for it
+  int_marker_server_.insert(int_marker, boost::bind(&TurnInPlace::processFeedback, this, _1));
 
   // 'commit' changes and send to all clients
-  marker_server_.applyChanges();
+  int_marker_server_.applyChanges();
   
   return;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+
+visualization_msgs::Marker TurnInPlace::makeIntMarker() {
+  
+  visualization_msgs::Marker marker;
+  marker.type = visualization_msgs::Marker::ARROW;
+  marker.scale.x = 1.0;
+  marker.scale.y = 0.45;
+  marker.scale.z = 0.45;
+  marker.color.r = 1.0;
+  marker.color.g = 0.5;
+  marker.color.b = 0.5;
+  marker.color.a = 1.0;
+  
+  return marker;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+visualization_msgs::InteractiveMarkerControl& TurnInPlace::makeIntMarkerControl(visualization_msgs::InteractiveMarker& msg) {
+
+  visualization_msgs::InteractiveMarkerControl control;
+  control.always_visible = true;
+  control.markers.push_back( makeIntMarker() );
+  msg.controls.push_back( control );
+  
+  return msg.controls.back();
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -244,38 +241,6 @@ void TurnInPlace::processFeedback( const visualization_msgs::InteractiveMarkerFe
   or_z_ = feedback->pose.orientation.z;
   or_w_ = feedback->pose.orientation.w;
   
-//  ROS_INFO_STREAM("CB: " << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
-  // TODO: trigger navigation from these values
-}
-/*-----------------------------------------------------------------------------------*/
-
-void TurnInPlace::point_click_callback() {
-
-  ROS_INFO("Point click callback function reached.");
-//  
-////  // Set a variable to "claim" the drivers
-////  point_and_click_running_ = true;
-////  
-////  // TODO: check if turn in place is running
-////  
-////  // Get the values from the goal
-////  pos_x_ = goal->goal_pose.position.x;
-////  pos_y_ = goal->goal_pose.position.y;
-////  pos_z_ = goal->goal_pose.position.z;
-////  or_x_ = goal->goal_pose.orientation.x;
-////  or_y_ = goal->goal_pose.orientation.y;
-////  or_z_ = goal->goal_pose.orientation.z;
-////  or_w_ = goal->goal_pose.orientation.w;
-////  
-////  ROS_INFO_STREAM("CB: " << pos_x_ << ", " << pos_y_ << ", " << pos_z_ << "\t" << or_x_ << ", " <<  or_y_ << ", " <<  or_z_ << ", " << or_w_);
-//  
-//  // Robot's self is always at 
-//  
-//  // Update the turn in place result and success fields
-//  point_click_result_.success = true;
-//  point_click_server_.setSucceeded(point_click_result_);
-//  
-//  point_and_click_running_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -310,13 +275,10 @@ void TurnInPlace::odom_callback(const nav_msgs::Odometry& msg) {
 
 void TurnInPlace::turn_in_place() {
 
-//  ROS_INFO("Turn in place");
-  
   // Create message to be sent
   geometry_msgs::Twist command;
   
   // Set the unchanging fields
-  // TODO: might not need this --> didn't need it in the python version
   command.linear.x = 0.0;
   command.linear.y = 0.0;
   command.linear.z = 0.0;
@@ -325,7 +287,6 @@ void TurnInPlace::turn_in_place() {
   
   float goal_yaw = 0.0;
   
-//  ROS_INFO("got here 1");
   if(turn_left_ == false) {
     // TURNING RIGHT
     goal_yaw = yaw_ - angle_;
@@ -352,10 +313,8 @@ void TurnInPlace::turn_in_place() {
   }
   
   ROS_INFO_STREAM("Goal final angle: " << goal_yaw * 180 / M_PI<< "\tAmt to turn: " << angle_* 180 / M_PI);
-//  ROS_INFO("got here 2");
   // Turn the robot until it reaches the desired angle
   while(abs(goal_yaw - yaw_) > THRESHOLD) {
-//    ROS_INFO("got here 3");
     // Set the turn rate
     command.angular.z = ang_vel_ * (goal_yaw - yaw_);
     
@@ -376,7 +335,6 @@ void TurnInPlace::turn_in_place() {
     } else if (turn_left_ == false && abs(command.angular.z) < MIN_VEL) {
       command.angular.z = -MIN_VEL;
     }
-//    ROS_INFO_STREAM("TURN IN PLACE " << command.angular.z);
     // Publish the message to the drivers
     turn_in_place_publisher_.publish(command);
   }
@@ -388,7 +346,7 @@ void TurnInPlace::turn_in_place() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {  
+void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointClickNavGoalConstPtr& msg) {  
   
   // Store values of position and orientation in local variables so they don't change during calculations
   float x = pos_x_;
@@ -399,29 +357,20 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   float c = or_z_;
   float d = or_w_;
   
+  // TODO: delete this
   tf::Quaternion quat(
     a_,
     b_,
     c_,
     d_
   );
-  
   tf::Matrix3x3 mat(quat);
-  
   tfScalar j,k,l;
-  
-  
   mat.getRPY(j,k,l);
-  
   ROS_INFO_STREAM("\n");
-  
   ROS_INFO_STREAM("Original orientation: (" << j << ", " << k << ", " << l << ")");
   
-  
-  // TODO: might want to store the values of x, y, z, and orientation in local variables so they aren't being changed
-  
-//  ROS_INFO("NAVIGATE");
-  // Calculate the a, b, c distance values between robot and goal
+  // Declare function level variables
   float travel_dist = 0.0;
   bool turn_left1 = true, turn_left2 = true;
   double theta1 = 0.0;
@@ -432,14 +381,17 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   // Calculate the angle needed to turn to face goal point
   theta1 = atan2(y, x);
-//  ROS_INFO_STREAM(theta1);
   
+  // Edge case checking
   if (abs(theta1) <= ANGLE_THRESHOLD) {
+    // If we are only turning 1-3 degrees, just don't turn
     theta1 = 0;
   } else if (abs(M_PI - theta1) <= ANGLE_THRESHOLD) {
+    // If we are turning to an angle within 1-3 degrees of a 180 turn, turn 180
     theta1 = M_PI;
   }
   
+  // Determine direction to turn
   if (theta1 < 0.0) {
     turn_left1 = false;
   } else {
@@ -448,9 +400,10 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   
   // NAVIGATE
 
-  // 1) Turn to face goal location
+  // Turn to face goal location
   navigate(theta1, turn_left1, 0.0, 0.0, 0.0);
   
+  //TODO: delete this
   tf::Quaternion quat0(
     a_,
     b_,
@@ -458,21 +411,19 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     d_);
   tf::Matrix3x3 mat0(quat0);
   mat0.getRPY(j,k,l);
-  
   ROS_INFO_STREAM("Pre-Drive Orientation: (" << j * 180 / M_PI<< ", " << k * 180 / M_PI<< ", " << l* 180 / M_PI << ")");
-//  // 2) Drive to goal location
+  
+  // Drive straight to goal location
   navigate(0.0, true, x, y, travel_dist);
   
+  // TODO: delete this
   tf::Quaternion quat1(
     a_,
     b_,
     c_,
     d_);
-  
   tf::Matrix3x3 mat1(quat1);
-
   mat1.getRPY(j,k,l);
-  
   ROS_INFO_STREAM("Post-Drive Orientation: (" << j * 180 / M_PI<< ", " << k * 180 / M_PI<< ", " << l * 180 / M_PI<< ")");
 
   // Calculate angle to turn by from goal to goal orientation
@@ -481,42 +432,40 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     b,
     c,
     d);
-  
   tf::Matrix3x3 m(q);
-    
   m.getRPY(r, t, theta2);
   
   ROS_INFO_STREAM("Goal Orientation: (" << r* 180 / M_PI << ", " << t* 180 / M_PI << ", " << theta2 * 180 / M_PI<< ")");
   
+  // Because theta2 is simply the angle to turn based on the original orientation, we need to shift the degrees to turn appropriately
   theta2 = theta2 - theta1;
   
   ROS_INFO_STREAM("Goal angle to turn: " << theta2* 180 / M_PI);
   
-  
+  // Make sure theta2 is within a known range
   while(theta2 > M_PI) {
     theta2 -= 2*M_PI;
   }
-  
   while(theta2 < -M_PI) {
     theta2+= 2*M_PI;
   }
   
-  
-  
+  // Determine direction to turn
   if(theta2 < 0.0) {
+    // Turn right
     turn_left2 = false;
     ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 * 180 / M_PI << "R");
     theta2 *= -1;
-  } else if(theta2 > 0.0) {
+  } else {
+    // Turn left
     turn_left2 = true;
     ROS_INFO_STREAM("Post processing goal angle to turn: " << theta2 * 180 / M_PI<< "L");
   }
   
-
-
-  // 3) Turn robot to goal orientation
+  // Turn robot to goal orientation
   navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
   
+  // TODO: delete this
   tf::Quaternion quat2(
     a_,
     b_,
@@ -524,7 +473,6 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
     d_);
   tf::Matrix3x3 mat2(quat2);
   mat2.getRPY(j,k,l);
-  
   ROS_INFO_STREAM("Final Orientation: (" << j* 180 / M_PI << ", " << k* 180 / M_PI << ", " << l* 180 / M_PI << ")");
   
 
@@ -533,15 +481,14 @@ void TurnInPlace::nav_planning(const remote_teleop_robot_backend::PointClickNavG
   point_click_server_.setSucceeded(point_click_result_);
   
   // Snap the interactive marker back to (0,0,0)
-  initializeMarkers();
+  initializeIntMarkers();
 }
 
 /*-----------------------------------------------------------------------------------*/
 
 void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_dist, float dist) {
 
-//  ROS_INFO("Navigate");
-
+  // Declare function level variables
   float goal_x, goal_y, start_x, start_y;
   
   // Create message to be sent
@@ -563,6 +510,7 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
   
   if (angle == 0.0) {
     ROS_INFO("DRIVE STRAIGHT");
+    // Determine goal coordinates
     goal_x = x_ + x_dist;
     goal_y = y_ + y_dist;
     start_x = x_;
@@ -572,21 +520,19 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
     while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) > THRESHOLD) {
       // Set the linear velocity
       command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)), lin_vel_ * abs((goal_y - y_)));
-      
-//      ROS_INFO_STREAM(dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))));
-      
       if (command.linear.x > lin_vel_) {
         command.linear.x = lin_vel_;
       } else if (command.linear.x < MIN_VEL) {
         command.linear.x = MIN_VEL;
       }
       // Publish the command
-//      ROS_INFO_STREAM("DRIVE STRAIGHT" << command.angular.x);
       point_click_nav_publisher_.publish(command);
     }
     // Stop the robot from moving
     command.linear.x = 0.0;
     point_click_nav_publisher_.publish(command);
+    
+    return;
   }
   
   if (dist == 0.0) {
@@ -595,6 +541,8 @@ void TurnInPlace::navigate(float angle, bool turn_left, float x_dist, float y_di
     angle_ = angle;
     turn_left_ = turn_left;
     turn_in_place();
+    
+    return;
   }
   
 }
