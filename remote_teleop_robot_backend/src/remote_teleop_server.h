@@ -101,23 +101,23 @@ private:
   makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg);
 
   // Callback member methods
-  void turn_in_place_callback(
+  void turnInPlaceCallback(
       const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal);
-  void point_click_callback(
+  void pointClickCallback(
       const remote_teleop_robot_backend::PointClickNavGoalConstPtr &msg);
   void processIntMarkerFeedback(
       const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
-  void odom_callback(const nav_msgs::Odometry &msg);
-  void costmap_callback(const nav_msgs::OccupancyGrid &grid);
+  void odomCallback(const nav_msgs::Odometry &msg);
+  void costmapCallback(const nav_msgs::OccupancyGrid &grid);
 
   // Turn in place member methods
-  void turn_in_place();
+  void turnInPlace();
 
   // Point click navigate member methods
   void navigate(float angle, bool turn_left, float x_dist, float y_dist,
                 float dist);
-  void obstacle_check(float x1, float y1, float x2, float y2, float dx,
-                      float dy, bool smallSlope);
+  void obstacleCheck(float x1, float y1, float x2, float y2, float dx, float dy,
+                     bool smallSlope);
 };
 
 #endif // RemoteTeleop_H

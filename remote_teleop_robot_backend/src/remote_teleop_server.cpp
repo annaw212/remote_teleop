@@ -1,4 +1,4 @@
-/* File: turn_in_place_server.cpp
+/* File: remote_teleop_server.cpp
  * Author: Anna Wong
  * Purpose:
  */
@@ -44,10 +44,10 @@
 RemoteTeleop::RemoteTeleop()
     : turn_in_place_server_(
           nh_, "/turn_in_place_as",
-          boost::bind(&RemoteTeleop::turn_in_place_callback, this, _1), false),
+          boost::bind(&RemoteTeleop::turnInPlaceCallback, this, _1), false),
       point_click_server_(
           nh_, "/point_click_as",
-          boost::bind(&RemoteTeleop::point_click_callback, this, _1), false),
+          boost::bind(&RemoteTeleop::pointClickCallback, this, _1), false),
       int_marker_server_("interactive_marker_server") {
 
   ROS_INFO("In class constructor of RemoteTeleop");
@@ -90,11 +90,11 @@ void RemoteTeleop::initializeSubscribers() {
   ROS_INFO("Initializing Subscribers");
 
   // Initialize the odometry subscriber
-  odom_sub_ = nh_.subscribe("/odom", 1, &RemoteTeleop::odom_callback, this);
+  odom_sub_ = nh_.subscribe("/odom", 1, &RemoteTeleop::odomCallback, this);
 
   // Initialize the costmap subscriber
   costmap_sub_ = nh_.subscribe("/rt_costmap_node/costmap/costmap", 1,
-                               &RemoteTeleop::costmap_callback, this);
+                               &RemoteTeleop::costmapCallback, this);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -224,7 +224,7 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::turn_in_place_callback(
+void RemoteTeleop::turnInPlaceCallback(
     const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal) {
 
   ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
@@ -248,7 +248,7 @@ void RemoteTeleop::turn_in_place_callback(
   //  ang_vel_ = 0.5;
   //
   // Tell robot to turn the desired angle
-  turn_in_place();
+  turnInPlace();
 
   // Update the turn in place result and success fields
   turn_in_place_result_.success = true;
@@ -275,7 +275,7 @@ void RemoteTeleop::processIntMarkerFeedback(
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::odom_callback(const nav_msgs::Odometry &msg) {
+void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 
   // Grab the odometry position values out of the message
   x_ = msg.pose.pose.position.x;
@@ -299,7 +299,7 @@ void RemoteTeleop::odom_callback(const nav_msgs::Odometry &msg) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::costmap_callback(const nav_msgs::OccupancyGrid &grid) {
+void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
   // Lock the costmap into place so we can read its values
   //  if (reading_costmap_ == true) {
   //    costmap_mtx_.lock();
@@ -311,7 +311,7 @@ void RemoteTeleop::costmap_callback(const nav_msgs::OccupancyGrid &grid) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::turn_in_place() {
+void RemoteTeleop::turnInPlace() {
 
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -389,7 +389,7 @@ void RemoteTeleop::turn_in_place() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::point_click_callback(
+void RemoteTeleop::pointClickCallback(
     const remote_teleop_robot_backend::PointClickNavGoalConstPtr &msg) {
 
   // Store values of position and orientation in local variables so they don't
@@ -442,10 +442,10 @@ void RemoteTeleop::point_click_callback(
 
   if (dx > dy) {
     // Slope is less than 1
-    obstacle_check(x1, y1, x2, y2, dx, dy, true);
+    obstacleCheck(x1, y1, x2, y2, dx, dy, true);
   } else {
     // Slope is greater than 1
-    obstacle_check(x1, y1, x2, y2, dx, dy, false);
+    obstacleCheck(x1, y1, x2, y2, dx, dy, false);
   }
 
   if (obstacle_detected_ == true) {
@@ -606,7 +606,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     // Turn in place
     angle_ = angle;
     turn_left_ = turn_left;
-    turn_in_place();
+    turnInPlace();
 
     return;
   }
@@ -614,8 +614,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::obstacle_check(float x1, float y1, float x2, float y2,
-                                  float dx, float dy, bool smallSlope) {
+void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
+                                 float dx, float dy, bool smallSlope) {
   // Using Brensenham's line algorithm to produce the straight-line coordinates
   // between two points. Taking those points and checking their locations on the
   // obstacle grid to make sure there are no obstacles in the way of navigation.
