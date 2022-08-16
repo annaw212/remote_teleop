@@ -2,29 +2,30 @@
  * Author: Anna Wong
  * Purpose:
  */
+#include <ros/ros.h>
+
+#include <mutex>
+#include <cmath>
+
+#include <tf/tf.h>
+
+#include <geometry_msgs/Twist.h>
+
+#include <nav_msgs/Odometry.h>
+#include <nav_msgs/OccupancyGrid.h>
 
 #include <actionlib/server/simple_action_server.h>
-#include <cmath>
-#include <costmap_2d/costmap_2d_ros.h>
-#include <geometry_msgs/Twist.h>
 #include <interactive_markers/interactive_marker_server.h>
-#include <iostream>
-#include <mutex>
-#include <nav_msgs/Odometry.h>
-#include <ros/ros.h>
-#include <tf/tf.h>
-#include <tf/transform_broadcaster.h>
-#include <tf2_ros/buffer.h>
+
+#include <visualization_msgs/Marker.h>
 #include <visualization_msgs/InteractiveMarkerControl.h>
 #include <visualization_msgs/InteractiveMarkerUpdate.h>
-#include <visualization_msgs/Marker.h>
 
 #include <remote_teleop_robot_backend/TurnInPlaceAction.h>
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceResult.h>
 
 #include <remote_teleop_robot_backend/PointClickNavAction.h>
-#include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
 
@@ -277,7 +278,7 @@ void RemoteTeleop::processIntMarkerFeedback(
 
 void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 
-  // Grab the odometry position values out of the message
+  // Grab the odometry position and orientation values out of the message
   x_ = msg.pose.pose.position.x;
   y_ = msg.pose.pose.position.y;
   z_ = msg.pose.pose.position.z;
@@ -645,11 +646,9 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
       // decision value will decide to plot
       // either  x1 or y1 in x's position
       if (smallSlope == true) {
-        // putpixel(x1, y1, RED);
         pk = pk + 2 * dy;
       } else {
         //(y1,x1) is passed in xt
-        // putpixel(y1, x1, YELLOW);
         pk = pk + 2 * dy;
       }
     } else {
