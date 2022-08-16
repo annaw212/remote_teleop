@@ -50,7 +50,8 @@
   
   <!-- Publishes the costmap node stuff -->
   
-  <node pkg="tf" type="static_transform_publisher" name="tf_costmap" args="0 0 0 0 0 0 /map /base_link 100" />
+  <!-- <node pkg="tf" type="static_transform_publisher" name="tf_costmap" args="2 0 0 0 0 0 /map /base_link 100" /> -->
+  
   <node pkg="costmap_2d" type="costmap_2d_markers" name="rt_voxel_visualizer" output="screen">
     <remap from="voxel_grid" to="rt_costmap/voxel_grid" />
   </node>
