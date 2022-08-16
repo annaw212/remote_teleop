@@ -394,15 +394,16 @@ void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointC
   // Determine direction to turn
   if (theta1 < 0.0) {
     turn_left1 = false;
-    theta1 *= -1;
+    navigate(theta1 * -1, turn_left1, 0.0, 0.0, 0.0);
   } else {
     turn_left1 = true;
+    navigate(theta1, turn_left1, 0.0, 0.0, 0.0);
   }
   
   // NAVIGATE
 
   // Turn to face goal location
-  navigate(theta1, turn_left1, 0.0, 0.0, 0.0);
+  
   
   //TODO: delete this
   tf::Quaternion quat0(
