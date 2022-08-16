@@ -30,45 +30,42 @@
 #define TURNINPLACE_PANEL_H
 
 #ifndef Q_MOC_RUN
-# include <ros/ros.h>
+#include <ros/ros.h>
 
-# include <rviz/panel.h>
+#include <rviz/panel.h>
 #endif
 
 class QLineEdit;
 
-namespace remote_teleop_rviz_plugin
-{
+namespace remote_teleop_rviz_plugin {
 
 // Declare the TurnInPlacePanel class of type rviz panel
-class TurnInPlacePanel: public rviz::Panel
-{
-// This class uses Qt slots and is a subclass of QObject, so it needs
-// the Q_OBJECT macro.
-Q_OBJECT
+class TurnInPlacePanel : public rviz::Panel {
+  // This class uses Qt slots and is a subclass of QObject, so it needs
+  // the Q_OBJECT macro.
+  Q_OBJECT
 public:
-
   // QWidget subclass constructor
-  TurnInPlacePanel( QWidget* parent = 0 );
+  TurnInPlacePanel(QWidget *parent = 0);
 
-  // Declare overrides of rviz::Panel functions for saving 
+  // Declare overrides of rviz::Panel functions for saving
   // and loading from config file
-  virtual void load( const rviz::Config& config );
-  virtual void save( rviz::Config config ) const;
-
+  virtual void load(const rviz::Config &config);
+  virtual void save(rviz::Config config) const;
 
 public Q_SLOTS:
-  
-  // Once the 'turn left' button has been pushed, this function is called to handle
-  // the assignment of internal variables and call the sendTurnGoal function
-  void setTurnGoalLeft();
-  
-  // Once the 'turn right' button has been pushed, this function is called to handle
-  // the assignment of internal variables and call the sendTurnGoal function
-  void setTurnGoalRight();
-  
-/*  void setVelGoal();*/
 
+  // Once the 'turn left' button has been pushed, this function is called to
+  // handle the assignment of internal variables and call the sendTurnGoal
+  // function
+  void setTurnGoalLeft();
+
+  // Once the 'turn right' button has been pushed, this function is called to
+  // handle the assignment of internal variables and call the sendTurnGoal
+  // function
+  void setTurnGoalRight();
+
+  /*  void setVelGoal();*/
 
 protected Q_SLOTS:
 
@@ -76,22 +73,19 @@ protected Q_SLOTS:
   // creates a message of the desired type, assigns the fields of
   // that message to values, and then publishes the message
   void sendTurnGoal();
-  
-  void sendNavGoal();
-  
-/*  void sendVelGoal();*/
 
+  void sendNavGoal();
+
+  /*  void sendVelGoal();*/
 
 protected:
-
   // One-line text editor for entering the degrees to turn by in
-/*  QLineEdit* degrees_topic_editor_;*/
-
+  /*  QLineEdit* degrees_topic_editor_;*/
 
   // The ROS publisher for the degrees and direction to turn in
   ros::Publisher turn_goal_publisher_;
   ros::Publisher nav_goal_publisher_;
-/*  ros::Publisher vel_goal_publisher_;*/
+  /*  ros::Publisher vel_goal_publisher_;*/
 
   // The ROS node handle.
   ros::NodeHandle nh_;
@@ -101,9 +95,8 @@ protected:
   bool turn_left_;
   float lin_vel_;
   float ang_vel_;
-
 };
 
-} 
+} // namespace remote_teleop_rviz_plugin
 
 #endif // TURNINPLACE_PANEL_H
