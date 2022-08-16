@@ -394,6 +394,7 @@ void TurnInPlace::point_click_callback(const remote_teleop_robot_backend::PointC
   // Determine direction to turn
   if (theta1 < 0.0) {
     turn_left1 = false;
+    theta1 *= -1;
   } else {
     turn_left1 = true;
   }
