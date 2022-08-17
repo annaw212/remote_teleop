@@ -451,8 +451,14 @@ void RemoteTeleop::pointClickCallback(
   if (obstacle_detected_ == true) {
     // Path was not clear -- reset variable and exit function
     obstacle_detected_ = false;
+    // Snap the interactive marker back to (0,0,0)
+    initializeIntMarkers();
     return;
   }
+  
+  // Delete the interactive marker so it's not confusing during navigation
+  visualization_msgs::Marker marker;
+  marker.type = visualization_msgs::Marker::DELETEALL;
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
