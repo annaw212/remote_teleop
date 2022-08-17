@@ -227,7 +227,7 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 void RemoteTeleop::turnInPlaceCallback(
     const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal) {
 
-  ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
+//  ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
 
   // TODO: gray out rviz plugin buttons when turn is being executed
 
@@ -246,7 +246,7 @@ void RemoteTeleop::turnInPlaceCallback(
   // TODO: update vel vars here, OR move this somewhere else
   //  lin_vel_ = 0.5;
   //  ang_vel_ = 0.5;
-  //
+
   // Tell robot to turn the desired angle
   turnInPlace();
 
@@ -352,9 +352,9 @@ void RemoteTeleop::turnInPlace() {
     }
   }
 
-  ROS_INFO_STREAM("Goal final angle: " << goal_yaw * 180 / M_PI
-                                       << "\tAmt to turn: "
-                                       << angle_ * 180 / M_PI);
+//  ROS_INFO_STREAM("Goal final angle: " << goal_yaw * 180 / M_PI
+//                                       << "\tAmt to turn: "
+//                                       << angle_ * 180 / M_PI);
   // Turn the robot until it reaches the desired angle
   while (abs(goal_yaw - yaw_) > THRESHOLD) {
     // Set the turn rate
@@ -403,13 +403,13 @@ void RemoteTeleop::pointClickCallback(
   float d = or_w_;
 
   // TODO: delete this
-  tf::Quaternion quat(a_, b_, c_, d_);
-  tf::Matrix3x3 mat(quat);
-  tfScalar j, k, l;
-  mat.getRPY(j, k, l);
-  ROS_INFO_STREAM("\n");
-  ROS_INFO_STREAM("Original orientation: (" << j << ", " << k << ", " << l
-                                            << ")");
+//  tf::Quaternion quat(a_, b_, c_, d_);
+//  tf::Matrix3x3 mat(quat);
+//  tfScalar j, k, l;
+//  mat.getRPY(j, k, l);
+//  ROS_INFO_STREAM("\n");
+//  ROS_INFO_STREAM("Original orientation: (" << j << ", " << k << ", " << l
+//                                            << ")");
 
   // Declare local variables
   float travel_dist = 0.0;
@@ -473,38 +473,38 @@ void RemoteTeleop::pointClickCallback(
   // Turn to face goal location - done in the previous chunk of code
 
   // TODO: delete this
-  tf::Quaternion quat0(a_, b_, c_, d_);
-  tf::Matrix3x3 mat0(quat0);
+//  tf::Quaternion quat0(a_, b_, c_, d_);
+//  tf::Matrix3x3 mat0(quat0);
   mat0.getRPY(j, k, l);
-  ROS_INFO_STREAM("Pre-Drive Orientation: (" << j * 180 / M_PI << ", "
-                                             << k * 180 / M_PI << ", "
-                                             << l * 180 / M_PI << ")");
+//  ROS_INFO_STREAM("Pre-Drive Orientation: (" << j * 180 / M_PI << ", "
+//                                             << k * 180 / M_PI << ", "
+//                                             << l * 180 / M_PI << ")");
 
   // Drive straight to goal location
   navigate(0.0, true, x, y, travel_dist);
 
   // TODO: delete this
-  tf::Quaternion quat1(a_, b_, c_, d_);
-  tf::Matrix3x3 mat1(quat1);
-  mat1.getRPY(j, k, l);
-  ROS_INFO_STREAM("Post-Drive Orientation: (" << j * 180 / M_PI << ", "
-                                              << k * 180 / M_PI << ", "
-                                              << l * 180 / M_PI << ")");
+//  tf::Quaternion quat1(a_, b_, c_, d_);
+//  tf::Matrix3x3 mat1(quat1);
+//  mat1.getRPY(j, k, l);
+//  ROS_INFO_STREAM("Post-Drive Orientation: (" << j * 180 / M_PI << ", "
+//                                              << k * 180 / M_PI << ", "
+//                                              << l * 180 / M_PI << ")");
 
   // Calculate angle to turn by from goal to goal orientation
   tf::Quaternion q(a, b, c, d);
   tf::Matrix3x3 m(q);
   m.getRPY(r, t, theta2);
 
-  ROS_INFO_STREAM("Goal Orientation: (" << r * 180 / M_PI << ", "
-                                        << t * 180 / M_PI << ", "
-                                        << theta2 * 180 / M_PI << ")");
+//  ROS_INFO_STREAM("Goal Orientation: (" << r * 180 / M_PI << ", "
+//                                        << t * 180 / M_PI << ", "
+//                                        << theta2 * 180 / M_PI << ")");
 
   // Because theta2 is simply the angle to turn based on the original
   // orientation, we need to shift the degrees to turn appropriately
   theta2 = theta2 - theta1;
 
-  ROS_INFO_STREAM("Goal angle to turn: " << theta2 * 180 / M_PI);
+//  ROS_INFO_STREAM("Goal angle to turn: " << theta2 * 180 / M_PI);
 
   // Make sure theta2 is within a known range
   while (theta2 > M_PI) {
@@ -518,26 +518,26 @@ void RemoteTeleop::pointClickCallback(
   if (theta2 < 0.0) {
     // Turn right
     turn_left2 = false;
-    ROS_INFO_STREAM(
-        "Post processing goal angle to turn: " << theta2 * 180 / M_PI << "R");
+//    ROS_INFO_STREAM(
+//        "Post processing goal angle to turn: " << theta2 * 180 / M_PI << "R");
     theta2 *= -1;
   } else {
     // Turn left
     turn_left2 = true;
-    ROS_INFO_STREAM(
-        "Post processing goal angle to turn: " << theta2 * 180 / M_PI << "L");
+//    ROS_INFO_STREAM(
+//        "Post processing goal angle to turn: " << theta2 * 180 / M_PI << "L");
   }
 
   // Turn robot to goal orientation
   navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
 
   // TODO: delete this
-  tf::Quaternion quat2(a_, b_, c_, d_);
-  tf::Matrix3x3 mat2(quat2);
-  mat2.getRPY(j, k, l);
-  ROS_INFO_STREAM("Final Orientation: (" << j * 180 / M_PI << ", "
-                                         << k * 180 / M_PI << ", "
-                                         << l * 180 / M_PI << ")");
+//  tf::Quaternion quat2(a_, b_, c_, d_);
+//  tf::Matrix3x3 mat2(quat2);
+//  mat2.getRPY(j, k, l);
+//  ROS_INFO_STREAM("Final Orientation: (" << j * 180 / M_PI << ", "
+//                                         << k * 180 / M_PI << ", "
+//                                         << l * 180 / M_PI << ")");
 
   // Update the turn in place result and success fields
   point_click_result_.success = true;
@@ -567,13 +567,13 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
   command.angular.z = 0.0;
 
   if (angle == 0.0 && dist == 0.0) {
-    ROS_INFO("DO NOTHING");
+//    ROS_INFO("DO NOTHING");
     // Do nothing
     return;
   }
 
   if (angle == 0.0) {
-    ROS_INFO("DRIVE STRAIGHT");
+//    ROS_INFO("DRIVE STRAIGHT");
     // Determine goal coordinates
     goal_x = x_ + x_dist;
     goal_y = y_ + y_dist;
@@ -602,7 +602,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
   }
 
   if (dist == 0.0) {
-    ROS_INFO("TURN IN PLACE");
+//    ROS_INFO("TURN IN PLACE");
     // Turn in place
     angle_ = angle;
     turn_left_ = turn_left;
