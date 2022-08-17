@@ -475,7 +475,7 @@ void RemoteTeleop::pointClickCallback(
   // TODO: delete this
 //  tf::Quaternion quat0(a_, b_, c_, d_);
 //  tf::Matrix3x3 mat0(quat0);
-  mat0.getRPY(j, k, l);
+//  mat0.getRPY(j, k, l);
 //  ROS_INFO_STREAM("Pre-Drive Orientation: (" << j * 180 / M_PI << ", "
 //                                             << k * 180 / M_PI << ", "
 //                                             << l * 180 / M_PI << ")");
