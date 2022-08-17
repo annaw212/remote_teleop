@@ -171,11 +171,13 @@ void RemoteTeleop::initializeIntMarkers() {
   control.interaction_mode =
       visualization_msgs::InteractiveMarkerControl::ROTATE_AXIS;
   int_marker.controls.push_back(control);
+  
+  int_marker_ = int_marker;
 
   // Add the interactive marker to our collection & tell the server to call
   // processIntMarkerFeedback() when feedback arrives for it
   int_marker_server_.insert(
-      int_marker,
+      int_marker_,
       boost::bind(&RemoteTeleop::processIntMarkerFeedback, this, _1));
 
   // 'commit' changes and send to all clients
@@ -457,8 +459,7 @@ void RemoteTeleop::pointClickCallback(
   }
   
   // Delete the interactive marker so it's not confusing during navigation
-  visualization_msgs::Marker marker;
-  marker.type = visualization_msgs::Marker::DELETEALL;
+  int_marker_.type = visualization_msgs::Marker::DELETEALL;
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead

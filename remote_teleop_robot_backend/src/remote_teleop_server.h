@@ -90,7 +90,7 @@ private:
   bool obstacle_detected_;
   bool reading_costmap_;
 
-  std::mutex costmap_mtx_;
+  visualization_msgs::InteractiveMarker int_marker_;
 
   // Initialization member methods
   void initializeSubscribers();
