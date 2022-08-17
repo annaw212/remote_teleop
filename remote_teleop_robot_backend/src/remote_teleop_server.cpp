@@ -313,6 +313,7 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
   //  } else {
   //    costmap_mtx_.unlock();
   //  }
+    ROS_INFO("COSTMAP CALLBACK FUNCTION");
   return;
 }
 
