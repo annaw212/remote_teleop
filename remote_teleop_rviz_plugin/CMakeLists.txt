@@ -35,10 +35,10 @@ add_definitions(-DQT_NO_KEYWORDS)
 ## Here we specify the list of source files.
 ## The generated MOC files are included automatically as headers.
 set(SRC_FILES
-  src/drive_widget.cpp
-  src/imu_display.cpp
-  src/imu_visual.cpp
-  src/plant_flag_tool.cpp
+#  src/drive_widget.cpp
+#  src/imu_display.cpp
+#  src/imu_visual.cpp
+#  src/plant_flag_tool.cpp
   src/turn_in_place_panel.cpp
 #  src/point_click_nav_panel.cpp
 #  src/costmap.cpp
