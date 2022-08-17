@@ -116,7 +116,7 @@ void RemoteTeleop::initializePublishers() {
 
 void RemoteTeleop::initializeActions() {
 
-  ROS_INFO("Starting action servers");
+  ROS_INFO("Starting Action Servers");
 
   // Start the turn in place action server
   turn_in_place_server_.start();
@@ -128,6 +128,8 @@ void RemoteTeleop::initializeActions() {
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializeIntMarkers(std::string type) {
+
+  ROS_INFO("Initializing Markers");
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
