@@ -195,19 +195,20 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
   // Assign a type to the marker
   if (type == "a") {
     marker.type = visualization_msgs::Marker::ARROW;
+    // Scale the marker
+    marker.scale.x = 1.0;
+    marker.scale.y = 0.45;
+    marker.scale.z = 0.45;
+    // Assign colors to the marker
+    marker.color.r = 1.0;
+    marker.color.g = 0.5;
+    marker.color.b = 0.5;
+    marker.color.a = 1.0;
+    
   } else {
     marker.type = visualization_msgs::Marker::DELETEALL;
   }
-  // Scale the marker
-  marker.scale.x = 1.0;
-  marker.scale.y = 0.45;
-  marker.scale.z = 0.45;
-  // Assign colors to the marker
-  marker.color.r = 1.0;
-  marker.color.g = 0.5;
-  marker.color.b = 0.5;
-  marker.color.a = 1.0;
-
+  
   return marker;
 }
 
