@@ -4,22 +4,22 @@
  */
 #include <ros/ros.h>
 
-#include <mutex>
 #include <cmath>
+#include <mutex>
 
 #include <tf/tf.h>
 
 #include <geometry_msgs/Twist.h>
 
-#include <nav_msgs/Odometry.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <nav_msgs/Odometry.h>
 
 #include <actionlib/server/simple_action_server.h>
 #include <interactive_markers/interactive_marker_server.h>
 
-#include <visualization_msgs/Marker.h>
 #include <visualization_msgs/InteractiveMarkerControl.h>
 #include <visualization_msgs/InteractiveMarkerUpdate.h>
+#include <visualization_msgs/Marker.h>
 
 #include <remote_teleop_robot_backend/TurnInPlaceAction.h>
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
@@ -136,8 +136,7 @@ void RemoteTeleop::initializeIntMarkers() {
   int_marker.name = "simple_6dof";
   int_marker.description = "Simple 6-DOF Control";
 
-  // Create the box marker and the non-interactive control which contains the
-  // box
+  // Create the box marker and the non-interactive control containing the box
   makeIntMarkerControl(int_marker);
 
   // Create the interactive marker control
@@ -208,7 +207,7 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
 
 /*-----------------------------------------------------------------------------------*/
 
-visualization_msgs::InteractiveMarkerControl &
+visualization_msgs::InteractiveMarkerControl&
 RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 
   // Create an interactive marker control

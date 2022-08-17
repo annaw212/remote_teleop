@@ -97,10 +97,8 @@ private:
   void initializePublishers();
   void initializeActions();
   void initializeIntMarkers();
-  void initializeMarkers();
 
   // Marker member methods
-  visualization_msgs::Marker makeMarker();
   visualization_msgs::Marker makeIntMarker();
   visualization_msgs::InteractiveMarkerControl &
   makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg);
