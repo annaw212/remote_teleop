@@ -96,12 +96,12 @@ private:
   void initializeSubscribers();
   void initializePublishers();
   void initializeActions();
-  void initializeIntMarkers();
+  void initializeIntMarkers(std::string type);
 
   // Marker member methods
-  visualization_msgs::Marker makeIntMarker();
+  visualization_msgs::Marker makeIntMarker(std::string type);
   visualization_msgs::InteractiveMarkerControl &
-  makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg);
+  makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg, std::string type);
 
   // Callback member methods
   void turnInPlaceCallback(

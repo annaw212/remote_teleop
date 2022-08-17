@@ -54,7 +54,7 @@ RemoteTeleop::RemoteTeleop()
   ROS_INFO("In class constructor of RemoteTeleop");
 
   // Initialize the messy stuff
-  initializeIntMarkers();
+  initializeIntMarkers("a");
   initializeSubscribers();
   initializePublishers();
   initializeActions();
@@ -127,7 +127,7 @@ void RemoteTeleop::initializeActions() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::initializeIntMarkers() {
+void RemoteTeleop::initializeIntMarkers(std::string type) {
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
@@ -137,7 +137,7 @@ void RemoteTeleop::initializeIntMarkers() {
   int_marker.description = "Simple 6-DOF Control";
 
   // Create the box marker and the non-interactive control containing the box
-  makeIntMarkerControl(int_marker);
+  makeIntMarkerControl(int_marker, type);
 
   // Create the interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
@@ -188,12 +188,16 @@ void RemoteTeleop::initializeIntMarkers() {
 
 /*-----------------------------------------------------------------------------------*/
 
-visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
+visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
 
   // Create a marker
   visualization_msgs::Marker marker;
   // Assign a type to the marker
-  marker.type = visualization_msgs::Marker::ARROW;
+  if (type == "a") {
+    marker.type = visualization_msgs::Marker::ARROW;
+  } else {
+    marker.type = visualization_msgs::Marker::DELETEALL;
+  }
   // Scale the marker
   marker.scale.x = 1.0;
   marker.scale.y = 0.45;
@@ -210,14 +214,14 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
 /*-----------------------------------------------------------------------------------*/
 
 visualization_msgs::InteractiveMarkerControl&
-RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
+RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg, std::string type) {
 
   // Create an interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
   // Set the control variables
   control.always_visible = true;
   // Assign a marker to the control
-  control.markers.push_back(makeIntMarker());
+  control.markers.push_back(makeIntMarker("a"));
   // Assign the control to an interactive marker
   msg.controls.push_back(control);
 
@@ -454,12 +458,12 @@ void RemoteTeleop::pointClickCallback(
     // Path was not clear -- reset variable and exit function
     obstacle_detected_ = false;
     // Snap the interactive marker back to (0,0,0)
-    initializeIntMarkers();
+    initializeIntMarkers("a");
     return;
   }
   
   // Delete the interactive marker so it's not confusing during navigation
-  int_marker_.type = visualization_msgs::Marker::DELETEALL;
+  initializeIntMarkers("d");
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
@@ -551,7 +555,7 @@ void RemoteTeleop::pointClickCallback(
   point_click_server_.setSucceeded(point_click_result_);
 
   // Snap the interactive marker back to (0,0,0)
-  initializeIntMarkers();
+  initializeIntMarkers("a");
 }
 
 /*-----------------------------------------------------------------------------------*/
