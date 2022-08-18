@@ -329,7 +329,7 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
   // Store the values of the occupancy grid in a variable for future reference
   occupancy_grid_ = grid;
-  ROS_INFO("COSTMAP CALLBACK FUNCTION");
+//  ROS_INFO("COSTMAP CALLBACK FUNCTION");
   return;
 }
 
@@ -478,8 +478,8 @@ void RemoteTeleop::pointClickCallback(
   //    return;
   //  }
   //
-  //  // Delete the interactive marker so it's not confusing during navigation
-  //  initializeIntMarkers("d");
+    // Delete the interactive marker so it's not confusing during navigation
+    initializeIntMarkers("d");
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
