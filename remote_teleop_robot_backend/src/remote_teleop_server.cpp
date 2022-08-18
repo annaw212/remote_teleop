@@ -158,9 +158,6 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
   // Create the box marker and the non-interactive control containing the box
   makeIntMarkerControl(int_marker, type);
   
-  if (type == "d") {
-    return;
-  }
   // Create the interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
 
@@ -229,6 +226,15 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
 
   } else {
     marker.type = visualization_msgs::Marker::DELETE;
+    // Scale the marker
+    marker.scale.x = 0.0;
+    marker.scale.y = 0.0;
+    marker.scale.z = 0.0;
+    // Assign colors to the marker
+    marker.color.r = 1.0;
+    marker.color.g = 0.5;
+    marker.color.b = 0.5;
+    marker.color.a = 1.0;
   }
 
   return marker;
