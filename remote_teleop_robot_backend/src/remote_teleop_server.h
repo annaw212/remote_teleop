@@ -50,6 +50,7 @@ private:
       remote_teleop_robot_backend::PointClickNavAction>
       point_click_server_;
   interactive_markers::InteractiveMarkerServer int_marker_server_;
+  actionlib::SimpleActionServer<remote_teleop_robot_backend::StopNavAction> stop_action_server_;
 
   // ROS publishers
   ros::Publisher turn_in_place_publisher_;

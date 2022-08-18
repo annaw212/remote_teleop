@@ -35,11 +35,10 @@
 
 #include "remote_teleop_server.h"
 
-#include <tf2_ros/buffer.h>
-#include <tf/transform_listener.h>
-#include <costmap_2d/costmap_2d_ros.h>
 #include <costmap_2d/costmap_2d.h>
+#include <costmap_2d/costmap_2d_ros.h>
 #include <tf/transform_listener.h>
+#include <tf2_ros/buffer.h>
 /*-----------------------------------------------------------------------------------*/
 
 // Define variables here
@@ -58,7 +57,10 @@ RemoteTeleop::RemoteTeleop()
       point_click_server_(
           nh_, "/point_click_as",
           boost::bind(&RemoteTeleop::pointClickCallback, this, _1), false),
-      int_marker_server_("interactive_marker_server") {
+      int_marker_server_("interactive_marker_server"),
+      stop_action_server_(nh_, "/stop_nav_as",
+                          boost::bind(&RemoteTeleop::stopNavCallback, this, _1),
+                          false) {
 
   ROS_INFO("In class constructor of RemoteTeleop");
 
@@ -118,7 +120,7 @@ void RemoteTeleop::initializePublishers() {
   // Initialize the point and click publisher
   point_click_nav_publisher_ =
       nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
-      
+
   // Initialize the stop publisher
   stop_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
 }
@@ -184,7 +186,7 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
   control.interaction_mode =
       visualization_msgs::InteractiveMarkerControl::ROTATE_AXIS;
   int_marker.controls.push_back(control);
-  
+
   int_marker_ = int_marker;
 
   // Add the interactive marker to our collection & tell the server to call
@@ -217,18 +219,19 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
     marker.color.g = 0.5;
     marker.color.b = 0.5;
     marker.color.a = 1.0;
-    
+
   } else {
     marker.type = visualization_msgs::Marker::DELETEALL;
   }
-  
+
   return marker;
 }
 
 /*-----------------------------------------------------------------------------------*/
 
-visualization_msgs::InteractiveMarkerControl&
-RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg, std::string type) {
+visualization_msgs::InteractiveMarkerControl &
+RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg,
+                                   std::string type) {
 
   // Create an interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
@@ -247,7 +250,7 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg, s
 void RemoteTeleop::turnInPlaceCallback(
     const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal) {
 
-//  ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
+  //  ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
 
   // TODO: gray out rviz plugin buttons when turn is being executed
 
@@ -342,7 +345,7 @@ void RemoteTeleop::turnInPlace() {
   command.angular.x = 0.0;
   command.angular.y = 0.0;
   command.angular.z = 0.0;
-  
+
   float goal_yaw = 0.0;
 
   if (turn_left_ == false) {
@@ -374,7 +377,7 @@ void RemoteTeleop::turnInPlace() {
 
   // Turn the robot until it reaches the desired angle
   while (abs(goal_yaw - yaw_) > THRESHOLD && !stop_) {
-    
+
     // Set the turn rate
     command.angular.z = ang_vel_ * (goal_yaw - yaw_);
 
@@ -403,7 +406,7 @@ void RemoteTeleop::turnInPlace() {
   // Stop the robot once it has reached its goal
   command.angular.z = 0.0;
   turn_in_place_publisher_.publish(command);
-  
+
   turn_in_place_running_ = false;
 }
 
@@ -411,7 +414,7 @@ void RemoteTeleop::turnInPlace() {
 
 void RemoteTeleop::pointClickCallback(
     const remote_teleop_robot_backend::PointClickNavGoalConstPtr &msg) {
-    
+
   point_click_running_ = true;
 
   // Store values of position and orientation in local variables so they don't
@@ -446,33 +449,33 @@ void RemoteTeleop::pointClickCallback(
   }
 
   // Determine validity of path
-//  float x1 = x_;
-//  float y1 = y_;
-//  float x2 = x1 + x;
-//  float y2 = y1 + y;
-//  float dx = abs(x2 - x1);
-//  float dy = abs(y1 - y1);
+  //  float x1 = x_;
+  //  float y1 = y_;
+  //  float x2 = x1 + x;
+  //  float y2 = y1 + y;
+  //  float dx = abs(x2 - x1);
+  //  float dy = abs(y1 - y1);
 
-//  if (dx > dy) {
-//    // Slope is less than 1
-//    ROS_INFO("HERE1");
-//    obstacleCheck(x1, y1, x2, y2, dx, dy, true);
-//  } else {
-//    // Slope is greater than 1
-//    ROS_INFO("HERE2");
-//    obstacleCheck(x1, y1, x2, y2, dx, dy, false);
-//  }
+  //  if (dx > dy) {
+  //    // Slope is less than 1
+  //    ROS_INFO("HERE1");
+  //    obstacleCheck(x1, y1, x2, y2, dx, dy, true);
+  //  } else {
+  //    // Slope is greater than 1
+  //    ROS_INFO("HERE2");
+  //    obstacleCheck(x1, y1, x2, y2, dx, dy, false);
+  //  }
 
-//  if (obstacle_detected_ == true) {
-//    // Path was not clear -- reset variable and exit function
-//    obstacle_detected_ = false;
-//    // Snap the interactive marker back to (0,0,0)
-//    initializeIntMarkers("a");
-//    return;
-//  }
-//  
-//  // Delete the interactive marker so it's not confusing during navigation
-//  initializeIntMarkers("d");
+  //  if (obstacle_detected_ == true) {
+  //    // Path was not clear -- reset variable and exit function
+  //    obstacle_detected_ = false;
+  //    // Snap the interactive marker back to (0,0,0)
+  //    initializeIntMarkers("a");
+  //    return;
+  //  }
+  //
+  //  // Delete the interactive marker so it's not confusing during navigation
+  //  initializeIntMarkers("d");
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
@@ -480,9 +483,9 @@ void RemoteTeleop::pointClickCallback(
   // theta1 to be positive if we are turning right, but theta2 is based on
   // theta1's original value, so this is _one_ way to make sure theta1 can keep
   // its original value...
-  
+
   if (!stop_) {
-  
+
     if (theta1 < 0.0) {
       turn_left1 = false;
       navigate(theta1 * -1, turn_left1, 0.0, 0.0, 0.0);
@@ -537,7 +540,7 @@ void RemoteTeleop::pointClickCallback(
 
   // Snap the interactive marker back to (0,0,0)
   initializeIntMarkers("a");
-  
+
   point_click_running_ = false;
 }
 
@@ -545,7 +548,7 @@ void RemoteTeleop::pointClickCallback(
 
 void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
                             float y_dist, float dist) {
-                            
+
   if (stop_) {
     stopMovement();
     return;
@@ -610,11 +613,13 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::stopNavCallback(const remote_teleop_robot_backend::StopNavGoalConstPtr& goal) {
+void RemoteTeleop::stopNavCallback(
+    const remote_teleop_robot_backend::StopNavGoalConstPtr &goal) {
   ROS_INFO("STOP NAV CALLBACK");
   stop_ = goal->stop;
   ROS_INFO_STREAM("Stop goal received = " << stop_);
-  while(turn_in_place_running_ || point_click_running_);
+  while (turn_in_place_running_ || point_click_running_)
+    ;
   stop_ = false;
   ROS_INFO_STREAM("Stop goal ended = " << stop_);
 }
@@ -632,7 +637,7 @@ void RemoteTeleop::stopMovement() {
   command.angular.x = 0.0;
   command.angular.y = 0.0;
   command.angular.z = 0.0;
-  
+
   // Publish the message
   stop_publisher_.publish(command);
 }
