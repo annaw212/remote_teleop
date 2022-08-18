@@ -472,8 +472,8 @@ void RemoteTeleop::pointClickCallback(
   // Determine validity of path
     float x1 = x_;
     float y1 = y_;
-    float x2 = x1 + x;
-    float y2 = y1 + y;
+    float x2 = x;
+    float y2 = y;
     float dx = abs(x2 - x1);
     float dy = abs(y1 - y1);
 
