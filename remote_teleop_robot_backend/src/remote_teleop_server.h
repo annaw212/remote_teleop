@@ -99,6 +99,7 @@ private:
   bool stop_;
 
   visualization_msgs::InteractiveMarker int_marker_;
+  visualization_msgs::Marker marker_;
   nav_msgs::OccupancyGrid occupancy_grid_;
 
   // Initialization member methods
