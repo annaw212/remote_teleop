@@ -88,9 +88,9 @@ private:
   bool turn_in_place_running_;
   bool point_and_click_running_;
   bool obstacle_detected_;
-  bool reading_costmap_;
 
   visualization_msgs::InteractiveMarker int_marker_;
+  nav_msgs::OccupancyGrid occupancy_grid_;
 
   // Initialization member methods
   void initializeSubscribers();

@@ -31,6 +31,11 @@
 
 #include "remote_teleop_server.h"
 
+#include <tf2_ros/buffer.h>
+#include <tf/transform_listener.h>
+#include <costmap_2d/costmap_2d_ros.h>
+#include <costmap_2d/costmap_2d.h>
+#include <tf/transform_listener.h>
 /*-----------------------------------------------------------------------------------*/
 
 // Define variables here
@@ -81,7 +86,6 @@ RemoteTeleop::RemoteTeleop()
   turn_in_place_running_ = false;
   point_and_click_running_ = false;
   obstacle_detected_ = false;
-  reading_costmap_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -309,13 +313,9 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
-  // Lock the costmap into place so we can read its values
-  //  if (reading_costmap_ == true) {
-  //    costmap_mtx_.lock();
-  //  } else {
-  //    costmap_mtx_.unlock();
-  //  }
-    ROS_INFO("COSTMAP CALLBACK FUNCTION");
+  // Store the values of the occupancy grid in a variable for future reference
+  occupancy_grid_ = grid;
+  ROS_INFO("COSTMAP CALLBACK FUNCTION");
   return;
 }
 
@@ -365,6 +365,7 @@ void RemoteTeleop::turnInPlace() {
 //  ROS_INFO_STREAM("Goal final angle: " << goal_yaw * 180 / M_PI
 //                                       << "\tAmt to turn: "
 //                                       << angle_ * 180 / M_PI);
+
   // Turn the robot until it reaches the desired angle
   while (abs(goal_yaw - yaw_) > THRESHOLD) {
     // Set the turn rate
@@ -450,24 +451,26 @@ void RemoteTeleop::pointClickCallback(
   float dx = abs(x2 - x1);
   float dy = abs(y1 - y1);
 
-  if (dx > dy) {
-    // Slope is less than 1
-    obstacleCheck(x1, y1, x2, y2, dx, dy, true);
-  } else {
-    // Slope is greater than 1
-    obstacleCheck(x1, y1, x2, y2, dx, dy, false);
-  }
+//  if (dx > dy) {
+//    // Slope is less than 1
+//    ROS_INFO("HERE1");
+//    obstacleCheck(x1, y1, x2, y2, dx, dy, true);
+//  } else {
+//    // Slope is greater than 1
+//    ROS_INFO("HERE2");
+//    obstacleCheck(x1, y1, x2, y2, dx, dy, false);
+//  }
 
-  if (obstacle_detected_ == true) {
-    // Path was not clear -- reset variable and exit function
-    obstacle_detected_ = false;
-    // Snap the interactive marker back to (0,0,0)
-    initializeIntMarkers("a");
-    return;
-  }
-  
-  // Delete the interactive marker so it's not confusing during navigation
-  initializeIntMarkers("d");
+//  if (obstacle_detected_ == true) {
+//    // Path was not clear -- reset variable and exit function
+//    obstacle_detected_ = false;
+//    // Snap the interactive marker back to (0,0,0)
+//    initializeIntMarkers("a");
+//    return;
+//  }
+//  
+//  // Delete the interactive marker so it's not confusing during navigation
+//  initializeIntMarkers("d");
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
@@ -487,24 +490,8 @@ void RemoteTeleop::pointClickCallback(
 
   // Turn to face goal location - done in the previous chunk of code
 
-  // TODO: delete this
-//  tf::Quaternion quat0(a_, b_, c_, d_);
-//  tf::Matrix3x3 mat0(quat0);
-//  mat0.getRPY(j, k, l);
-//  ROS_INFO_STREAM("Pre-Drive Orientation: (" << j * 180 / M_PI << ", "
-//                                             << k * 180 / M_PI << ", "
-//                                             << l * 180 / M_PI << ")");
-
   // Drive straight to goal location
   navigate(0.0, true, x, y, travel_dist);
-
-  // TODO: delete this
-//  tf::Quaternion quat1(a_, b_, c_, d_);
-//  tf::Matrix3x3 mat1(quat1);
-//  mat1.getRPY(j, k, l);
-//  ROS_INFO_STREAM("Post-Drive Orientation: (" << j * 180 / M_PI << ", "
-//                                              << k * 180 / M_PI << ", "
-//                                              << l * 180 / M_PI << ")");
 
   // Calculate angle to turn by from goal to goal orientation
   tf::Quaternion q(a, b, c, d);
@@ -634,23 +621,21 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // Using Brensenham's line algorithm to produce the straight-line coordinates
   // between two points. Taking those points and checking their locations on the
   // obstacle grid to make sure there are no obstacles in the way of navigation.
-
-  // Lock the costmap into place so it isn't updating while we are reading the
-  // values
-  // TODO: this might be faulty logic, so make sure to check this out...you know
-  // why things are going wrong if they're going wrong. It's probably because of
-  // this
-  reading_costmap_ = true;
-
+  ROS_INFO("CHECKING FOR OBSTACLES");
+  nav_msgs::MapMetaData info = occupancy_grid_.info;
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
   for (int i = 0; i <= dx; i++) {
-
+    float index = x1 + info.width * y1;
+    ROS_INFO_STREAM(x1 << ", " << y1 << ", " << dx << ", " << dy);
     // TODO: check the value of the occupancy grid against the path
-    //    if (occupancy_grid[x1][x2] != 0.0) {
-    //      obstacle_detected_ = true;
-    //      return;
-    //    }
+    if (occupancy_grid_.data[index] != 0.0) {
+      ROS_INFO("OBSTACLE DETECTED");
+      obstacle_detected_ = true;
+      return;
+    } else {
+      ROS_INFO("OBSTACLE NOT DETECTED");
+    }
 
     // checking either to decrement or increment the value
     // if we have to plot from (0,100) to (100,0)
@@ -677,9 +662,6 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
       pk = pk + 2 * dy - 2 * dx;
     }
   }
-
-  // Allow the costmap mutex to be unlocked
-  reading_costmap_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/
