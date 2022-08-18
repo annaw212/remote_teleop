@@ -692,6 +692,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   robot_pose.pose.position.x = x2;
   robot_pose.pose.position.y = y2;
   robot_pose.pose.position.z = 0;
+  robot_pose.pose.orientation.w = 1.0;
   
   ROS_INFO_STREAM(robot_pose);
   
