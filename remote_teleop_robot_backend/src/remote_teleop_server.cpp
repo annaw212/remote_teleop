@@ -628,6 +628,9 @@ void RemoteTeleop::stopNavCallback(
     ;
   stop_ = false;
   ROS_INFO_STREAM("Stop goal ended = " << stop_);
+  
+  stop_nav_result_.success = true;
+  stop_action_server_.setSucceeded(stop_nav_result_);
 }
 
 /*-----------------------------------------------------------------------------------*/

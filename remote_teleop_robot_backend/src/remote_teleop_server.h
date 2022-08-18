@@ -60,6 +60,7 @@ private:
   // Result messages
   remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
   remote_teleop_robot_backend::PointClickNavResult point_click_result_;
+  remote_teleop_robot_backend::StopNavResult stop_nav_result_;
 
   // The ROS subscriber for receiving odometry value updates
   ros::Subscriber odom_sub_;
