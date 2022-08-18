@@ -488,6 +488,9 @@ void RemoteTeleop::pointClickCallback(
     if (obstacle_detected_ == true) {
       // Path was not clear -- reset variable and exit function
       obstacle_detected_ = false;
+      // Update the turn in place result and success fields
+      point_click_result_.success = true;
+      point_click_server_.setSucceeded(point_click_result_);
       // Snap the interactive marker back to (0,0,0)
       initializeIntMarkers("a");
       return;
