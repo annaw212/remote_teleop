@@ -472,7 +472,7 @@ void RemoteTeleop::pointClickCallback(
   // Determine validity of path
     float x1 = x_;
     float y1 = y_;
-    float x2 = x;
+    float x2 = x; // x1 + x
     float y2 = y;
     float dx = abs(x2 - x1);
     float dy = abs(y1 - y1);
@@ -703,6 +703,11 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   base_link_to_odom = tf_buffer.lookupTransform("odom", "base_link", ros::Time(0), ros::Duration(1.0) );
 
   tf2::doTransform(robot_pose, robot_pose, base_link_to_odom); // robot_pose is the PoseStamped I want to transform
+  
+  ROS_INFO_STREAM(robot_pose);
+  
+  robot_pose.pose.position.x += occupancy_grid_.info.origin.posiiton.x;
+  robot_pose.pose.position.x += occupancy_grid_.info.origin.posiiton.y;
   
   ROS_INFO_STREAM(robot_pose);
   
