@@ -700,7 +700,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   tf2_ros::TransformListener tf2_listener(tf_buffer);
   geometry_msgs::TransformStamped base_link_to_odom; // My frames are named "base_link" and "odom"
 
-  base_link_to_odom = tf_buffer.lookupTransform("base_link", "odom", ros::Time(0), ros::Duration(1.0) );
+  base_link_to_odom = tf_buffer.lookupTransform("odom", "base_link", ros::Time(0), ros::Duration(1.0) );
 
   tf2::doTransform(robot_pose, robot_pose, base_link_to_odom); // robot_pose is the PoseStamped I want to transform
   
