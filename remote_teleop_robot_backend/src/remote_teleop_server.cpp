@@ -210,34 +210,34 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
 visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
 
   // Create a marker
-  visualization_msgs::Marker marker;
+//  visualization_msgs::Marker marker;
   // Assign a type to the marker
   if (type == "a") {
-    marker.type = visualization_msgs::Marker::ARROW;
+    marker_.type = visualization_msgs::Marker::ARROW;
     // Scale the marker
-    marker.scale.x = 1.0;
-    marker.scale.y = 0.45;
-    marker.scale.z = 0.45;
+    marker_.scale.x = 1.0;
+    marker_.scale.y = 0.45;
+    marker_.scale.z = 0.45;
     // Assign colors to the marker
-    marker.color.r = 1.0;
-    marker.color.g = 0.5;
-    marker.color.b = 0.5;
-    marker.color.a = 1.0;
+    marker_.color.r = 1.0;
+    marker_.color.g = 0.5;
+    marker_.color.b = 0.5;
+    marker_.color.a = 1.0;
 
   } else {
-    marker.type = visualization_msgs::Marker::DELETE;
+    marker_.action = visualization_msgs::Marker::DELETEALL;
     // Scale the marker
-    marker.scale.x = 0.0;
-    marker.scale.y = 0.0;
-    marker.scale.z = 0.0;
-    // Assign colors to the marker
-    marker.color.r = 1.0;
-    marker.color.g = 0.5;
-    marker.color.b = 0.5;
-    marker.color.a = 1.0;
+//    marker_.scale.x = 0.0;
+//    marker_.scale.y = 0.0;
+//    marker_.scale.z = 0.0;
+//    // Assign colors to the marker
+//    marker_.color.r = 1.0;
+//    marker_.color.g = 0.5;
+//    marker_.color.b = 0.5;
+//    marker_.color.a = 1.0;
   }
 
-  return marker;
+  return marker_;
 }
 
 /*-----------------------------------------------------------------------------------*/
