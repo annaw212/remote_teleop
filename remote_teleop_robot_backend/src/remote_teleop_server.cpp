@@ -254,34 +254,34 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg,
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::makeDestMarker(float pos_x, float pos_y, float pos_z, float or_x, float or_y, float or_z, float or_w) {
+//void RemoteTeleop::makeDestMarker(float pos_x, float pos_y, float pos_z, float or_x, float or_y, float or_z, float or_w) {
 
-  ROS_INFO("MAKING DESTINATION MARKER");
-  visualization_msgs::Marker marker;
-  marker.header.frame_id = "base_link";
-  marker.header.stamp = ros::Time();
-  marker.id = 0;
-  marker.type = visualization_msgs::Marker::ARROW;
-  marker.action = visualization_msgs::Marker::ADD;
-  marker.pose.position.x = pos_x;
-  marker.pose.position.y = pos_y;
-  marker.pose.position.z = pos_z;
-  marker.pose.orientation.x = or_x;
-  marker.pose.orientation.y = or_y;
-  marker.pose.orientation.z = or_z;
-  marker.pose.orientation.w = or_w;
-  // Scale the marker
-  marker.scale.x = 1.0;
-  marker.scale.y = 0.45;
-  marker.scale.z = 0.45;
-  // Assign colors to the marker
-  marker.color.r = 0.0;
-  marker.color.g = 1.0;
-  marker.color.b = 0.0;
-  marker.color.a = 1.0;
-  
-  marker_publisher_.publish(marker);
-}
+//  ROS_INFO("MAKING DESTINATION MARKER");
+//  visualization_msgs::Marker marker;
+//  marker.header.frame_id = "base_link";
+//  marker.header.stamp = ros::Time();
+//  marker.id = 0;
+//  marker.type = visualization_msgs::Marker::ARROW;
+//  marker.action = visualization_msgs::Marker::ADD;
+//  marker.pose.position.x = pos_x;
+//  marker.pose.position.y = pos_y;
+//  marker.pose.position.z = pos_z;
+//  marker.pose.orientation.x = or_x;
+//  marker.pose.orientation.y = or_y;
+//  marker.pose.orientation.z = or_z;
+//  marker.pose.orientation.w = or_w;
+//  // Scale the marker
+//  marker.scale.x = 1.0;
+//  marker.scale.y = 0.45;
+//  marker.scale.z = 0.45;
+//  // Assign colors to the marker
+//  marker.color.r = 0.0;
+//  marker.color.g = 1.0;
+//  marker.color.b = 0.0;
+//  marker.color.a = 1.0;
+//  
+//  marker_publisher_.publish(marker);
+//}
 
 /*-----------------------------------------------------------------------------------*/
 
