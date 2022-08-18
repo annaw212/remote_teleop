@@ -487,7 +487,7 @@ void RemoteTeleop::pointClickCallback(
     // Delete the interactive marker so it's not confusing during navigation
 //    initializeIntMarkers("d");
 //  rviz_visual_tools::RvizVisualTools::deleteAllMarkers();
-  rviz_visual_tools::RvizVisualTools vis_tool_("/base_link", "/rviz_visual_tools", nh_);
+  rviz_visual_tools::RvizVisualTools vis_tool_("/base_link", "/visualization_marker", nh_);
   vis_tool_.deleteAllMarkers();
 
   // Determine direction to turn, and turn to face goal location
