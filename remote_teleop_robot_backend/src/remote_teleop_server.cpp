@@ -92,6 +92,7 @@ RemoteTeleop::RemoteTeleop()
   turn_in_place_running_ = false;
   point_click_running_ = false;
   obstacle_detected_ = false;
+  stop_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -534,6 +535,7 @@ void RemoteTeleop::pointClickCallback(
     // Turn robot to goal orientation
     navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
   } else {
+    ROS_INFO("TURN IN PLACE STOP");
     stopMovement();
   }
 
@@ -553,6 +555,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
                             float y_dist, float dist) {
 
   if (stop_) {
+    ROS_INFO("NAVIGATION STOP");
     stopMovement();
     return;
   }
@@ -585,7 +588,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
     // Drive straight
     while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
-           THRESHOLD) {
+           THRESHOLD && !stop_) {
       // Set the linear velocity
       command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)),
                                   lin_vel_ * abs((goal_y - y_)));
@@ -630,6 +633,7 @@ void RemoteTeleop::stopNavCallback(
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::stopMovement() {
+  ROS_INFO("STOP MOVEMENT");
   // Create message to be sent
   geometry_msgs::Twist command;
 
