@@ -265,6 +265,9 @@ void TurnInPlacePanel::load(const rviz::Config &config) {
   nav_goal_publisher_ =
       nh_.advertise<remote_teleop_robot_backend::PointClickNavActionGoal>(
           "point_click_as/goal", 1);
+  stop_goal_publisher_ =
+      nh_.advertise<remote_teleop_robot_backend::StopNavActionGoal>(
+          "stop_nav_as/goal", 1);
   //  vel_goal_publisher_ =
   //  nh_.advertise<remote_teleop_robot_backend::SpeedToggleActionGoal>(
   //  "point_click_as/goal", 1 );
