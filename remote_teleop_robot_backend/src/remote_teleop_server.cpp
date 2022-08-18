@@ -680,21 +680,29 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // between two points. Taking those points and checking their locations on the
   // obstacle grid to make sure there are no obstacles in the way of navigation.
   ROS_INFO("CHECKING FOR OBSTACLES");
+  float w = 240;
+  float l = 240;
+  float res = 0.025;
+  float i, j, index;
   nav_msgs::MapMetaData info = occupancy_grid_.info;
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
   for (int i = 0; i <= dx; i++) {
-    float index = x1 + info.width * y1;
+    
     ROS_INFO_STREAM(x1 << ", " << y1 << ", " << dx << ", " << dy);
     // TODO: check the value of the occupancy grid against the path
-    if (occupancy_grid_.data[index] != 0.0) {
+    i = w/2 + x1/res;
+    j = l/2 - y1/res;
+    index = i*w + j;
+    
+    if (occupancy_grid_.data[index] != 0) {
       ROS_INFO("OBSTACLE DETECTED");
       obstacle_detected_ = true;
       return;
-    } else {
-      ROS_INFO("OBSTACLE NOT DETECTED");
     }
-
+    
+    ROS_INFO("SAFE TO NAVIGATE");
+    
     // checking either to decrement or increment the value
     // if we have to plot from (0,100) to (100,0)
     x1 < x2 ? x1++ : x1--;
