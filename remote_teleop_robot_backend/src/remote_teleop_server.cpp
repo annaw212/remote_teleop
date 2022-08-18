@@ -136,6 +136,9 @@ void RemoteTeleop::initializeActions() {
 
   // Start the point click action server
   point_click_server_.start();
+  
+  // Start stop nav action server
+  stop_action_server_.start();
 }
 
 /*-----------------------------------------------------------------------------------*/
