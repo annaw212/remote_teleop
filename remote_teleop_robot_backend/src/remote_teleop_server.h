@@ -113,8 +113,6 @@ private:
   visualization_msgs::Marker makeIntMarker(std::string type);
   visualization_msgs::InteractiveMarkerControl &
   makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg, std::string type);
-  void makeDestMarker(float pos_x, float pos_y, float pos_z, float or_x, float or_y, float or_z, float or_w);
-  void deleteMarkers();
 
   // Callback member methods
   void turnInPlaceCallback(
