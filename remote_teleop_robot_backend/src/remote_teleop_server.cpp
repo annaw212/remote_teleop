@@ -40,6 +40,8 @@
 #include <tf/transform_listener.h>
 #include <tf2_ros/buffer.h>
 #include <rviz_visual_tools/rviz_visual_tools.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <geometry_msgs/PoseStamped.h>
 /*-----------------------------------------------------------------------------------*/
 
 // Define variables here
@@ -682,6 +684,25 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // Using Brensenham's line algorithm to produce the straight-line coordinates
   // between two points. Taking those points and checking their locations on the
   // obstacle grid to make sure there are no obstacles in the way of navigation.
+  
+  // TODO: get the new goal from odom -- from tf and then - offset given by info origin
+  
+  geometry_msgs::PoseStamped robot_pose;
+  
+  robot_pose.pose.position.x = x2;
+  robot_pose.pose.position.y = y2;
+  robot_pose.pose.position.z = 0;
+  
+  tf2_ros::Buffer tf_buffer;
+  tf2_ros::TransformListener tf2_listener(tf_buffer);
+  geometry_msgs::TransformStamped base_link_to_odom; // My frames are named "base_link" and "odom"
+
+  base_link_to_odom = tf_buffer.lookupTransform("odom", "base_link", ros::Time(0), ros::Duration(1.0) );
+
+  tf2::doTransform(robot_pose, robot_pose, base_link_to_odom); // robot_pose is the PoseStamped I want to transform
+  
+  ROS_INFO_STREAM(robot_pose);
+  
   ROS_INFO("CHECKING FOR OBSTACLES");
   float w = 240;
   float l = 240;
