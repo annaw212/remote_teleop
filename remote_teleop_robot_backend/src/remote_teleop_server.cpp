@@ -39,6 +39,7 @@
 #include <costmap_2d/costmap_2d_ros.h>
 #include <tf/transform_listener.h>
 #include <tf2_ros/buffer.h>
+#include <rviz_visual_tools/rviz_visual_tools.h>
 /*-----------------------------------------------------------------------------------*/
 
 // Define variables here
@@ -484,8 +485,10 @@ void RemoteTeleop::pointClickCallback(
   //  }
   //
     // Delete the interactive marker so it's not confusing during navigation
-    initializeIntMarkers("d");
-
+//    initializeIntMarkers("d");
+//  rviz_visual_tools::RvizVisualTools::deleteAllMarkers();
+  rviz_visual_tools::RvizVisualTools vis_tool_("/base_link", "/rviz_visual_tools", nh_);
+  vis_tool_.deleteAllMarkers();
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead

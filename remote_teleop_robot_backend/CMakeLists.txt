@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   interactive_markers
   visualization_msgs
   costmap_2d
+  rviz_visual_tools
 )
 
 ## System dependencies are found with CMake's conventions
