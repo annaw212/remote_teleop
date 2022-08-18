@@ -231,7 +231,16 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
     marker.color.a = 1.0;
 
   } else {
-    marker.type = visualization_msgs::Marker::DELETEALL;
+    marker_.action = visualization_msgs::Marker::MODIFY;
+    // Scale the marker
+    marker.scale.x = 1.0;
+    marker.scale.y = 0.45;
+    marker.scale.z = 0.45;
+    // Assign colors to the marker
+    marker.color.r = 1.0;
+    marker.color.g = 0.5;
+    marker.color.b = 0.5;
+    marker.color.a = 0.0;
   }
 
   return marker;
@@ -485,10 +494,10 @@ void RemoteTeleop::pointClickCallback(
   //  }
   //
     // Delete the interactive marker so it's not confusing during navigation
-//    initializeIntMarkers("d");
+    initializeIntMarkers("d");
 //  rviz_visual_tools::RvizVisualTools::deleteAllMarkers();
-  rviz_visual_tools::RvizVisualTools vis_tool_("/base_link", "/visualization_marker", nh_);
-  vis_tool_.deleteAllMarkers();
+//  rviz_visual_tools::RvizVisualTools vis_tool_("/base_link", "/visualization_marker", nh_);
+//  vis_tool_.deleteAllMarkers();
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
