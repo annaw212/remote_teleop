@@ -225,7 +225,7 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
     marker.color.a = 1.0;
 
   } else {
-    marker.type = visualization_msgs::Marker::DELETEALL;
+    marker.type = visualization_msgs::Marker::DELETE;
   }
 
   return marker;
@@ -489,6 +489,8 @@ void RemoteTeleop::pointClickCallback(
   // its original value...
 
   if (!stop_) {
+    
+    int_marker_.type = visualization_msgs::Marker::DELETE;
 
     if (theta1 < 0.0) {
       turn_left1 = false;
