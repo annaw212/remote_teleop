@@ -157,7 +157,10 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
 
   // Create the box marker and the non-interactive control containing the box
   makeIntMarkerControl(int_marker, type);
-
+  
+  if (type == "d") {
+    return;
+  }
   // Create the interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
 
@@ -479,7 +482,7 @@ void RemoteTeleop::pointClickCallback(
   //  }
   //
     // Delete the interactive marker so it's not confusing during navigation
-    makeIntMarker("d");
+    initializeIntMarkers("d");
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
@@ -546,7 +549,7 @@ void RemoteTeleop::pointClickCallback(
   point_click_server_.setSucceeded(point_click_result_);
 
   // Snap the interactive marker back to (0,0,0)
-//  initializeIntMarkers("a");
+  initializeIntMarkers("a");
 
   point_click_running_ = false;
 }
