@@ -546,7 +546,7 @@ void RemoteTeleop::pointClickCallback(
   point_click_server_.setSucceeded(point_click_result_);
 
   // Snap the interactive marker back to (0,0,0)
-  initializeIntMarkers("a");
+//  initializeIntMarkers("a");
 
   point_click_running_ = false;
 }
