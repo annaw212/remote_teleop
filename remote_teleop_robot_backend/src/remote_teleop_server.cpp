@@ -512,6 +512,7 @@ void RemoteTeleop::pointClickCallback(
   //
     // Delete the interactive marker so it's not confusing during navigation
     initializeIntMarkers("d");
+    makeDestMarker(x, y, z, a, b, c, d);
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
