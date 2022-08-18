@@ -56,6 +56,7 @@ private:
   ros::Publisher turn_in_place_publisher_;
   ros::Publisher point_click_nav_publisher_;
   ros::Publisher stop_publisher_;
+  ros::Publisher marker_publisher_;
 
   // Result messages
   remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
@@ -112,6 +113,8 @@ private:
   visualization_msgs::Marker makeIntMarker(std::string type);
   visualization_msgs::InteractiveMarkerControl &
   makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg, std::string type);
+  void makeDestMarker(float pos_x, float pos_y, float pos_z, float or_x, float or_y, float or_z, float or_w);
+  void deleteMarkers();
 
   // Callback member methods
   void turnInPlaceCallback(

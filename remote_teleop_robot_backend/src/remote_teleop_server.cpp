@@ -124,6 +124,9 @@ void RemoteTeleop::initializePublishers() {
 
   // Initialize the stop publisher
   stop_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
+  
+  // Initialize the marker publisher
+  marker_publisher_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 5);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -210,34 +213,25 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
 visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
 
   // Create a marker
-//  visualization_msgs::Marker marker;
+  visualization_msgs::Marker marker;
   // Assign a type to the marker
   if (type == "a") {
     marker_.type = visualization_msgs::Marker::ARROW;
     // Scale the marker
-    marker_.scale.x = 1.0;
-    marker_.scale.y = 0.45;
-    marker_.scale.z = 0.45;
+    marker.scale.x = 1.0;
+    marker.scale.y = 0.45;
+    marker.scale.z = 0.45;
     // Assign colors to the marker
-    marker_.color.r = 1.0;
-    marker_.color.g = 0.5;
-    marker_.color.b = 0.5;
-    marker_.color.a = 1.0;
+    marker.color.r = 1.0;
+    marker.color.g = 0.5;
+    marker.color.b = 0.5;
+    marker.color.a = 1.0;
 
   } else {
-    marker_.action = visualization_msgs::Marker::DELETEALL;
-    // Scale the marker
-//    marker_.scale.x = 0.0;
-//    marker_.scale.y = 0.0;
-//    marker_.scale.z = 0.0;
-//    // Assign colors to the marker
-//    marker_.color.r = 1.0;
-//    marker_.color.g = 0.5;
-//    marker_.color.b = 0.5;
-//    marker_.color.a = 1.0;
+    marker.action = visualization_msgs::Marker::DELETEALL;
   }
 
-  return marker_;
+  return marker;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -256,6 +250,35 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg,
   msg.controls.push_back(control);
 
   return msg.controls.back();
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleop::makeDestMarker(float pos_x, float pos_y, float pos_z, float or_x, float or_y, float or_z, float or_w) {
+  visualization_msgs::Marker marker;
+  marker.header.frame_id = "odom";
+  marker.header.stamp = ros::Time();
+  marker.id = 0;
+  marker.type = visualization_msgs::Marker::ARROW;
+  marker.action = visualization_msgs::Marker::ADD;
+  marker.pose.position.x = pos_x;
+  marker.pose.position.y = pos_y;
+  marker.pose.position.z = pos_z;
+  marker.pose.orientation.x = or_x;
+  marker.pose.orientation.y = or_y;
+  marker.pose.orientation.z = or_z;
+  marker.pose.orientation.w = or_w;
+  // Scale the marker
+  marker.scale.x = 1.0;
+  marker.scale.y = 0.45;
+  marker.scale.z = 0.45;
+  // Assign colors to the marker
+  marker.color.r = 0.0;
+  marker.color.g = 1.0;
+  marker.color.b = 0.0;
+  marker.color.a = 1.0;
+  
+  marker_publisher_.publish(marker);
 }
 
 /*-----------------------------------------------------------------------------------*/
