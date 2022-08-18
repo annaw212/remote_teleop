@@ -490,7 +490,7 @@ void RemoteTeleop::pointClickCallback(
 
   if (!stop_) {
     
-    int_marker_.type = visualization_msgs::Marker::DELETE;
+//    int_marker_.Type = visualization_msgs::Marker::DELETE;
 
     if (theta1 < 0.0) {
       turn_left1 = false;
