@@ -687,7 +687,6 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   float l = 240;
   float res = 0.025;
   float i, j, index;
-  nav_msgs::MapMetaData info = occupancy_grid_.info;
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
   for (int i = 0; i <= dx; i++) {
@@ -698,7 +697,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     j = l/2 - y1/res;
     index = ceil(i*w + j);
     
-    ROS_INFO_STREAM("index = " << index << " Grid value = " <<occupancy_grid_.data[index]);
+    ROS_INFO_STREAM("index = " << index << " Grid value = " << occupancy_grid_.data[index] << " Length of array = " << len(occupancy_grid_.data));
     
     if (occupancy_grid_.data[index] != 0) {
       ROS_INFO("OBSTACLE DETECTED");
