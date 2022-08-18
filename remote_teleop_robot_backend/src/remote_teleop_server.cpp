@@ -255,6 +255,8 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg,
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::makeDestMarker(float pos_x, float pos_y, float pos_z, float or_x, float or_y, float or_z, float or_w) {
+
+  ROS_INFO("MAKING DESTINATION MARKER");
   visualization_msgs::Marker marker;
   marker.header.frame_id = "base_link";
   marker.header.stamp = ros::Time();
@@ -512,7 +514,7 @@ void RemoteTeleop::pointClickCallback(
   //
     // Delete the interactive marker so it's not confusing during navigation
     initializeIntMarkers("d");
-    makeDestMarker(x, y, z, a, b, c, d);
+//    makeDestMarker(x, y, z, a, b, c, d);
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
