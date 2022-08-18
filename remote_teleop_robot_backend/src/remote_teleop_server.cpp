@@ -256,7 +256,7 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg,
 
 void RemoteTeleop::makeDestMarker(float pos_x, float pos_y, float pos_z, float or_x, float or_y, float or_z, float or_w) {
   visualization_msgs::Marker marker;
-  marker.header.frame_id = "odom";
+  marker.header.frame_id = "base_link";
   marker.header.stamp = ros::Time();
   marker.id = 0;
   marker.type = visualization_msgs::Marker::ARROW;
