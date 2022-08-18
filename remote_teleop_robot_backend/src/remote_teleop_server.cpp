@@ -29,6 +29,10 @@
 #include <remote_teleop_robot_backend/PointClickNavGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
 
+#include <remote_teleop_robot_backend/StopNavAction.h>
+#include <remote_teleop_robot_backend/StopNavGoal.h>
+#include <remote_teleop_robot_backend/StopNavResult.h>
+
 #include "remote_teleop_server.h"
 
 #include <tf2_ros/buffer.h>
@@ -84,7 +88,7 @@ RemoteTeleop::RemoteTeleop()
   or_w_ = 0.0;
 
   turn_in_place_running_ = false;
-  point_and_click_running_ = false;
+  point_click_running_ = false;
   obstacle_detected_ = false;
 }
 
@@ -114,6 +118,9 @@ void RemoteTeleop::initializePublishers() {
   // Initialize the point and click publisher
   point_click_nav_publisher_ =
       nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
+      
+  // Initialize the stop publisher
+  stop_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -323,6 +330,8 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 
 void RemoteTeleop::turnInPlace() {
 
+  turn_in_place_running_ = true;
+
   // Create message to be sent
   geometry_msgs::Twist command;
 
@@ -332,7 +341,8 @@ void RemoteTeleop::turnInPlace() {
   command.linear.z = 0.0;
   command.angular.x = 0.0;
   command.angular.y = 0.0;
-
+  command.angular.z = 0.0;
+  
   float goal_yaw = 0.0;
 
   if (turn_left_ == false) {
@@ -362,12 +372,9 @@ void RemoteTeleop::turnInPlace() {
     }
   }
 
-//  ROS_INFO_STREAM("Goal final angle: " << goal_yaw * 180 / M_PI
-//                                       << "\tAmt to turn: "
-//                                       << angle_ * 180 / M_PI);
-
   // Turn the robot until it reaches the desired angle
-  while (abs(goal_yaw - yaw_) > THRESHOLD) {
+  while (abs(goal_yaw - yaw_) > THRESHOLD && !stop_) {
+    
     // Set the turn rate
     command.angular.z = ang_vel_ * (goal_yaw - yaw_);
 
@@ -396,12 +403,16 @@ void RemoteTeleop::turnInPlace() {
   // Stop the robot once it has reached its goal
   command.angular.z = 0.0;
   turn_in_place_publisher_.publish(command);
+  
+  turn_in_place_running_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::pointClickCallback(
     const remote_teleop_robot_backend::PointClickNavGoalConstPtr &msg) {
+    
+  point_click_running_ = true;
 
   // Store values of position and orientation in local variables so they don't
   // change during calculations
@@ -412,15 +423,6 @@ void RemoteTeleop::pointClickCallback(
   float b = or_y_;
   float c = or_z_;
   float d = or_w_;
-
-  // TODO: delete this
-//  tf::Quaternion quat(a_, b_, c_, d_);
-//  tf::Matrix3x3 mat(quat);
-//  tfScalar j, k, l;
-//  mat.getRPY(j, k, l);
-//  ROS_INFO_STREAM("\n");
-//  ROS_INFO_STREAM("Original orientation: (" << j << ", " << k << ", " << l
-//                                            << ")");
 
   // Declare local variables
   float travel_dist = 0.0;
@@ -444,12 +446,12 @@ void RemoteTeleop::pointClickCallback(
   }
 
   // Determine validity of path
-  float x1 = x_;
-  float y1 = y_;
-  float x2 = x1 + x;
-  float y2 = y1 + y;
-  float dx = abs(x2 - x1);
-  float dy = abs(y1 - y1);
+//  float x1 = x_;
+//  float y1 = y_;
+//  float x2 = x1 + x;
+//  float y2 = y1 + y;
+//  float dx = abs(x2 - x1);
+//  float dy = abs(y1 - y1);
 
 //  if (dx > dy) {
 //    // Slope is less than 1
@@ -478,68 +480,56 @@ void RemoteTeleop::pointClickCallback(
   // theta1 to be positive if we are turning right, but theta2 is based on
   // theta1's original value, so this is _one_ way to make sure theta1 can keep
   // its original value...
-  if (theta1 < 0.0) {
-    turn_left1 = false;
-    navigate(theta1 * -1, turn_left1, 0.0, 0.0, 0.0);
+  
+  if (!stop_) {
+  
+    if (theta1 < 0.0) {
+      turn_left1 = false;
+      navigate(theta1 * -1, turn_left1, 0.0, 0.0, 0.0);
+    } else {
+      turn_left1 = true;
+      navigate(theta1, turn_left1, 0.0, 0.0, 0.0);
+    }
+
+    /* NAVIGATE */
+    // Turn to face goal location - done in the previous chunk of code
+
+    // Drive straight to goal location
+    navigate(0.0, true, x, y, travel_dist);
+
+    // Calculate angle to turn by from goal to goal orientation
+    tf::Quaternion q(a, b, c, d);
+    tf::Matrix3x3 m(q);
+    m.getRPY(r, t, theta2);
+
+    // Because theta2 is simply the angle to turn based on the original
+    // orientation, we need to shift the degrees to turn appropriately
+    theta2 = theta2 - theta1;
+
+    // Make sure theta2 is within a known range
+    while (theta2 > M_PI) {
+      theta2 -= 2 * M_PI;
+    }
+    while (theta2 < -M_PI) {
+      theta2 += 2 * M_PI;
+    }
+
+    // Determine direction to turn
+    if (theta2 < 0.0) {
+      // Turn right
+      turn_left2 = false;
+      // Make sure any angle being sent to the robot is positive
+      theta2 *= -1;
+    } else {
+      // Turn left
+      turn_left2 = true;
+    }
+
+    // Turn robot to goal orientation
+    navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
   } else {
-    turn_left1 = true;
-    navigate(theta1, turn_left1, 0.0, 0.0, 0.0);
+    stopMovement();
   }
-
-  // NAVIGATE
-
-  // Turn to face goal location - done in the previous chunk of code
-
-  // Drive straight to goal location
-  navigate(0.0, true, x, y, travel_dist);
-
-  // Calculate angle to turn by from goal to goal orientation
-  tf::Quaternion q(a, b, c, d);
-  tf::Matrix3x3 m(q);
-  m.getRPY(r, t, theta2);
-
-//  ROS_INFO_STREAM("Goal Orientation: (" << r * 180 / M_PI << ", "
-//                                        << t * 180 / M_PI << ", "
-//                                        << theta2 * 180 / M_PI << ")");
-
-  // Because theta2 is simply the angle to turn based on the original
-  // orientation, we need to shift the degrees to turn appropriately
-  theta2 = theta2 - theta1;
-
-//  ROS_INFO_STREAM("Goal angle to turn: " << theta2 * 180 / M_PI);
-
-  // Make sure theta2 is within a known range
-  while (theta2 > M_PI) {
-    theta2 -= 2 * M_PI;
-  }
-  while (theta2 < -M_PI) {
-    theta2 += 2 * M_PI;
-  }
-
-  // Determine direction to turn
-  if (theta2 < 0.0) {
-    // Turn right
-    turn_left2 = false;
-//    ROS_INFO_STREAM(
-//        "Post processing goal angle to turn: " << theta2 * 180 / M_PI << "R");
-    theta2 *= -1;
-  } else {
-    // Turn left
-    turn_left2 = true;
-//    ROS_INFO_STREAM(
-//        "Post processing goal angle to turn: " << theta2 * 180 / M_PI << "L");
-  }
-
-  // Turn robot to goal orientation
-  navigate(theta2, turn_left2, 0.0, 0.0, 0.0);
-
-  // TODO: delete this
-//  tf::Quaternion quat2(a_, b_, c_, d_);
-//  tf::Matrix3x3 mat2(quat2);
-//  mat2.getRPY(j, k, l);
-//  ROS_INFO_STREAM("Final Orientation: (" << j * 180 / M_PI << ", "
-//                                         << k * 180 / M_PI << ", "
-//                                         << l * 180 / M_PI << ")");
 
   // Update the turn in place result and success fields
   point_click_result_.success = true;
@@ -547,12 +537,19 @@ void RemoteTeleop::pointClickCallback(
 
   // Snap the interactive marker back to (0,0,0)
   initializeIntMarkers("a");
+  
+  point_click_running_ = false;
 }
 
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
                             float y_dist, float dist) {
+                            
+  if (stop_) {
+    stopMovement();
+    return;
+  }
 
   // Declare local variables
   float goal_x, goal_y, start_x, start_y;
@@ -569,13 +566,11 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
   command.angular.z = 0.0;
 
   if (angle == 0.0 && dist == 0.0) {
-//    ROS_INFO("DO NOTHING");
     // Do nothing
     return;
   }
 
   if (angle == 0.0) {
-//    ROS_INFO("DRIVE STRAIGHT");
     // Determine goal coordinates
     goal_x = x_ + x_dist;
     goal_y = y_ + y_dist;
@@ -604,7 +599,6 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
   }
 
   if (dist == 0.0) {
-//    ROS_INFO("TURN IN PLACE");
     // Turn in place
     angle_ = angle;
     turn_left_ = turn_left;
@@ -612,6 +606,35 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
     return;
   }
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleop::stopNavCallback(const remote_teleop_robot_backend::StopNavGoalConstPtr& goal) {
+  ROS_INFO("STOP NAV CALLBACK");
+  stop_ = goal->stop;
+  ROS_INFO_STREAM("Stop goal received = " << stop_);
+  while(turn_in_place_running_ || point_click_running_);
+  stop_ = false;
+  ROS_INFO_STREAM("Stop goal ended = " << stop_);
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleop::stopMovement() {
+  // Create message to be sent
+  geometry_msgs::Twist command;
+
+  // Set the fields
+  command.linear.x = 0.0;
+  command.linear.y = 0.0;
+  command.linear.z = 0.0;
+  command.angular.x = 0.0;
+  command.angular.y = 0.0;
+  command.angular.z = 0.0;
+  
+  // Publish the message
+  stop_publisher_.publish(command);
 }
 
 /*-----------------------------------------------------------------------------------*/

@@ -77,6 +77,8 @@ protected Q_SLOTS:
   void sendNavGoal();
 
   /*  void sendVelGoal();*/
+  
+  void sendStopGoal();
 
 protected:
   // One-line text editor for entering the degrees to turn by in
@@ -86,6 +88,7 @@ protected:
   ros::Publisher turn_goal_publisher_;
   ros::Publisher nav_goal_publisher_;
   /*  ros::Publisher vel_goal_publisher_;*/
+  ros::Publisher stop_goal_publisher_;
 
   // The ROS node handle.
   ros::NodeHandle nh_;

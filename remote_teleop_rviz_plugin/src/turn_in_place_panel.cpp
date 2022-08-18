@@ -42,6 +42,7 @@
 #include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
 #include <remote_teleop_robot_backend/SpeedToggleActionGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
+#include <remote_teleop_robot_backend/StopNavActionGoal.h>
 
 #include "turn_in_place_panel.h"
 
@@ -115,10 +116,10 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   //  ang_vel_slider_->setValue(10.0);
   //  slider_layout->addWidget( ang_vel_slider_ );
   //
-  //  // Add in virtual e-stop button
-  //  QPushButton* stop_nav_button_ = new QPushButton(this);
-  //  stop_nav_button_->setText(tr("STOP"));
-  //  stop_nav_button_->setStyleSheet("font:bold;background-color:red;font-size:36px;height:48px;width:120px");
+    // Add in virtual e-stop button
+    QPushButton* stop_nav_button_ = new QPushButton(this);
+    stop_nav_button_->setText(tr("STOP"));
+    stop_nav_button_->setStyleSheet("font:bold;background-color:red;font-size:36px;height:42px;width:100px");
 
   // Add the horizontal box to the vertical box layout
   topic_layout->addWidget(new QLabel("Turn in Place"));
@@ -128,7 +129,8 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   topic_layout->addLayout(nav_layout);
   //  topic_layout->addLayout( slider_layout );
   //  topic_layout->addWidget( new QLabel( "Point-and-Click Navigation
-  //  Confirmation")); topic_layout->addWidget( stop_nav_button_ );
+  //  Confirmation")); 
+  topic_layout->addWidget( stop_nav_button_ );
 
   // Set the layout
   setLayout(topic_layout);
@@ -144,6 +146,7 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   //  connect(lin_vel_slider_, SIGNAL(sliderReleased()), this,
   //  SLOT(setVelGoal())); connect(ang_vel_slider_, SIGNAL(sliderReleased()),
   //  this, SLOT(setVelGoal()));
+  connect(stop_nav_button_, SIGNAL(released()), this, SLOT(sendStopGoal()));
 }
 
 // setTurnGoalLeft() sets the degrees and direction variables and calls
@@ -234,6 +237,16 @@ void TurnInPlacePanel::sendNavGoal() {
 //
 //  }
 //}
+
+void TurnInPlacePanel::sendStopGoal() {
+  
+  if ( ros::ok() && stop_goal_publisher_ ) {
+    
+    remote_teleop_robot_backend::StopNavActionGoal msg;
+    msg.goal.stop = true;
+    stop_goal_publisher_.publish( msg );
+  }
+}
 
 // Save all configuration data from this panel to the given
 // Config object.  It is important here that you call save()

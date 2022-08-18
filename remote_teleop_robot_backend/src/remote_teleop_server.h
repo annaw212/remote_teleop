@@ -29,6 +29,11 @@
 #include <remote_teleop_robot_backend/PointClickNavGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
 
+#include <remote_teleop_robot_backend/StopNavAction.h>
+#include <remote_teleop_robot_backend/StopNavGoal.h>
+#include <remote_teleop_robot_backend/StopNavResult.h>
+
+
 class RemoteTeleop {
 
 public:
@@ -49,6 +54,7 @@ private:
   // ROS publishers
   ros::Publisher turn_in_place_publisher_;
   ros::Publisher point_click_nav_publisher_;
+  ros::Publisher stop_publisher_;
 
   // Result messages
   remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
@@ -86,8 +92,9 @@ private:
   float or_w_;  // Navigation goal orientation w
 
   bool turn_in_place_running_;
-  bool point_and_click_running_;
+  bool point_click_running_;
   bool obstacle_detected_;
+  bool stop_;
 
   visualization_msgs::InteractiveMarker int_marker_;
   nav_msgs::OccupancyGrid occupancy_grid_;
@@ -112,6 +119,7 @@ private:
       const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
   void odomCallback(const nav_msgs::Odometry &msg);
   void costmapCallback(const nav_msgs::OccupancyGrid &grid);
+  void stopNavCallback(const remote_teleop_robot_backend::StopNavGoalConstPtr& goal);
 
   // Turn in place member methods
   void turnInPlace();
@@ -121,6 +129,9 @@ private:
                 float dist);
   void obstacleCheck(float x1, float y1, float x2, float y2, float dx, float dy,
                      bool smallSlope);
+                     
+  // Stop nav member methods
+  void stopMovement();
 };
 
 #endif // RemoteTeleop_H
