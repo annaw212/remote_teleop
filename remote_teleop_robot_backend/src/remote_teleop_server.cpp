@@ -468,30 +468,30 @@ void RemoteTeleop::pointClickCallback(
   }
 
   // Determine validity of path
-  //  float x1 = x_;
-  //  float y1 = y_;
-  //  float x2 = x1 + x;
-  //  float y2 = y1 + y;
-  //  float dx = abs(x2 - x1);
-  //  float dy = abs(y1 - y1);
+    float x1 = x_;
+    float y1 = y_;
+    float x2 = x1 + x;
+    float y2 = y1 + y;
+    float dx = abs(x2 - x1);
+    float dy = abs(y1 - y1);
 
-  //  if (dx > dy) {
-  //    // Slope is less than 1
-  //    ROS_INFO("HERE1");
-  //    obstacleCheck(x1, y1, x2, y2, dx, dy, true);
-  //  } else {
-  //    // Slope is greater than 1
-  //    ROS_INFO("HERE2");
-  //    obstacleCheck(x1, y1, x2, y2, dx, dy, false);
-  //  }
+    if (dx > dy) {
+      // Slope is less than 1
+      ROS_INFO("HERE1");
+      obstacleCheck(x1, y1, x2, y2, dx, dy, true);
+    } else {
+      // Slope is greater than 1
+      ROS_INFO("HERE2");
+      obstacleCheck(x1, y1, x2, y2, dx, dy, false);
+    }
 
-  //  if (obstacle_detected_ == true) {
-  //    // Path was not clear -- reset variable and exit function
-  //    obstacle_detected_ = false;
-  //    // Snap the interactive marker back to (0,0,0)
-  //    initializeIntMarkers("a");
-  //    return;
-  //  }
+    if (obstacle_detected_ == true) {
+      // Path was not clear -- reset variable and exit function
+      obstacle_detected_ = false;
+      // Snap the interactive marker back to (0,0,0)
+      initializeIntMarkers("a");
+      return;
+    }
   //
     // Delete the interactive marker so it's not confusing during navigation
     initializeIntMarkers("d");
