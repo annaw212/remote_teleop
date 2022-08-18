@@ -693,6 +693,8 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   robot_pose.pose.position.y = y2;
   robot_pose.pose.position.z = 0;
   
+  ROS_INFO_STREAM(robot_pose);
+  
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
   geometry_msgs::TransformStamped base_link_to_odom; // My frames are named "base_link" and "odom"
