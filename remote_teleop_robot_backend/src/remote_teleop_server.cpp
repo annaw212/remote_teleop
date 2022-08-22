@@ -48,9 +48,6 @@
 #define THRESHOLD 0.03
 #define MIN_VEL 0.08
 #define ANGLE_THRESHOLD 0.035
-#define WIDTH 240
-#define LENGTH 240
-#define RESOLUTION 0.025
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -480,22 +477,18 @@ void RemoteTeleop::pointClickCallback(
     float y1 = y_;
     float x2 = x; // x1 + x
     float y2 = y;
-    
-    ROS_INFO_STREAM("(" << x1 << ", " << y1 << ") (" << x2 << ", " << y2 << ")");
-    // TODO: rework this function...x2 and y2 are incorrect here because they haven't been translated to odom yet
-//    float dx = abs(x2 - x1);
-//    float dy = abs(y2 - y1);
-//    
-    obstacleCheck(x1, y1, x2, y2);
-//    if (dx > dy) {
-//      // Slope is less than 1
+    float dx = abs(x2 - x1);
+    float dy = abs(y2 - y1);
+
+    if (dx > dy) {
+      // Slope is less than 1
 //      ROS_INFO("HERE1");
-//      obstacleCheck(x1, y1, x2, y2, dx, dy, true);
-//    } else {
-//      // Slope is greater than 1
+      obstacleCheck(x1, y1, x2, y2, dx, dy, true);
+    } else {
+      // Slope is greater than 1
 //      ROS_INFO("HERE2");
-//      obstacleCheck(x1, y1, x2, y2, dx, dy, false);
-//    }
+      obstacleCheck(x1, y1, x2, y2, dx, dy, false);
+    }
 
     if (obstacle_detected_ == true) {
       // Path was not clear -- reset variable and exit function
@@ -691,7 +684,8 @@ void RemoteTeleop::stopMovement() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2) {
+void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
+                                 float dx, float dy, bool smallSlope) {
   // Using Brensenham's line algorithm to produce the straight-line coordinates
   // between two points. Taking those points and checking their locations on the
   // obstacle grid to make sure there are no obstacles in the way of navigation.
@@ -718,14 +712,14 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2) {
 //  ROS_INFO_STREAM(robot_pose);
   
   // publish debug occupancy grid marking the robot's goal
-  nav_msgs::OccupancyGrid occupancy_grid_debug_;
-  occupancy_grid_debug_ = occupancy_grid_;
-  std::fill(occupancy_grid_debug_.data.begin(), occupancy_grid_debug_.data.end(), 0);
+//  nav_msgs::OccupancyGrid occupancy_grid_debug_;
+//  occupancy_grid_debug_ = occupancy_grid_;
+//  std::fill(occupancy_grid_debug_.data.begin(), occupancy_grid_debug_.data.end(), 0);
   
 //  ROS_INFO("CHECKING FOR OBSTACLES");
-  int w = WIDTH;
-  int l = LENGTH;
-  float res = RESOLUTION;
+  int w = 240;
+  int l = 240;
+  float res = 0.025;
   int i, j;
 
   robot_pose.pose.position.x -= occupancy_grid_.info.origin.position.x;
@@ -740,7 +734,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2) {
 
 //  ROS_INFO_STREAM("i: " << i << ", j: " << j << ", idx: " << idx);
 
-//  // This is the index of the goal pose in the occupancy grid
+  // This is the index of the goal pose in the occupancy grid
 //  occupancy_grid_debug_.data[idx] = 100;
 //  occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
 //  
@@ -758,22 +752,15 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2) {
   x1 = ceil(x1 / res);
   y1 = ceil(y1 / res);
   
-  int dx = abs(x2 - x1);
-  int dy = abs(y2 - y1);
-  bool smallSlope;
-  
-  if (dx > dy) {
-    smallSlope = true;
-  } else {
-    smallSlope = false;
-  }
+//  dx = abs(x2 - x1);
+//  dy = abs(y2 - y1);
   
 //  ROS_INFO_STREAM("grid length: " << occupancy_grid_.data.size());
 //  std::fill(occupancy_grid_.data.begin(), occupancy_grid_.data.end(), 0);
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
 //  ROS_INFO_STREAM("PK = " << pk << " DX = " << dx << " DY = " << dy);
-//  int h;
+  int h;
   for (int h = 0; h <= dx; h++) {
     
     // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
@@ -793,9 +780,9 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2) {
       return;
     }
     
-    occupancy_grid_debug_.data[idx] = 100;
-    occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
-    ros::spinOnce();
+//    occupancy_grid_debug_.data[idx] = 100;
+//    occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
+//    ros::spinOnce();
     // checking either to decrement or increment the value
     // if we have to plot from (0,100) to (100,0)
     x1 < x2 ? x1++ : x1--;
