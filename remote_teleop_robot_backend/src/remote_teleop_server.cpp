@@ -453,6 +453,51 @@ void RemoteTeleop::pointClickCallback(
   float b = or_y_;
   float c = or_z_;
   float d = or_w_;
+  
+  // convert to base link from init frame
+  geometry_msgs::PoseStamped robot_pose;
+
+  // Set the robot_pose values --> these are the values of our goal since that
+  // is the point that needs to be converted from base link to odom frame
+  robot_pose.pose.position.x = x;
+  robot_pose.pose.position.y = y;
+  robot_pose.pose.position.z = 0;
+  robot_pose.pose.orientation.w = d;
+  robot_pose.pose.orientation.x = a;
+  robot_pose.pose.orientation.y = b;
+  robot_pose.pose.orientation.z = c;
+
+  // Create the objects needed for the transform
+  tf2_ros::Buffer tf_buffer;
+  tf2_ros::TransformListener tf2_listener(tf_buffer);
+  geometry_msgs::TransformStamped
+      init_frame_to_base_link;
+
+  // Lookup the transform from odom to base link and store in variable
+//  base_link_to_odom = tf_buffer.lookupTransform(
+//      "odom", "base_link", ros::Time(0), ros::Duration(1.0));
+  
+  // Lookup the transform from the initial frame to odom and store in variable
+  init_frame_to_base_link = tf_buffer.lookupTransform(
+      init_frame_, "base_link", ros::Time(0), ros::Duration(1.0));
+
+  // Input the point you want to transform and indicate we want to just
+  // overwrite that object with the transformed point values
+  tf2::doTransform(
+      robot_pose, robot_pose,
+      init_frame_to_base_link); // robot_pose is the PoseStamped I want to transform
+
+  // The output value will be slightly offset, so we need to translate it to the
+  // costmap center based on the odom offset
+//  robot_pose.pose.position.x -= occupancy_grid_.info.origin.position.x;
+//  robot_pose.pose.position.y -= occupancy_grid_.info.origin.position.y;
+
+//  // Set the goal coordinates on the costmap grid
+//  x2 = ceil(robot_pose.pose.position.x / res);
+//  y2 = ceil(robot_pose.pose.position.y / res);
+
+  x = robot_pose.pose.position.x;
+  y = robot_pose.pose.position.y;
 
   // Declare local variables
   float travel_dist = 0.0;
@@ -593,6 +638,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
   // Declare local variables
   float goal_x, goal_y, start_x, start_y;
+  
+  // init frame to base link
 
   // Create message to be sent
   geometry_msgs::Twist command;
