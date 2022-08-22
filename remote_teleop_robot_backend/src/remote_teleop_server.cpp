@@ -716,9 +716,9 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2) {
 //  ROS_INFO_STREAM(robot_pose);
   
   // publish debug occupancy grid marking the robot's goal
-//  nav_msgs::OccupancyGrid occupancy_grid_debug_;
-//  occupancy_grid_debug_ = occupancy_grid_;
-//  std::fill(occupancy_grid_debug_.data.begin(), occupancy_grid_debug_.data.end(), 0);
+  nav_msgs::OccupancyGrid occupancy_grid_debug_;
+  occupancy_grid_debug_ = occupancy_grid_;
+  std::fill(occupancy_grid_debug_.data.begin(), occupancy_grid_debug_.data.end(), 0);
   
 //  ROS_INFO("CHECKING FOR OBSTACLES");
   int w = WIDTH;
