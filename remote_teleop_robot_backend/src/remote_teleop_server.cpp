@@ -752,8 +752,8 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   x1 = ceil(x1 / res);
   y1 = ceil(y1 / res);
   
-//  dx = abs(x2 - x1);
-//  dy = abs(y2 - y1);
+  dx = abs(x2 - x1);
+  dy = abs(y2 - y1);
   
 //  ROS_INFO_STREAM("grid length: " << occupancy_grid_.data.size());
 //  std::fill(occupancy_grid_.data.begin(), occupancy_grid_.data.end(), 0);
