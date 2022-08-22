@@ -57,6 +57,7 @@ private:
   ros::Publisher point_click_nav_publisher_;
   ros::Publisher stop_publisher_;
   ros::Publisher marker_publisher_;
+  ros::Publisher occupancy_grid_debug_publisher_;
 
   // Result messages
   remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
