@@ -747,8 +747,8 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   for (int h = 0; h <= dx; h++) {
     
     // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
-    x1 = ceil(x1 / res);
-    y1 = ceil(y1 / res);
+//    x1 = ceil(x1 / res);
+//    y1 = ceil(y1 / res);
     
     idx = ceil(y1 * w + x1);
     
