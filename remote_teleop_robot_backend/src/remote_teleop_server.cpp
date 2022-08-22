@@ -164,7 +164,7 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
-  int_marker.header.frame_id = "base_link";
+  int_marker.header.frame_id = "odom";
   int_marker.header.stamp = ros::Time::now();
   int_marker.name = "simple_6dof";
   int_marker.description = "Simple 6-DOF Control";
@@ -276,8 +276,6 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg,
 
 void RemoteTeleop::turnInPlaceCallback(
     const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal) {
-
-  //  ROS_INFO_STREAM("Lin vel: " << lin_vel_ << ", Ang vel: " << ang_vel_);
 
   // TODO: gray out rviz plugin buttons when turn is being executed
 
