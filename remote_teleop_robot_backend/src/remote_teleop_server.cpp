@@ -752,10 +752,11 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
   ROS_INFO_STREAM("PK = " << pk << " DX = " << dx << " DY = " << dy);
-  for (int h = 0; h <= dx; h++) {
+  int h;
+  for (h = 0; h <= dx; h++) {
     
     // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
-    
+    ROS_INFO_STREAM("h = " << h);
     
     idx = ceil(y1 * w + x1);
     
