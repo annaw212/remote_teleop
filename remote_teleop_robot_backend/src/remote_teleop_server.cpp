@@ -746,6 +746,8 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   x2 = i;
   y2 = j;
   
+  x1 -= occupancy_grid_.info.origin.position.x;
+  y1 -= occupancy_grid_.info.origin.position.y;
   x1 = ceil(x1 / res);
   y1 = ceil(y1 / res);
   
