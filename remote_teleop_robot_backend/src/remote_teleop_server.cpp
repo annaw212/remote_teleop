@@ -776,6 +776,9 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
       ROS_INFO("SAFE TO NAVIGATE");
     }
     
+    occupancy_grid_debug_.data[idx] = 100;
+    occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
+//  ros::spinOnce();
     // checking either to decrement or increment the value
     // if we have to plot from (0,100) to (100,0)
     x1 < x2 ? x1++ : x1--;
