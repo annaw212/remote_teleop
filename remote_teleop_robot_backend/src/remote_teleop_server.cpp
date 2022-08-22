@@ -480,6 +480,8 @@ void RemoteTeleop::pointClickCallback(
     float y1 = y_;
     float x2 = x; // x1 + x
     float y2 = y;
+    
+    ROS_INFO_STREAM("(" << x1 << ", " << y1 << ") (" << x2 << ", " << y2 << ")");
     // TODO: rework this function...x2 and y2 are incorrect here because they haven't been translated to odom yet
 //    float dx = abs(x2 - x1);
 //    float dy = abs(y2 - y1);
