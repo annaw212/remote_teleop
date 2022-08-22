@@ -521,7 +521,9 @@ void RemoteTeleop::pointClickCallback(
   // its original value...
 
   if (!stop_) {
-
+    /* NAVIGATE */
+    
+    // Turn to face goal location
     if (theta1 < 0.0) {
       turn_left1 = false;
       navigate(theta1 * -1, turn_left1, 0.0, 0.0, 0.0);
@@ -529,9 +531,6 @@ void RemoteTeleop::pointClickCallback(
       turn_left1 = true;
       navigate(theta1, turn_left1, 0.0, 0.0, 0.0);
     }
-
-    /* NAVIGATE */
-    // Turn to face goal location - done in the previous chunk of code
 
     // Drive straight to goal location
     navigate(0.0, true, x, y, travel_dist);
@@ -657,8 +656,9 @@ void RemoteTeleop::stopNavCallback(
   ROS_INFO("STOP NAV CALLBACK");
   stop_ = goal->stop;
   ROS_INFO_STREAM("Stop goal received = " << stop_);
-  while (turn_in_place_running_ || point_click_running_)
-    ;
+  while (turn_in_place_running_ || point_click_running_) {
+    // waiting
+  }
   stop_ = false;
   ROS_INFO_STREAM("Stop goal ended = " << stop_);
 
