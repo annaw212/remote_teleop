@@ -726,7 +726,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   robot_pose.pose.position.x -= occupancy_grid_.info.origin.position.x;
   robot_pose.pose.position.y -= occupancy_grid_.info.origin.position.y;
   
-  ROS_INFO_STREAM(robot_pose);
+//  ROS_INFO_STREAM(robot_pose);
 
   i = ceil(robot_pose.pose.position.x / res);
   j = ceil(robot_pose.pose.position.y / res);
