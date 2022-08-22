@@ -322,7 +322,7 @@ void RemoteTeleop::processIntMarkerFeedback(
   or_z_ = feedback->pose.orientation.z;
   or_w_ = feedback->pose.orientation.w;
   
-  ROS_INFO_STREAM(feedback->header.frame_id);
+  init_frame_ = feedback->header.frame_id;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -702,7 +702,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   float res = RESOLUTION;
   int i, j, idx;
   
-  ROS_INFO_STREAM(int_marker_.header.frame_id);
+//  ROS_INFO_STREAM(int_marker_.header.frame_id);
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
@@ -723,7 +723,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   
   // Lookup the transform from the initial frame to odom and store in variable
   init_frame_to_odom = tf_buffer.lookupTransform(
-      "odom", int_marker_.header.frame_id, ros::Time(0), ros::Duration(1.0));
+      "odom", init_frame_, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values

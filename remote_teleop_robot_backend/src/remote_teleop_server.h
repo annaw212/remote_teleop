@@ -99,6 +99,8 @@ private:
   bool point_click_running_;
   bool obstacle_detected_;
   bool stop_;
+  
+  std::string init_frame_;
 
   visualization_msgs::InteractiveMarker int_marker_;
   visualization_msgs::Marker marker_;
