@@ -718,7 +718,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   int w = 240;
   int l = 240;
   float res = 0.025;
-  int i, j, index;
+  int i, j;
 
   robot_pose.pose.position.x -= occupancy_grid_.info.origin.position.x;
   robot_pose.pose.position.y -= occupancy_grid_.info.origin.position.y;
@@ -735,26 +735,26 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // This is the index of the goal pose in the occupancy grid
   occupancy_grid_debug_.data[idx] = 100;
   occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
-  ros::spinOnce();
-
-  /*
+//  ros::spinOnce();
+  
+  
+  // Set the i, j as the new x2, y2
+  x2 = i;
+  y2 = j;
+  
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
-  for (int i = 0; i <= dx; i++) {
+  for (int h = 0; h <= dx; h++) {
     
-    ROS_INFO_STREAM(x1 << ", " << y1 << ", " << dx << ", " << dy);
-    // TODO: check the value of the occupancy grid against the path
-    i = w/2 + x1/res;
-    j = l/2 - y1/res;
-    index = ceil(i*w + j);
+    // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
+    x1 = ceil(x1 / res);
+    y1 = ceil(y1 / res);
     
-    ROS_INFO_STREAM("index = " << index << " Grid value = " << occupancy_grid_.data[index] << " Length of array = " << sizeof(occupancy_grid_.data));
+    idx = ceil(y1 * w + x1);
     
-    for(int i; i<24;i++) {
-      ROS_INFO_STREAM(occupancy_grid_.data[i]);
-    }
+    ROS_INFO_STREAM("Current: (" << x1 << ", " << y1 << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
     
-    if (occupancy_grid_.data[index] != 0) {
+    if (occupancy_grid_.data[idx] != 0) {
       ROS_INFO("OBSTACLE DETECTED");
       obstacle_detected_ = true;
       return;
@@ -786,7 +786,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
       }
       pk = pk + 2 * dy - 2 * dx;
     }
-  }*/
+  }
 }
 
 /*-----------------------------------------------------------------------------------*/
