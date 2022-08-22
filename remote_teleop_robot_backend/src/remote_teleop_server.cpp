@@ -352,7 +352,6 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
   // Store the values of the occupancy grid in a variable for future reference
   occupancy_grid_ = grid;
-  //  ROS_INFO("COSTMAP CALLBACK FUNCTION");
   return;
 }
 
@@ -454,7 +453,7 @@ void RemoteTeleop::pointClickCallback(
   float c = or_z_;
   float d = or_w_;
   
-  // convert to base link from init frame
+  // convert to init frame to base link
   geometry_msgs::PoseStamped robot_pose;
 
   // Set the robot_pose values --> these are the values of our goal since that
@@ -462,10 +461,10 @@ void RemoteTeleop::pointClickCallback(
   robot_pose.pose.position.x = x;
   robot_pose.pose.position.y = y;
   robot_pose.pose.position.z = 0;
-  robot_pose.pose.orientation.w = d;
-  robot_pose.pose.orientation.x = a;
-  robot_pose.pose.orientation.y = b;
-  robot_pose.pose.orientation.z = c;
+  robot_pose.pose.orientation.w = 1.0;
+//  robot_pose.pose.orientation.x = a;
+//  robot_pose.pose.orientation.y = b;
+//  robot_pose.pose.orientation.z = c;
 
   // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
