@@ -323,42 +323,42 @@ void RemoteTeleop::processIntMarkerFeedback(
   
   init_frame_ = feedback->header.frame_id;
   
-  geometry_msgs::PoseStamped goal_pose;
-  goal_pose.pose.position.x = feedback->pose.position.x;
-  goal_pose.pose.position.y = feedback->pose.position.y;
-  goal_pose.pose.position.z = feedback->pose.position.z;
-  goal_pose.pose.orientation.x = feedback->pose.orientation.x;
-  goal_pose.pose.orientation.y = feedback->pose.orientation.y;
-  goal_pose.pose.orientation.z = feedback->pose.orientation.z;
-  goal_pose.pose.orientation.w = feedback->pose.orientation.w;
-  
-  tf2_ros::Buffer tf_buffer;
-  tf2_ros::TransformListener tf2_listener(tf_buffer);
-  geometry_msgs::TransformStamped
-      init_frame_to_base_link;
+//  geometry_msgs::PoseStamped goal_pose;
+//  goal_pose.pose.position.x = feedback->pose.position.x;
+//  goal_pose.pose.position.y = feedback->pose.position.y;
+//  goal_pose.pose.position.z = feedback->pose.position.z;
+//  goal_pose.pose.orientation.x = feedback->pose.orientation.x;
+//  goal_pose.pose.orientation.y = feedback->pose.orientation.y;
+//  goal_pose.pose.orientation.z = feedback->pose.orientation.z;
+//  goal_pose.pose.orientation.w = feedback->pose.orientation.w;
+//  
+//  tf2_ros::Buffer tf_buffer;
+//  tf2_ros::TransformListener tf2_listener(tf_buffer);
+//  geometry_msgs::TransformStamped
+//      init_frame_to_base_link;
 
-  // Lookup the transform from odom to base link and store in variable
-//  base_link_to_odom = tf_buffer.lookupTransform(
-//      "odom", "base_link", ros::Time(0), ros::Duration(1.0));
-  
-  // Lookup the transform from the initial frame to odom and store in variable
-  init_frame_to_base_link = tf_buffer.lookupTransform(
-      init_frame_, "base_link", ros::Time(0), ros::Duration(1.0));
+//  // Lookup the transform from odom to base link and store in variable
+////  base_link_to_odom = tf_buffer.lookupTransform(
+////      "odom", "base_link", ros::Time(0), ros::Duration(1.0));
+//  
+//  // Lookup the transform from the initial frame to odom and store in variable
+//  init_frame_to_base_link = tf_buffer.lookupTransform(
+//      init_frame_, "base_link", ros::Time(0), ros::Duration(1.0));
 
-  // Input the point you want to transform and indicate we want to just
-  // overwrite that object with the transformed point values
-  tf2::doTransform(
-      goal_pose, goal_pose,
-      init_frame_to_base_link); // robot_pose is the PoseStamped I want to transform
-      
-  pos_x_ = goal_pose.pose.position.x;
-  pos_y_ = goal_pose.pose.position.y;
-  pos_z_ = goal_pose.pose.position.z;
-  // Grab the incoming orientation info from the marker
-  or_x_ = goal_pose.pose.orientation.x;
-  or_y_ = goal_pose.pose.orientation.y;
-  or_z_ = goal_pose.pose.orientation.z;
-  or_w_ = goal_pose.pose.orientation.w;
+//  // Input the point you want to transform and indicate we want to just
+//  // overwrite that object with the transformed point values
+//  tf2::doTransform(
+//      goal_pose, goal_pose,
+//      init_frame_to_base_link); // robot_pose is the PoseStamped I want to transform
+//      
+//  pos_x_ = goal_pose.pose.position.x;
+//  pos_y_ = goal_pose.pose.position.y;
+//  pos_z_ = goal_pose.pose.position.z;
+//  // Grab the incoming orientation info from the marker
+//  or_x_ = goal_pose.pose.orientation.x;
+//  or_y_ = goal_pose.pose.orientation.y;
+//  or_z_ = goal_pose.pose.orientation.z;
+//  or_w_ = goal_pose.pose.orientation.w;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -498,31 +498,27 @@ void RemoteTeleop::pointClickCallback(
   // is the point that needs to be converted from base link to odom frame
   robot_pose.pose.position.x = x;
   robot_pose.pose.position.y = y;
-  robot_pose.pose.position.z = 0;
-  robot_pose.pose.orientation.w = 1.0;
-//  robot_pose.pose.orientation.x = a;
-//  robot_pose.pose.orientation.y = b;
-//  robot_pose.pose.orientation.z = c;
+  robot_pose.pose.position.z = z;
+  robot_pose.pose.orientation.w = d;
+  robot_pose.pose.orientation.x = a;
+  robot_pose.pose.orientation.y = b;
+  robot_pose.pose.orientation.z = c;
 
   // Create the objects needed for the transform
-//  tf2_ros::Buffer tf_buffer;
-//  tf2_ros::TransformListener tf2_listener(tf_buffer);
-//  geometry_msgs::TransformStamped
-//      init_frame_to_base_link;
+  tf2_ros::Buffer tf_buffer;
+  tf2_ros::TransformListener tf2_listener(tf_buffer);
+  geometry_msgs::TransformStamped
+      init_frame_to_base_link;
+  
+  // Lookup the transform from the initial frame to odom and store in variable
+  init_frame_to_base_link = tf_buffer.lookupTransform(
+      init_frame_, "base_link", ros::Time(0), ros::Duration(1.0));
 
-//  // Lookup the transform from odom to base link and store in variable
-////  base_link_to_odom = tf_buffer.lookupTransform(
-////      "odom", "base_link", ros::Time(0), ros::Duration(1.0));
-//  
-//  // Lookup the transform from the initial frame to odom and store in variable
-//  init_frame_to_base_link = tf_buffer.lookupTransform(
-//      init_frame_, "base_link", ros::Time(0), ros::Duration(1.0));
-
-//  // Input the point you want to transform and indicate we want to just
-//  // overwrite that object with the transformed point values
-//  tf2::doTransform(
-//      robot_pose, robot_pose,
-//      init_frame_to_base_link); // robot_pose is the PoseStamped I want to transform
+  // Input the point you want to transform and indicate we want to just
+  // overwrite that object with the transformed point values
+  tf2::doTransform(
+      robot_pose, robot_pose,
+      init_frame_to_base_link); // robot_pose is the PoseStamped I want to transform
 
   // The output value will be slightly offset, so we need to translate it to the
   // costmap center based on the odom offset
