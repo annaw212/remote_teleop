@@ -697,7 +697,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   robot_pose.pose.position.z = 0;
   robot_pose.pose.orientation.w = 1.0;
   
-  ROS_INFO_STREAM(robot_pose);
+//  ROS_INFO_STREAM(robot_pose);
   
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
@@ -707,7 +707,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
 
   tf2::doTransform(robot_pose, robot_pose, base_link_to_odom); // robot_pose is the PoseStamped I want to transform
   
-  ROS_INFO_STREAM(robot_pose);
+//  ROS_INFO_STREAM(robot_pose);
   
   // publish debug occupancy grid marking the robot's goal
   nav_msgs::OccupancyGrid occupancy_grid_debug_;
@@ -744,15 +744,17 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
+  ROS_INFO_STREAM("PK = " << pk);
   for (int h = 0; h <= dx; h++) {
     
     // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
-//    x1 = ceil(x1 / res);
-//    y1 = ceil(y1 / res);
+    int m = ceil(x1 / res);
+    int n = ceil(y1 / res);
     
     idx = ceil(y1 * w + x1);
     
     ROS_INFO_STREAM("Current: (" << x1 << ", " << y1 << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
+    ROS_INFO_STREAM("Altered Current: (" << m << ", " << n << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
     
     if (occupancy_grid_.data[idx] != 0) {
       ROS_INFO("OBSTACLE DETECTED");
