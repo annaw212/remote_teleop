@@ -476,10 +476,10 @@ void RemoteTeleop::pointClickCallback(
   }
 
   // Determine validity of path
-
-  float x1 = x_;
+  
+  float x1 = x_; // Robot's current location
   float y1 = y_;
-  float x2 = x; // x1 + x
+  float x2 = x; // x1 + x, Robot's goal location
   float y2 = y;
   float dx = abs(x2 - x1);
   float dy = abs(y2 - y1);
@@ -699,6 +699,8 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   int l = LENGTH;
   float res = RESOLUTION;
   int i, j, idx;
+  
+  ROS_INFO_STREAM(occupancy_grid_.header.frame_id);
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
@@ -711,17 +713,21 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
   geometry_msgs::TransformStamped
-      base_link_to_odom; // My frames are named "base_link" and "odom"
+      init_frame_to_odom;
 
   // Lookup the transform from odom to base link and store in variable
-  base_link_to_odom = tf_buffer.lookupTransform(
-      "odom", "base_link", ros::Time(0), ros::Duration(1.0));
+//  base_link_to_odom = tf_buffer.lookupTransform(
+//      "odom", "base_link", ros::Time(0), ros::Duration(1.0));
+  
+  // Lookup the transform from the initial frame to odom and store in variable
+  init_frame_to_odom = tf_buffer.lookupTransform(
+      "odom", occupancy_grid_.header.frame_id, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values
   tf2::doTransform(
       robot_pose, robot_pose,
-      base_link_to_odom); // robot_pose is the PoseStamped I want to transform
+      init_frame_to_odom); // robot_pose is the PoseStamped I want to transform
 
   // The output value will be slightly offset, so we need to translate it to the
   // costmap center based on the odom offset
