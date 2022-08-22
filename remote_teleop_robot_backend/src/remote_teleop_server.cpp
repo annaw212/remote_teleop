@@ -501,6 +501,8 @@ void RemoteTeleop::pointClickCallback(
       initializeIntMarkers("a");
       return;
     }
+    
+    ROS_INFO("SAFE TO NAVIGATE");
   //
     // Delete the interactive marker so it's not confusing during navigation
     initializeIntMarkers("d");
@@ -731,14 +733,14 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
 
   int idx = ceil(j * w + i);
 
-  ROS_INFO_STREAM("i: " << i << ", j: " << j << ", idx: " << idx);
+//  ROS_INFO_STREAM("i: " << i << ", j: " << j << ", idx: " << idx);
 
-  // This is the index of the goal pose in the occupancy grid
-  occupancy_grid_debug_.data[idx] = 100;
-  occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
-  
-  occupancy_grid_debug_.data[0] = 100;
-  occupancy_grid_debug_.data[1] = 100;
+//  // This is the index of the goal pose in the occupancy grid
+//  occupancy_grid_debug_.data[idx] = 100;
+//  occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
+//  
+//  occupancy_grid_debug_.data[0] = 100;
+//  occupancy_grid_debug_.data[1] = 100;
 //  ros::spinOnce();
   
   
@@ -758,32 +760,30 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
 //  std::fill(occupancy_grid_.data.begin(), occupancy_grid_.data.end(), 0);
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
-  ROS_INFO_STREAM("PK = " << pk << " DX = " << dx << " DY = " << dy);
-  int h;
-  for (h = 0; h <= dx; h++) {
+//  ROS_INFO_STREAM("PK = " << pk << " DX = " << dx << " DY = " << dy);
+//  int h;
+  for (int h = 0; h <= dx; h++) {
     
     // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
-    ROS_INFO_STREAM("h = " << h << " dx = " << dx);
+//    ROS_INFO_STREAM("h = " << h << " dx = " << dx);
     
     idx = ceil(y1 * w + x1);
     
-    ROS_INFO_STREAM("Current: (" << x1 << ", " << y1 << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
-    
-    int u = occupancy_grid_.data[idx];
-    
-    ROS_INFO_STREAM("Grid value at index = " << u);
+//    ROS_INFO_STREAM("Current: (" << x1 << ", " << y1 << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
+//    
+//    int u = occupancy_grid_.data[idx];
+//    
+//    ROS_INFO_STREAM("Grid value at index = " << u);
     
     if (occupancy_grid_.data[idx] != 0) {
       ROS_INFO("OBSTACLE DETECTED");
       obstacle_detected_ = true;
       return;
-    } else {
-      ROS_INFO("SAFE TO NAVIGATE");
     }
     
-    occupancy_grid_debug_.data[idx] = 100;
-    occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
-    ros::spinOnce();
+//    occupancy_grid_debug_.data[idx] = 100;
+//    occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
+//    ros::spinOnce();
     // checking either to decrement or increment the value
     // if we have to plot from (0,100) to (100,0)
     x1 < x2 ? x1++ : x1--;
