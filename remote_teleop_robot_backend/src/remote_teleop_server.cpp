@@ -770,10 +770,10 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     
 //    ROS_INFO_STREAM("Current: (" << x1 << ", " << y1 << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
 //    
-//    int u = occupancy_grid_.data[idx];
-//    
-//    ROS_INFO_STREAM("Grid value at index = " << u);
+    int u = occupancy_grid_.data[idx];
     
+    ROS_INFO_STREAM("Grid value at index = " << u);
+//    
     if (occupancy_grid_.data[idx] != 0) {
       ROS_INFO("OBSTACLE DETECTED");
       obstacle_detected_ = true;
