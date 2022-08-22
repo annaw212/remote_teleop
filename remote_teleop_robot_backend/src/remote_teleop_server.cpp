@@ -37,17 +37,20 @@
 
 #include <costmap_2d/costmap_2d.h>
 #include <costmap_2d/costmap_2d_ros.h>
-#include <tf/transform_listener.h>
-#include <tf2_ros/buffer.h>
-#include <rviz_visual_tools/rviz_visual_tools.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <rviz_visual_tools/rviz_visual_tools.h>
+#include <tf/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/buffer.h>
 /*-----------------------------------------------------------------------------------*/
 
 // Define variables here
 #define THRESHOLD 0.03
 #define MIN_VEL 0.08
 #define ANGLE_THRESHOLD 0.035
+#define WIDTH 240
+#define LENGTH 240
+#define RESOLUTION 0.025
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -127,12 +130,14 @@ void RemoteTeleop::initializePublishers() {
 
   // Initialize the stop publisher
   stop_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
-  
+
   // Initialize the marker publisher
-  marker_publisher_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 5);
+  marker_publisher_ =
+      nh_.advertise<visualization_msgs::Marker>("visualization_marker", 5);
 
   // Initialize the occupancy grid debug publisher
-  occupancy_grid_debug_publisher_ = nh_.advertise<nav_msgs::OccupancyGrid>("occupancy_grid_debug", 5);
+  occupancy_grid_debug_publisher_ =
+      nh_.advertise<nav_msgs::OccupancyGrid>("occupancy_grid_debug", 5);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -146,7 +151,7 @@ void RemoteTeleop::initializeActions() {
 
   // Start the point click action server
   point_click_server_.start();
-  
+
   // Start stop nav action server
   stop_action_server_.start();
 }
@@ -166,7 +171,7 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
 
   // Create the box marker and the non-interactive control containing the box
   makeIntMarkerControl(int_marker, type);
-  
+
   // Create the interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
 
@@ -213,8 +218,6 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
 
   return;
 }
-
-
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -349,7 +352,7 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
   // Store the values of the occupancy grid in a variable for future reference
   occupancy_grid_ = grid;
-//  ROS_INFO("COSTMAP CALLBACK FUNCTION");
+  //  ROS_INFO("COSTMAP CALLBACK FUNCTION");
   return;
 }
 
@@ -473,41 +476,42 @@ void RemoteTeleop::pointClickCallback(
   }
 
   // Determine validity of path
-    float x1 = x_;
-    float y1 = y_;
-    float x2 = x; // x1 + x
-    float y2 = y;
-    float dx = abs(x2 - x1);
-    float dy = abs(y2 - y1);
 
-    if (dx > dy) {
-      // Slope is less than 1
-//      ROS_INFO("HERE1");
-      obstacleCheck(x1, y1, x2, y2, dx, dy, true);
-    } else {
-      // Slope is greater than 1
-//      ROS_INFO("HERE2");
-      obstacleCheck(x1, y1, x2, y2, dx, dy, false);
-    }
+  float x1 = x_;
+  float y1 = y_;
+  float x2 = x; // x1 + x
+  float y2 = y;
+  float dx = abs(x2 - x1);
+  float dy = abs(y2 - y1);
 
-    if (obstacle_detected_ == true) {
-      // Path was not clear -- reset variable and exit function
-      obstacle_detected_ = false;
-      // Update the turn in place result and success fields
-      point_click_result_.success = true;
-      point_click_server_.setSucceeded(point_click_result_);
-      // Snap the interactive marker back to (0,0,0)
-      initializeIntMarkers("a");
-      return;
-    }
-    
-    ROS_INFO("SAFE TO NAVIGATE");
-  //
-    // Delete the interactive marker so it's not confusing during navigation
-    initializeIntMarkers("d");
-//  rviz_visual_tools::RvizVisualTools::deleteAllMarkers();
-//  rviz_visual_tools::RvizVisualTools vis_tool_("/base_link", "/visualization_marker", nh_);
-//  vis_tool_.deleteAllMarkers();
+  if (dx > dy) {
+    // Slope is less than 1
+    //      ROS_INFO("HERE1");
+    obstacleCheck(x1, y1, x2, y2, dx, dy, true);
+  } else {
+    // Slope is greater than 1
+    //      ROS_INFO("HERE2");
+    obstacleCheck(x1, y1, x2, y2, dx, dy, false);
+  }
+
+  if (obstacle_detected_ == true) {
+    // Path was not clear -- reset variable and exit function
+    obstacle_detected_ = false;
+    // Update the turn in place result and success fields
+    point_click_result_.success = true;
+    point_click_server_.setSucceeded(point_click_result_);
+    // Snap the interactive marker back to (0,0,0)
+    initializeIntMarkers("a");
+    return;
+  }
+
+  ROS_INFO("SAFE TO NAVIGATE");
+
+  // Delete the interactive marker so it's not confusing during navigation
+  initializeIntMarkers("d");
+  //  rviz_visual_tools::RvizVisualTools::deleteAllMarkers();
+  //  rviz_visual_tools::RvizVisualTools vis_tool_("/base_link",
+  //  "/visualization_marker", nh_); vis_tool_.deleteAllMarkers();
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
@@ -517,8 +521,6 @@ void RemoteTeleop::pointClickCallback(
   // its original value...
 
   if (!stop_) {
-    
-//    int_marker_.Type = visualization_msgs::Marker::DELETE;
 
     if (theta1 < 0.0) {
       turn_left1 = false;
@@ -618,7 +620,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
     // Drive straight
     while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
-           THRESHOLD && !stop_) {
+               THRESHOLD &&
+           !stop_) {
       // Set the linear velocity
       command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)),
                                   lin_vel_ * abs((goal_y - y_)));
@@ -658,7 +661,7 @@ void RemoteTeleop::stopNavCallback(
     ;
   stop_ = false;
   ROS_INFO_STREAM("Stop goal ended = " << stop_);
-  
+
   stop_nav_result_.success = true;
   stop_action_server_.setSucceeded(stop_nav_result_);
 }
@@ -689,100 +692,75 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // Using Brensenham's line algorithm to produce the straight-line coordinates
   // between two points. Taking those points and checking their locations on the
   // obstacle grid to make sure there are no obstacles in the way of navigation.
-  
-  // TODO: get the new goal from odom -- from tf and then - offset given by info origin
-  
+
+  // Create all the necessary variables
   geometry_msgs::PoseStamped robot_pose;
-  
+  int w = WIDTH;
+  int l = LENGTH;
+  float res = RESOLUTION;
+  int i, j, idx;
+
+  // Set the robot_pose values --> these are the values of our goal since that
+  // is the point that needs to be converted from base link to odom frame
   robot_pose.pose.position.x = x2;
   robot_pose.pose.position.y = y2;
   robot_pose.pose.position.z = 0;
   robot_pose.pose.orientation.w = 1.0;
-  
-//  ROS_INFO_STREAM(robot_pose);
-  
+
+  // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
-  geometry_msgs::TransformStamped base_link_to_odom; // My frames are named "base_link" and "odom"
+  geometry_msgs::TransformStamped
+      base_link_to_odom; // My frames are named "base_link" and "odom"
 
-  base_link_to_odom = tf_buffer.lookupTransform("odom", "base_link", ros::Time(0), ros::Duration(1.0) );
+  // Lookup the transform from odom to base link and store in variable
+  base_link_to_odom = tf_buffer.lookupTransform(
+      "odom", "base_link", ros::Time(0), ros::Duration(1.0));
 
-  tf2::doTransform(robot_pose, robot_pose, base_link_to_odom); // robot_pose is the PoseStamped I want to transform
-  
-//  ROS_INFO_STREAM(robot_pose);
-  
-  // publish debug occupancy grid marking the robot's goal
-//  nav_msgs::OccupancyGrid occupancy_grid_debug_;
-//  occupancy_grid_debug_ = occupancy_grid_;
-//  std::fill(occupancy_grid_debug_.data.begin(), occupancy_grid_debug_.data.end(), 0);
-  
-//  ROS_INFO("CHECKING FOR OBSTACLES");
-  int w = 240;
-  int l = 240;
-  float res = 0.025;
-  int i, j;
+  // Input the point you want to transform and indicate we want to just
+  // overwrite that object with the transformed point values
+  tf2::doTransform(
+      robot_pose, robot_pose,
+      base_link_to_odom); // robot_pose is the PoseStamped I want to transform
 
+  // The output value will be slightly offset, so we need to translate it to the
+  // costmap center based on the odom offset
   robot_pose.pose.position.x -= occupancy_grid_.info.origin.position.x;
   robot_pose.pose.position.y -= occupancy_grid_.info.origin.position.y;
-  
-//  ROS_INFO_STREAM(robot_pose);
 
-  i = ceil(robot_pose.pose.position.x / res);
-  j = ceil(robot_pose.pose.position.y / res);
+  // Set the goal coordinates on the costmap grid
+  x2 = ceil(robot_pose.pose.position.x / res);
+  y2 = ceil(robot_pose.pose.position.y / res);
 
-  int idx = ceil(j * w + i);
-
-//  ROS_INFO_STREAM("i: " << i << ", j: " << j << ", idx: " << idx);
-
-  // This is the index of the goal pose in the occupancy grid
-//  occupancy_grid_debug_.data[idx] = 100;
-//  occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
-//  
-//  occupancy_grid_debug_.data[0] = 100;
-//  occupancy_grid_debug_.data[1] = 100;
-//  ros::spinOnce();
-  
-  
-  // Set the i, j as the new x2, y2
-  x2 = i;
-  y2 = j;
-  
+  // Need to translate the current position to the costmap based on the odom
+  // offset
   x1 -= occupancy_grid_.info.origin.position.x;
   y1 -= occupancy_grid_.info.origin.position.y;
+
+  // Set the current coordinates on the costmap grid
   x1 = ceil(x1 / res);
   y1 = ceil(y1 / res);
-  
+
+  // Need to recalculate the dx/dy because they are now outdated
   dx = abs(x2 - x1);
   dy = abs(y2 - y1);
-  
-//  ROS_INFO_STREAM("grid length: " << occupancy_grid_.data.size());
-//  std::fill(occupancy_grid_.data.begin(), occupancy_grid_.data.end(), 0);
-  // Brensenham's line algorithm
+
+  // Brensenham's line algorithm -- geeks4geeks
   int pk = 2 * dy - dx;
-//  ROS_INFO_STREAM("PK = " << pk << " DX = " << dx << " DY = " << dy);
-  int h;
+
   for (int h = 0; h <= dx; h++) {
-    
-    // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
-    ROS_INFO_STREAM("h = " << h << " dx = " << dx);
-    
+
+    // Find the index of the point we are currently looking at
     idx = ceil(y1 * w + x1);
-    
-    ROS_INFO_STREAM("Current: (" << x1 << ", " << y1 << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
-    
-    int u = occupancy_grid_.data[idx];
-    
-    ROS_INFO_STREAM("Grid value at index = " << u);
-//    
+
+    // Check if there is an obstacle at that point
     if (occupancy_grid_.data[idx] != 0) {
       ROS_INFO("OBSTACLE DETECTED");
+      // Set the variable to indicate that an obstacle has been detected
       obstacle_detected_ = true;
       return;
     }
-    
-//    occupancy_grid_debug_.data[idx] = 100;
-//    occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
-//    ros::spinOnce();
+
     // checking either to decrement or increment the value
     // if we have to plot from (0,100) to (100,0)
     x1 < x2 ? x1++ : x1--;
@@ -799,12 +777,11 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     } else {
       y1 < y2 ? y1++ : y1--;
 
-      if (smallSlope == true) {
+//      if (smallSlope == true) {
 
-        // putpixel(x1, y1, RED);
-      } else {
-        //  putpixel(y1, x1, YELLOW);
-      }
+//      } else {
+//        //  putpixel(y1, x1, YELLOW);
+//      }
       pk = pk + 2 * dy - 2 * dx;
     }
   }

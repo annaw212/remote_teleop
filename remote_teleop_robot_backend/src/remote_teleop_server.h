@@ -3,23 +3,23 @@
 
 #include <ros/ros.h>
 
-#include <mutex>
 #include <cmath>
+#include <mutex>
 #include <stdlib.h>
 
 #include <tf/tf.h>
 
 #include <geometry_msgs/Twist.h>
 
-#include <nav_msgs/Odometry.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <nav_msgs/Odometry.h>
 
 #include <actionlib/server/simple_action_server.h>
 #include <interactive_markers/interactive_marker_server.h>
 
-#include <visualization_msgs/Marker.h>
 #include <visualization_msgs/InteractiveMarkerControl.h>
 #include <visualization_msgs/InteractiveMarkerUpdate.h>
+#include <visualization_msgs/Marker.h>
 
 #include <remote_teleop_robot_backend/TurnInPlaceAction.h>
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
@@ -32,7 +32,6 @@
 #include <remote_teleop_robot_backend/StopNavAction.h>
 #include <remote_teleop_robot_backend/StopNavGoal.h>
 #include <remote_teleop_robot_backend/StopNavResult.h>
-
 
 class RemoteTeleop {
 
@@ -50,7 +49,8 @@ private:
       remote_teleop_robot_backend::PointClickNavAction>
       point_click_server_;
   interactive_markers::InteractiveMarkerServer int_marker_server_;
-  actionlib::SimpleActionServer<remote_teleop_robot_backend::StopNavAction> stop_action_server_;
+  actionlib::SimpleActionServer<remote_teleop_robot_backend::StopNavAction>
+      stop_action_server_;
 
   // ROS publishers
   ros::Publisher turn_in_place_publisher_;
@@ -113,7 +113,8 @@ private:
   // Marker member methods
   visualization_msgs::Marker makeIntMarker(std::string type);
   visualization_msgs::InteractiveMarkerControl &
-  makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg, std::string type);
+  makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg,
+                       std::string type);
 
   // Callback member methods
   void turnInPlaceCallback(
@@ -124,7 +125,8 @@ private:
       const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
   void odomCallback(const nav_msgs::Odometry &msg);
   void costmapCallback(const nav_msgs::OccupancyGrid &grid);
-  void stopNavCallback(const remote_teleop_robot_backend::StopNavGoalConstPtr& goal);
+  void
+  stopNavCallback(const remote_teleop_robot_backend::StopNavGoalConstPtr &goal);
 
   // Turn in place member methods
   void turnInPlace();
@@ -134,7 +136,7 @@ private:
                 float dist);
   void obstacleCheck(float x1, float y1, float x2, float y2, float dx, float dy,
                      bool smallSlope);
-                     
+
   // Stop nav member methods
   void stopMovement();
 };
