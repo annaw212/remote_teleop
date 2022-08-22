@@ -749,6 +749,8 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   dx = abs(x2 - x1);
   dy = abs(y2 - y1);
   
+  ROS_INFO_STREAM("grid length: " << sizeof(occupancy_grid_.data));
+  
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
   ROS_INFO_STREAM("PK = " << pk << " DX = " << dx << " DY = " << dy);
