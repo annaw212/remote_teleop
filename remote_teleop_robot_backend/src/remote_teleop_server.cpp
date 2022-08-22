@@ -512,7 +512,7 @@ void RemoteTeleop::pointClickCallback(
   
   // Lookup the transform from the initial frame to odom and store in variable
   init_frame_to_base_link = tf_buffer.lookupTransform(
-      init_frame_, "base_link", ros::Time(0), ros::Duration(1.0));
+      "base_link", init_frame_, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values
