@@ -751,7 +751,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
-  ROS_INFO_STREAM("PK = " << pk);
+  ROS_INFO_STREAM("PK = " << pk << " DX = " << dx << " DY = " << dy);
   for (int h = 0; h <= dx; h++) {
     
     // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
@@ -765,9 +765,9 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
       ROS_INFO("OBSTACLE DETECTED");
       obstacle_detected_ = true;
       return;
+    } else {
+      ROS_INFO("SAFE TO NAVIGATE");
     }
-    
-    ROS_INFO("SAFE TO NAVIGATE");
     
     // checking either to decrement or increment the value
     // if we have to plot from (0,100) to (100,0)
