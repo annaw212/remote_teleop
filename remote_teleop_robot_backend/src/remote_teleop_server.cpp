@@ -321,6 +321,8 @@ void RemoteTeleop::processIntMarkerFeedback(
   or_y_ = feedback->pose.orientation.y;
   or_z_ = feedback->pose.orientation.z;
   or_w_ = feedback->pose.orientation.w;
+  
+  ROS_INFO_STREAM(feedback.header.frame_id)
 }
 
 /*-----------------------------------------------------------------------------------*/
