@@ -132,8 +132,7 @@ private:
   // Point click navigate member methods
   void navigate(float angle, bool turn_left, float x_dist, float y_dist,
                 float dist);
-  void obstacleCheck(float x1, float y1, float x2, float y2, float dx, float dy,
-                     bool smallSlope);
+  void obstacleCheck(float x1, float y1, float x2, float y2);
                      
   // Stop nav member methods
   void stopMovement();
