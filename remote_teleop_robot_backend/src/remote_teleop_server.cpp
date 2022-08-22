@@ -750,6 +750,8 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // Need to recalculate the dx/dy because they are now outdated
   dx = abs(x2 - x1);
   dy = abs(y2 - y1);
+  
+  ROS_INFO_STREAM("(" << x1 << ", " << y1 << ") (" << x2 << ", " << y2 << ")");
 
   // Brensenham's line algorithm -- geeks4geeks
   int pk = 2 * dy - dx;
