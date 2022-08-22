@@ -477,8 +477,9 @@ void RemoteTeleop::pointClickCallback(
     float y1 = y_;
     float x2 = x; // x1 + x
     float y2 = y;
+    // TODO: rework this function...x2 and y2 are incorrect here because they haven't been translated to odom yet
     float dx = abs(x2 - x1);
-    float dy = abs(y1 - y1);
+    float dy = abs(y2 - y1);
 
     if (dx > dy) {
       // Slope is less than 1
@@ -742,19 +743,23 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   x2 = i;
   y2 = j;
   
+  x1 = ceil(x1 / res);
+  y1 = ceil(y1 / res);
+  
+  dx = abs(x2 - x1);
+  dy = abs(y2 - y1);
+  
   // Brensenham's line algorithm
   int pk = 2 * dy - dx;
   ROS_INFO_STREAM("PK = " << pk);
   for (int h = 0; h <= dx; h++) {
     
     // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
-    int m = ceil(x1 / res);
-    int n = ceil(y1 / res);
+    
     
     idx = ceil(y1 * w + x1);
     
     ROS_INFO_STREAM("Current: (" << x1 << ", " << y1 << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
-    ROS_INFO_STREAM("Altered Current: (" << m << ", " << n << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
     
     if (occupancy_grid_.data[idx] != 0) {
       ROS_INFO("OBSTACLE DETECTED");
