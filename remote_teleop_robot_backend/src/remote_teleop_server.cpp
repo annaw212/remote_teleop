@@ -164,7 +164,7 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
-  int_marker.header.frame_id = "odom";
+  int_marker.header.frame_id = "base_link";
   int_marker.header.stamp = ros::Time::now();
   int_marker.name = "simple_6dof";
   int_marker.description = "Simple 6-DOF Control";
