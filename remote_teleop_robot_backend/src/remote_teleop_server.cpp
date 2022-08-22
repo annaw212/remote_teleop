@@ -736,6 +736,9 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // This is the index of the goal pose in the occupancy grid
   occupancy_grid_debug_.data[idx] = 100;
   occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
+  
+  occupancy_grid_debug_.data[0] = 100;
+  occupancy_grid_debug_.data[1] = 100;
 //  ros::spinOnce();
   
   
@@ -778,7 +781,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     
     occupancy_grid_debug_.data[idx] = 100;
     occupancy_grid_debug_publisher_.publish(occupancy_grid_debug_);
-//  ros::spinOnce();
+//    ros::spinOnce();
     // checking either to decrement or increment the value
     // if we have to plot from (0,100) to (100,0)
     x1 < x2 ? x1++ : x1--;
