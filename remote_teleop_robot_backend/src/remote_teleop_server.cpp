@@ -764,12 +764,12 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   for (int h = 0; h <= dx; h++) {
     
     // TODO: MAKE SURE THIS IS THE RIGHT THING TO DO
-//    ROS_INFO_STREAM("h = " << h << " dx = " << dx);
+    ROS_INFO_STREAM("h = " << h << " dx = " << dx);
     
     idx = ceil(y1 * w + x1);
     
-//    ROS_INFO_STREAM("Current: (" << x1 << ", " << y1 << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
-//    
+    ROS_INFO_STREAM("Current: (" << x1 << ", " << y1 << ")\t Goal: (" << x2 << ", " << y2 << ")\t Index: " << idx);
+    
     int u = occupancy_grid_.data[idx];
     
     ROS_INFO_STREAM("Grid value at index = " << u);
