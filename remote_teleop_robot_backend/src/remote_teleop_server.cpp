@@ -691,7 +691,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     start_x = x_;
     start_y = y_;
     // Drive straight
-    while (abs(dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2)))) >
+    while (abs(dist) - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
                THRESHOLD &&
            !stop_) {
       // Set the linear velocity
