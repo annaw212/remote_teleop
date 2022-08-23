@@ -50,12 +50,8 @@
   
   <!-- Publishes rgb and depth camera image to point cloud node -->
   <node pkg="nodelet" type="nodelet" args="manager" name="record_player_manager" output="screen"/>
-  
-  <node pkg="nodelet" type="nodelet" name="metric_rect" 
-        args="load depth_image_proc/convert_metric record_player_manager --no-bond">
-    <remap from="camera_upward/depth" to="camera/depth"/>
-  </node>
-  
+
+  <remap from="camera_upward/depth" to="camera/depth"/>
   <remap from="camera_upward/color" to="camera/rgb" />
   <remap from="camera/rgb/image_raw" to="camera/rgb/image_rect_color" />
   <remap from="camera/depth/image_raw" to="camera/depth_registered/image_rect" />
