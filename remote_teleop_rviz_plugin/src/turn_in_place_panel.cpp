@@ -186,8 +186,8 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   connect(turn_right_button_, SIGNAL(released()), this,
           SLOT(setTurnGoalRight()));
   connect(confirm_coords_, SIGNAL(released()), this, SLOT(sendNavGoal()));
-  connect(lin_vel_toggle_, SIGNAL(valueChanged()), this, SLOT(setVelGoal()));
-  connect(ang_vel_toggle_, SIGNAL(valueChanged()), this, SLOT(setVelGoal()));
+  connect(lin_vel_toggle_, SIGNAL(valueChanged(double)), this, SLOT(setVelGoal()));
+  connect(ang_vel_toggle_, SIGNAL(valueChanged(double)), this, SLOT(setVelGoal()));
   connect(stop_nav_button_, SIGNAL(released()), this, SLOT(sendStopGoal()));
   connect(nudge_fwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalFwd()));
   connect(nudge_bwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalBwd()));
