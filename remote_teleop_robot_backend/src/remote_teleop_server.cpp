@@ -419,9 +419,10 @@ void RemoteTeleop::nudgeCallback(
 
 void RemoteTeleop::speedToggleCallback(
     const remote_teleop_robot_backend::SpeedToggleGoalConstPtr &goal) {
+  
+  // Update the velocity variables
   lin_vel_ = goal->lin_vel;
   ang_vel_ = goal->ang_vel;
-  ROS_INFO_STREAM("lin: " << lin_vel_ << " ang: " << ang_vel_);
   
   velocity_result_.success = true;
   velocity_server_.setSucceeded(velocity_result_);
