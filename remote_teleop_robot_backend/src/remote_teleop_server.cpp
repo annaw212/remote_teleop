@@ -328,10 +328,14 @@ void RemoteTeleop::turnInPlaceCallback(
   // TODO: update vel vars here, OR move this somewhere else
   //  lin_vel_ = 0.5;
   //  ang_vel_ = 0.5;
+  
+  initializeIntMarkers("d");
 
   // Tell robot to turn the desired angle
   turnInPlace();
 
+  initializeIntMarkers("a");
+  
   // Update the turn in place result and success fields
   turn_in_place_result_.success = true;
   turn_in_place_server_.setSucceeded(turn_in_place_result_);
