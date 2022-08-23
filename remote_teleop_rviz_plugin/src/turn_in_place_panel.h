@@ -35,6 +35,8 @@
 #include <rviz/panel.h>
 #endif
 
+#include <QDoubleSpinBox>
+
 class QLineEdit;
 
 namespace remote_teleop_rviz_plugin {
@@ -65,8 +67,8 @@ public Q_SLOTS:
   // function
   void setTurnGoalRight();
 
-  /*  void setVelGoal();*/
-  
+  void setVelGoal();
+
   void setNudgeGoalFwd();
   void setNudgeGoalBwd();
 
@@ -79,20 +81,22 @@ protected Q_SLOTS:
 
   void sendNavGoal();
 
-  /*  void sendVelGoal();*/
-  
+  void sendVelGoal();
+
   void sendStopGoal();
-  
+
   void sendNudgeGoal();
 
 protected:
   // One-line text editor for entering the degrees to turn by in
   /*  QLineEdit* degrees_topic_editor_;*/
+  QDoubleSpinBox *lin_vel_toggle_;
+  QDoubleSpinBox *ang_vel_toggle_;
 
   // The ROS publisher for the degrees and direction to turn in
   ros::Publisher turn_goal_publisher_;
   ros::Publisher nav_goal_publisher_;
-  /*  ros::Publisher vel_goal_publisher_;*/
+  ros::Publisher vel_goal_publisher_;
   ros::Publisher stop_goal_publisher_;
   ros::Publisher nudge_goal_publisher_;
 

@@ -33,6 +33,10 @@
 #include <remote_teleop_robot_backend/PointClickNavGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
 
+#include <remote_teleop_robot_backend/SpeedToggleAction.h>
+#include <remote_teleop_robot_backend/SpeedToggleGoal.h>
+#include <remote_teleop_robot_backend/SpeedToggleResult.h>
+
 #include <remote_teleop_robot_backend/StopNavAction.h>
 #include <remote_teleop_robot_backend/StopNavGoal.h>
 #include <remote_teleop_robot_backend/StopNavResult.h>
@@ -74,10 +78,12 @@ RemoteTeleop::RemoteTeleop()
       int_marker_server_("interactive_marker_server"),
       stop_action_server_(nh_, "/stop_nav_as",
                           boost::bind(&RemoteTeleop::stopNavCallback, this, _1),
-                          false)
-      , nudge_server_(nh_, "/nudge_as",
-                          boost::bind(&RemoteTeleop::nudgeCallback, this, _1),
-                          false) {
+                          false),
+      nudge_server_(nh_, "/nudge_as",
+                    boost::bind(&RemoteTeleop::nudgeCallback, this, _1), false),
+      velocity_server_(
+          nh_, "/speed_toggle_as",
+          boost::bind(&RemoteTeleop::speedToggleCallback, this, _1), false) {
 
   ROS_INFO("In class constructor of RemoteTeleop");
 
@@ -124,9 +130,10 @@ void RemoteTeleop::initializeSubscribers() {
   // Initialize the costmap subscriber
   costmap_sub_ = nh_.subscribe("/rt_costmap_node/costmap/costmap", 1,
                                &RemoteTeleop::costmapCallback, this);
-                               
+
   // Initialize the upwards camera subscriber
-//  upward_camera_sub_ = nh_.subscribe("/camera_upward/depth/image_raw", 1, &RemoteTeleop::upwardCameraCallback, this);
+  upward_camera_sub_ = nh_.subscribe("/camera_upward/depth/image_raw", 1,
+                                     &RemoteTeleop::upwardCameraCallback, this);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -152,12 +159,13 @@ void RemoteTeleop::initializePublishers() {
   // Initialize the occupancy grid debug publisher
   occupancy_grid_debug_publisher_ =
       nh_.advertise<nav_msgs::OccupancyGrid>("occupancy_grid_debug", 5);
-      
+
   // Initialize the nudge publisher
   nudge_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
-  
+
   // Initialize the point cloud publisher
-//  upward_point_cloud_publisher_ = nh_.advertise<sensor_msgs::PointCloud2>("upward_cam_point_cloud", 5);
+  upward_point_cloud_publisher_ =
+      nh_.advertise<sensor_msgs::PointCloud2>("upward_cam_point_cloud", 5);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -174,9 +182,12 @@ void RemoteTeleop::initializeActions() {
 
   // Start stop nav action server
   stop_action_server_.start();
-  
+
   // Start nudge action server
   nudge_server_.start();
+
+  // Start speed toggle action server
+  velocity_server_.start();
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -343,9 +354,8 @@ void RemoteTeleop::processIntMarkerFeedback(
   or_y_ = feedback->pose.orientation.y;
   or_z_ = feedback->pose.orientation.z;
   or_w_ = feedback->pose.orientation.w;
-  
+
   init_frame_ = feedback->header.frame_id;
-  
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -382,53 +392,69 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::nudgeCallback(const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
+void RemoteTeleop::nudgeCallback(
+    const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
 
   ROS_INFO("NUDGE CALLBACK");
   nudge_dist_ = goal->dist;
   nudge_fwd_ = goal->fwd;
-  
+
   ROS_INFO_STREAM("distance: " << nudge_dist_ << " forward: " << nudge_fwd_);
-  
+
   initializeIntMarkers("d");
-  
+
   if (nudge_fwd_ == true) {
     navigate(0.0, 0.0, nudge_dist_, 0.0, nudge_dist_);
   } else {
-    navigate(0.0, 0.0, -1*nudge_dist_, 0.0, -1*nudge_dist_);
+    navigate(0.0, 0.0, -1 * nudge_dist_, 0.0, -1 * nudge_dist_);
   }
-  
+
   nudge_result_.success = true;
   nudge_server_.setSucceeded(nudge_result_);
-  
+
   initializeIntMarkers("a");
 }
 
 /*-----------------------------------------------------------------------------------*/
 
-//  ROS_INFO("CAMERA CALLBACK");
-//  // Create a point cloud message to publish
-//  sensor_msgs::PointCloud2 upward_cloud_msg;
-//  
-//  upward_cloud_msg.header = image->header;
-//  
-//  upward_cloud_msg.height = image->height;
-//  upward_cloud_msg.width = image->width;
-//  
-//  upward_cloud_msg.fields[0].name = "upward_depth_cloud";
-//  upward_cloud_msg.fields[0].offset = 0;
-//  upward_cloud_msg.fields[0].datatype = 4; // image->encoding is '16UC1' -> unsigned 16 int
-//  upward_cloud_msg.fields[0].count = 1;
-//  
-//  upward_cloud_msg.is_bigendian = bool(image->is_bigendian);
-//  
-//  upward_cloud_msg.row_step = image->step;
-////  upward_cloud_msg.point_step = ???;
-//  
-//  upward_cloud_msg.data = image->data;
-//  
-//  upward_point_cloud_publisher_.publish(upward_cloud_msg);
-//}
+void RemoteTeleop::speedToggleCallback(
+    const remote_teleop_robot_backend::SpeedToggleGoalConstPtr &goal) {
+  lin_vel_ = goal->lin_vel;
+  ang_vel_ = goal->ang_vel;
+  ROS_INFO_STREAM("lin: " << lin_vel_ << " ang: " << ang_vel_);
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleop::upwardCameraCallback(
+    const sensor_msgs::ImageConstPtr &image) {
+  //  ROS_INFO("CAMERA CALLBACK");
+  // Create a point cloud message to publish
+  sensor_msgs::PointCloud2 upward_cloud_msg;
+
+  upward_cloud_msg.header = image->header;
+  //  ROS_INFO_STREAM(upward_cloud_msg.header);
+
+  upward_cloud_msg.height = image->height;
+  upward_cloud_msg.width = image->width;
+
+  //  upward_cloud_msg.fields[0].name = "upward_depth_cloud";
+  //  upward_cloud_msg.fields[0].offset = 0;
+  //  upward_cloud_msg.fields[0].datatype = 4; // image->encoding is '16UC1' ->
+  //  unsigned 16 int upward_cloud_msg.fields[0].count = 1;
+  ////
+  //  upward_cloud_msg.is_bigendian = bool(image->is_bigendian);
+  //
+  //  upward_cloud_msg.row_step = image->step;
+  ////  upward_cloud_msg.point_step = ???;
+  //
+  //  upward_cloud_msg.data = image->data;
+
+  //  upward_point_cloud_publisher_.publish(upward_cloud_msg);
+
+  //  ROS_INFO_STREAM(upward_cloud_msg);
+  return;
+}
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -527,7 +553,7 @@ void RemoteTeleop::pointClickCallback(
   float b = or_y_;
   float c = or_z_;
   float d = or_w_;
-  
+
   // convert to init frame to base link
   geometry_msgs::PoseStamped robot_pose;
 
@@ -540,24 +566,23 @@ void RemoteTeleop::pointClickCallback(
   robot_pose.pose.orientation.x = a;
   robot_pose.pose.orientation.y = b;
   robot_pose.pose.orientation.z = c;
-  
-//  robot_pose.header.stamp = ros::Time::now();
+
+  //  robot_pose.header.stamp = ros::Time::now();
 
   // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
-  geometry_msgs::TransformStamped
-      init_frame_to_base_link;
-  
+  geometry_msgs::TransformStamped init_frame_to_base_link;
+
   // Lookup the transform from the initial frame to odom and store in variable
   init_frame_to_base_link = tf_buffer.lookupTransform(
       "base_link", init_frame_, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values
-  tf2::doTransform(
-      robot_pose, robot_pose,
-      init_frame_to_base_link); // robot_pose is the PoseStamped I want to transform
+  tf2::doTransform(robot_pose, robot_pose,
+                   init_frame_to_base_link); // robot_pose is the PoseStamped I
+                                             // want to transform
 
   x = robot_pose.pose.position.x;
   y = robot_pose.pose.position.y;
@@ -584,7 +609,7 @@ void RemoteTeleop::pointClickCallback(
   }
 
   // Determine validity of path
-  
+
   float x1 = x_; // Robot's current location
   float y1 = y_;
   float x2 = x; // x1 + x, Robot's goal location
@@ -630,7 +655,7 @@ void RemoteTeleop::pointClickCallback(
 
   if (!stop_) {
     /* NAVIGATE */
-    
+
     // Turn to face goal location
     if (theta1 < 0.0) {
       turn_left1 = false;
@@ -701,7 +726,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
   // Declare local variables
   float goal_x, goal_y, start_x, start_y;
-  
+
   // init frame to base link
 
   // Create message to be sent
@@ -742,7 +767,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
       if (dist < 0.0) {
         command.linear.x *= -1;
       }
-      
+
       // Publish the command
       point_click_nav_publisher_.publish(command);
     }
@@ -751,8 +776,6 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     point_click_nav_publisher_.publish(command);
     return;
   }
-  
-  
 
   if (dist == 0.0) {
     // Turn in place
@@ -814,8 +837,8 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   int l = LENGTH;
   float res = RESOLUTION;
   int i, j, idx;
-  
-//  ROS_INFO_STREAM(int_marker_.header.frame_id);
+
+  //  ROS_INFO_STREAM(int_marker_.header.frame_id);
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
@@ -827,13 +850,12 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
-  geometry_msgs::TransformStamped
-      init_frame_to_odom;
+  geometry_msgs::TransformStamped init_frame_to_odom;
 
   // Lookup the transform from odom to base link and store in variable
-//  base_link_to_odom = tf_buffer.lookupTransform(
-//      "odom", "base_link", ros::Time(0), ros::Duration(1.0));
-  
+  //  base_link_to_odom = tf_buffer.lookupTransform(
+  //      "odom", "base_link", ros::Time(0), ros::Duration(1.0));
+
   // Lookup the transform from the initial frame to odom and store in variable
   init_frame_to_odom = tf_buffer.lookupTransform(
       "odom", init_frame_, ros::Time(0), ros::Duration(1.0));
@@ -865,7 +887,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   // Need to recalculate the dx/dy because they are now outdated
   dx = abs(x2 - x1);
   dy = abs(y2 - y1);
-  
+
   ROS_INFO_STREAM("(" << x1 << ", " << y1 << ") (" << x2 << ", " << y2 << ")");
 
   // Brensenham's line algorithm -- geeks4geeks
@@ -900,11 +922,11 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     } else {
       y1 < y2 ? y1++ : y1--;
 
-//      if (smallSlope == true) {
+      //      if (smallSlope == true) {
 
-//      } else {
-//        //  putpixel(y1, x1, YELLOW);
-//      }
+      //      } else {
+      //        //  putpixel(y1, x1, YELLOW);
+      //      }
       pk = pk + 2 * dy - 2 * dx;
     }
   }
@@ -912,7 +934,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
 
 /*-----------------------------------------------------------------------------------*/
 
-//void RemoteTeleop::nudge() {
+// void RemoteTeleop::nudge() {
 //  // Drive straight
 //  while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
 //             THRESHOLD &&

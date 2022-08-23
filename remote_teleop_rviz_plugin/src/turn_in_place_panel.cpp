@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 
+#include <QDoubleSpinBox>
 #include <QHBoxLayout>
 #include <QIntValidator>
 #include <QLabel>
@@ -39,11 +40,11 @@
 #include <QVBoxLayout>
 #include <QValidator>
 
+#include <remote_teleop_robot_backend/NudgeActionGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
 #include <remote_teleop_robot_backend/SpeedToggleActionGoal.h>
-#include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
 #include <remote_teleop_robot_backend/StopNavActionGoal.h>
-#include <remote_teleop_robot_backend/NudgeActionGoal.h>
+#include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
 
 #include "turn_in_place_panel.h"
 
@@ -87,7 +88,7 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   QPushButton *turn_right_button_ = new QPushButton(this);
   turn_right_button_->setText(tr("Turn Right"));
   button_layout->addWidget(turn_right_button_);
-  
+
   QHBoxLayout *nudge_layout = new QHBoxLayout;
 
   // Create a button for turning left and add to the horizontal box
@@ -107,10 +108,38 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   confirm_coords_->setText(tr("Confirm Coordinates"));
   nav_layout->addWidget(confirm_coords_);
 
-  //  // Create box layout for speed sliders
-  //  QVBoxLayout* slider_layout = new QVBoxLayout;
-  //
-  //  slider_layout->addWidget( new QLabel( "Speed Toggles"));
+  // Create box layout for speed sliders
+  QVBoxLayout *velocity_layout = new QVBoxLayout;
+
+  velocity_layout->addWidget(new QLabel("Speed Toggles"));
+
+  QHBoxLayout *lin_vel_layout = new QHBoxLayout;
+
+  lin_vel_layout->addWidget(new QLabel("Linear Velocity:"));
+  lin_vel_toggle_ = new QDoubleSpinBox(this);
+  lin_vel_toggle_->setMaximum(1.5);
+  lin_vel_toggle_->setMinimum(0.0);
+  lin_vel_toggle_->setSuffix(" m/s");
+  lin_vel_toggle_->setSingleStep(0.1);
+  lin_vel_toggle_->setValue(0.5);
+  lin_vel_toggle_->setDecimals(1);
+  lin_vel_toggle_->setButtonSymbols(QAbstractSpinBox::PlusMinus);
+
+  lin_vel_layout->addWidget(lin_vel_toggle_);
+
+  lin_vel_layout->addWidget(new QLabel("\tAngular Velocity:"));
+  ang_vel_toggle_ = new QDoubleSpinBox(this);
+  ang_vel_toggle_->setMaximum(1.5);
+  ang_vel_toggle_->setMinimum(0.0);
+  ang_vel_toggle_->setSuffix(" m/s");
+  ang_vel_toggle_->setSingleStep(0.1);
+  ang_vel_toggle_->setValue(1.0);
+  ang_vel_toggle_->setDecimals(1);
+  ang_vel_toggle_->setButtonSymbols(QAbstractSpinBox::PlusMinus);
+
+  lin_vel_layout->addWidget(ang_vel_toggle_);
+  velocity_layout->addLayout(lin_vel_layout);
+
   //  QSlider* lin_vel_slider_ = new QSlider(Qt::Horizontal, this);
   //  slider_layout->addWidget( new QLabel( "Linear Velocity:" ));
   //  lin_vel_slider_->setRange(0,30);
@@ -129,10 +158,11 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   //  ang_vel_slider_->setValue(10.0);
   //  slider_layout->addWidget( ang_vel_slider_ );
   //
-    // Add in virtual e-stop button
-    QPushButton* stop_nav_button_ = new QPushButton(this);
-    stop_nav_button_->setText(tr("STOP"));
-    stop_nav_button_->setStyleSheet("font:bold;background-color:red;font-size:36px;height:42px;width:100px");
+  // Add in virtual e-stop button
+  QPushButton *stop_nav_button_ = new QPushButton(this);
+  stop_nav_button_->setText(tr("STOP"));
+  stop_nav_button_->setStyleSheet(
+      "font:bold;background-color:red;font-size:36px;height:42px;width:100px");
 
   // Add the horizontal box to the vertical box layout
   topic_layout->addWidget(new QLabel("Turn in Place"));
@@ -142,10 +172,8 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   topic_layout->addWidget(
       new QLabel("Point-and-Click Navigation Confirmation"));
   topic_layout->addLayout(nav_layout);
-  //  topic_layout->addLayout( slider_layout );
-  //  topic_layout->addWidget( new QLabel( "Point-and-Click Navigation
-  //  Confirmation")); 
-  topic_layout->addWidget( stop_nav_button_ );
+  topic_layout->addLayout(velocity_layout);
+  topic_layout->addWidget(stop_nav_button_);
 
   // Set the layout
   setLayout(topic_layout);
@@ -158,9 +186,8 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   connect(turn_right_button_, SIGNAL(released()), this,
           SLOT(setTurnGoalRight()));
   connect(confirm_coords_, SIGNAL(released()), this, SLOT(sendNavGoal()));
-  //  connect(lin_vel_slider_, SIGNAL(sliderReleased()), this,
-  //  SLOT(setVelGoal())); connect(ang_vel_slider_, SIGNAL(sliderReleased()),
-  //  this, SLOT(setVelGoal()));
+  connect(lin_vel_toggle_, SIGNAL(valueChanged()), this, SLOT(setVelGoal()));
+  connect(ang_vel_toggle_, SIGNAL(valueChanged()), this, SLOT(setVelGoal()));
   connect(stop_nav_button_, SIGNAL(released()), this, SLOT(sendStopGoal()));
   connect(nudge_fwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalFwd()));
   connect(nudge_bwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalBwd()));
@@ -203,26 +230,26 @@ void TurnInPlacePanel::setTurnGoalRight() {
   sendTurnGoal();
 }
 
-// void TurnInPlacePanel::setVelGoal() {
-//
-//  // Get the values from the sliders --> maybe something similar to fcn above
-//  lin_vel_ = 0.5;
-//  ang_vel_ = 1.0;
-//
-//  sendVelGoal();
-//}
+void TurnInPlacePanel::setVelGoal() {
+
+  // Get the values from the sliders --> maybe something similar to fcn above
+  lin_vel_ = lin_vel_toggle_->value();
+  ang_vel_ = ang_vel_toggle_->value();
+
+  sendVelGoal();
+}
 
 void TurnInPlacePanel::setNudgeGoalFwd() {
   dist_ = 0.15; // 15cm
   fwd_ = true;
-  
+
   sendNudgeGoal();
 }
 
 void TurnInPlacePanel::setNudgeGoalBwd() {
   dist_ = 0.15; // 15cm
   fwd_ = false;
-  
+
   sendNudgeGoal();
 }
 
@@ -255,39 +282,37 @@ void TurnInPlacePanel::sendNavGoal() {
   }
 }
 
-// void TurnInPlacePanel::sendVelGoal() {
-//
-//  if( ros::ok() && vel_goal_publisher_ ) {
-//
-//    remote_teleop_robot_backend::SpeedToggleActionGoal msg;
-//
-//    msg.goal.lin_vel = lin_vel_;
-//    msg.goal.ang_vel = ang_vel_;
-//
-////    vel_goal_publisher_.publish( msg );
-//
-//  }
-//}
+void TurnInPlacePanel::sendVelGoal() {
 
-void TurnInPlacePanel::sendStopGoal() {
-  
-  if ( ros::ok() && stop_goal_publisher_ ) {
-    
-    remote_teleop_robot_backend::StopNavActionGoal msg;
-    msg.goal.stop = true;
-    stop_goal_publisher_.publish( msg );
+  if (ros::ok() && vel_goal_publisher_) {
+
+    remote_teleop_robot_backend::SpeedToggleActionGoal msg;
+
+    msg.goal.lin_vel = lin_vel_;
+    msg.goal.ang_vel = ang_vel_;
+
+    vel_goal_publisher_.publish(msg);
   }
 }
 
+void TurnInPlacePanel::sendStopGoal() {
+
+  if (ros::ok() && stop_goal_publisher_) {
+
+    remote_teleop_robot_backend::StopNavActionGoal msg;
+    msg.goal.stop = true;
+    stop_goal_publisher_.publish(msg);
+  }
+}
 
 void TurnInPlacePanel::sendNudgeGoal() {
-  
-  if ( ros::ok() && nudge_goal_publisher_ ) {
-    
+
+  if (ros::ok() && nudge_goal_publisher_) {
+
     remote_teleop_robot_backend::NudgeActionGoal msg;
     msg.goal.dist = dist_;
     msg.goal.fwd = fwd_;
-    nudge_goal_publisher_.publish( msg );
+    nudge_goal_publisher_.publish(msg);
   }
 }
 
@@ -314,9 +339,9 @@ void TurnInPlacePanel::load(const rviz::Config &config) {
   nudge_goal_publisher_ =
       nh_.advertise<remote_teleop_robot_backend::NudgeActionGoal>(
           "nudge_as/goal", 1);
-  //  vel_goal_publisher_ =
-  //  nh_.advertise<remote_teleop_robot_backend::SpeedToggleActionGoal>(
-  //  "point_click_as/goal", 1 );
+  vel_goal_publisher_ =
+      nh_.advertise<remote_teleop_robot_backend::SpeedToggleActionGoal>(
+          "speed_toggle_as/goal", 1);
   Q_EMIT configChanged();
 }
 
