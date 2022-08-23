@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   costmap_2d
   rviz_visual_tools
+  nodelet
 )
 
 ## System dependencies are found with CMake's conventions
