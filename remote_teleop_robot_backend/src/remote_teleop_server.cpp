@@ -407,7 +407,7 @@ void RemoteTeleop::nudgeCallback(const remote_teleop_robot_backend::NudgeGoalCon
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::upwardCameraCallback(const sensor_msgs::ImageConstPtr &image) {
-  
+  ROS_INFO("CAMERA CALLBACK");
   // Create a point cloud message to publish
   sensor_msgs::PointCloud2 upward_cloud_msg;
   
