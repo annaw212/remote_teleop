@@ -422,6 +422,9 @@ void RemoteTeleop::speedToggleCallback(
   lin_vel_ = goal->lin_vel;
   ang_vel_ = goal->ang_vel;
   ROS_INFO_STREAM("lin: " << lin_vel_ << " ang: " << ang_vel_);
+  
+  velocity_result_.success = true;
+  velocity_server_.setSucceeded(velocity_result_);
 }
 
 /*-----------------------------------------------------------------------------------*/
