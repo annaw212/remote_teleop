@@ -385,7 +385,7 @@ void RemoteTeleop::nudgeCallback(const remote_teleop_robot_backend::NudgeGoalCon
   if (nudge_fwd_ == true) {
     navigate(0.0, 0.0, nudge_dist_, 0.0, nudge_dist_);
   } else {
-    navigate(0.0, 0.0, -nudge_dist_, 0.0, -nudge_dist_);
+    navigate(0.0, 0.0, -1*nudge_dist_, 0.0, -1*nudge_dist_);
   }
   
   nudge_result_.success = true;
@@ -691,7 +691,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     start_x = x_;
     start_y = y_;
     // Drive straight
-    while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
+    while (abs(dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2)))) >
                THRESHOLD &&
            !stop_) {
       // Set the linear velocity
