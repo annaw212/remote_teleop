@@ -126,7 +126,7 @@ void RemoteTeleop::initializeSubscribers() {
                                &RemoteTeleop::costmapCallback, this);
                                
   // Initialize the upwards camera subscriber
-  upward_camera_sub_ = nh_.subscribe("/camera_upward/depth/image_raw", 1, &RemoteTeleop::upwardCameraCallback, this);
+//  upward_camera_sub_ = nh_.subscribe("/camera_upward/depth/image_raw", 1, &RemoteTeleop::upwardCameraCallback, this);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -157,7 +157,7 @@ void RemoteTeleop::initializePublishers() {
   nudge_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
   
   // Initialize the point cloud publisher
-  upward_point_cloud_publisher_ = nh_.advertise<sensor_msgs::PointCloud2>("upward_cam_point_cloud", 5);
+//  upward_point_cloud_publisher_ = nh_.advertise<sensor_msgs::PointCloud2>("upward_cam_point_cloud", 5);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -406,30 +406,29 @@ void RemoteTeleop::nudgeCallback(const remote_teleop_robot_backend::NudgeGoalCon
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::upwardCameraCallback(const sensor_msgs::ImageConstPtr &image) {
-  ROS_INFO("CAMERA CALLBACK");
-  // Create a point cloud message to publish
-  sensor_msgs::PointCloud2 upward_cloud_msg;
-  
-  upward_cloud_msg.header = image->header;
-  
-  upward_cloud_msg.height = image->height;
-  upward_cloud_msg.width = image->width;
-  
-  upward_cloud_msg.fields[0].name = "upward_depth_cloud";
-  upward_cloud_msg.fields[0].offset = 0;
-  upward_cloud_msg.fields[0].datatype = 4; // image->encoding is '16UC1' -> unsigned 16 int
-  upward_cloud_msg.fields[0].count = 1;
-  
-  upward_cloud_msg.is_bigendian = bool(image->is_bigendian);
-  
-  upward_cloud_msg.row_step = image->step;
-//  upward_cloud_msg.point_step = ???;
-  
-  upward_cloud_msg.data = image->data;
-  
-  upward_point_cloud_publisher_.publish(upward_cloud_msg);
-}
+//  ROS_INFO("CAMERA CALLBACK");
+//  // Create a point cloud message to publish
+//  sensor_msgs::PointCloud2 upward_cloud_msg;
+//  
+//  upward_cloud_msg.header = image->header;
+//  
+//  upward_cloud_msg.height = image->height;
+//  upward_cloud_msg.width = image->width;
+//  
+//  upward_cloud_msg.fields[0].name = "upward_depth_cloud";
+//  upward_cloud_msg.fields[0].offset = 0;
+//  upward_cloud_msg.fields[0].datatype = 4; // image->encoding is '16UC1' -> unsigned 16 int
+//  upward_cloud_msg.fields[0].count = 1;
+//  
+//  upward_cloud_msg.is_bigendian = bool(image->is_bigendian);
+//  
+//  upward_cloud_msg.row_step = image->step;
+////  upward_cloud_msg.point_step = ???;
+//  
+//  upward_cloud_msg.data = image->data;
+//  
+//  upward_point_cloud_publisher_.publish(upward_cloud_msg);
+//}
 
 /*-----------------------------------------------------------------------------------*/
 
