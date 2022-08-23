@@ -14,6 +14,10 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Odometry.h>
 
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/PointField.h>
+
 #include <actionlib/server/simple_action_server.h>
 #include <interactive_markers/interactive_marker_server.h>
 
@@ -63,8 +67,9 @@ private:
   ros::Publisher point_click_nav_publisher_;
   ros::Publisher stop_publisher_;
   ros::Publisher marker_publisher_;
-  ros::Publisher occupancy_grid_debug_publisher_;
+  ros::Publisher occupancy_grid_debug_publisher_; //TODO: delete this
   ros::Publisher nudge_publisher_;
+  ros::Publisher upward_point_cloud_publisher_;
 
   // Result messages
   remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
@@ -75,6 +80,7 @@ private:
   // The ROS subscriber for receiving odometry value updates
   ros::Subscriber odom_sub_;
   ros::Subscriber costmap_sub_;
+  ros::Subscriber upward_camera_sub_;
 
   // Internal variables
   float angle_;    // Turn in place angle
@@ -141,6 +147,7 @@ private:
   void
   stopNavCallback(const remote_teleop_robot_backend::StopNavGoalConstPtr &goal);
   void nudgeCallback(const remote_teleop_robot_backend::NudgeGoalConstPtr &goal);
+  void upwardCameraCallback(const sensor_msgs::ImageConstPtr &image);
 
   // Turn in place member methods
   void turnInPlace();
