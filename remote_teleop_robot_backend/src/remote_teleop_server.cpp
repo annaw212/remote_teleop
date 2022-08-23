@@ -501,7 +501,7 @@ void RemoteTeleop::pointClickCallback(
   robot_pose.pose.orientation.y = b;
   robot_pose.pose.orientation.z = c;
   
-  robot_pose.header.stamp = ros::Time::now();
+//  robot_pose.header.stamp = ros::Time::now();
 
   // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
@@ -695,7 +695,6 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     goal_y = y_ + y_dist;
     start_x = x_;
     start_y = y_;
-    int f = 0;
     // Drive straight
     while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
                THRESHOLD &&
@@ -703,11 +702,14 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
       // Set the linear velocity
       command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)),
                                   lin_vel_ * abs((goal_y - y_)));
-      f++;
+
       if (command.linear.x > lin_vel_) {
         command.linear.x = lin_vel_;
       } else if (command.linear.x < MIN_VEL) {
         command.linear.x = MIN_VEL;
+      }
+      if (dist < 0.0) {
+        command.linear.x *= -1;
       }
       // Publish the command
       point_click_nav_publisher_.publish(command);
@@ -715,7 +717,6 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     // Stop the robot from moving
     command.linear.x = 0.0;
     point_click_nav_publisher_.publish(command);
-    ROS_INFO_STREAM("NAVIGATED " << f << "TIMES");
     return;
   }
   

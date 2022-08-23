@@ -162,6 +162,8 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   //  SLOT(setVelGoal())); connect(ang_vel_slider_, SIGNAL(sliderReleased()),
   //  this, SLOT(setVelGoal()));
   connect(stop_nav_button_, SIGNAL(released()), this, SLOT(sendStopGoal()));
+  connect(nudge_fwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalFwd()));
+  connect(nudge_bwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalBwd()));
 }
 
 // setTurnGoalLeft() sets the degrees and direction variables and calls
