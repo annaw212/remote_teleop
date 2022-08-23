@@ -409,8 +409,12 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::nudgeCallback(const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
+
+  ROS_INFO("NUDGE CALLBACK");
   nudge_dist_ = goal->dist;
   nudge_fwd_ = goal->fwd;
+  
+  ROS_INFO_STREAM("distance: " << nudge_dist_ << " forward: " << nudge_fwd_);
   
   if (nudge_fwd_ == true) {
     navigate(0.0, 0.0, nudge_dist_, 0.0, nudge_dist_);
@@ -725,7 +729,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     goal_y = y_ + y_dist;
     start_x = x_;
     start_y = y_;
-
+    int x = 0;
     // Drive straight
     while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
                THRESHOLD &&
@@ -733,6 +737,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
       // Set the linear velocity
       command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)),
                                   lin_vel_ * abs((goal_y - y_)));
+      x++;
       if (command.linear.x > lin_vel_) {
         command.linear.x = lin_vel_;
       } else if (command.linear.x < MIN_VEL) {
@@ -747,6 +752,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
     return;
   }
+  
+  ROS_INFO_STREAM("NAVIGATED " << x << "TIMES");
 
   if (dist == 0.0) {
     // Turn in place
