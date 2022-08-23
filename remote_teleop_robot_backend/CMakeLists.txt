@@ -74,6 +74,7 @@ find_package(catkin REQUIRED COMPONENTS
    PointClickNav.action
    SpeedToggle.action
    StopNav.action
+   Nudge.action
  )
 
 ## Generate added messages and services with any dependencies listed here

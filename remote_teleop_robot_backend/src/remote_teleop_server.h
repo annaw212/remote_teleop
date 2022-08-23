@@ -33,6 +33,10 @@
 #include <remote_teleop_robot_backend/StopNavGoal.h>
 #include <remote_teleop_robot_backend/StopNavResult.h>
 
+#include <remote_teleop_robot_backend/NudgeAction.h>
+#include <remote_teleop_robot_backend/NudgeGoal.h>
+#include <remote_teleop_robot_backend/NudgeResult.h>
+
 class RemoteTeleop {
 
 public:
@@ -51,6 +55,8 @@ private:
   interactive_markers::InteractiveMarkerServer int_marker_server_;
   actionlib::SimpleActionServer<remote_teleop_robot_backend::StopNavAction>
       stop_action_server_;
+  actionlib::SimpleActionServer<remote_teleop_robot_backend::NudgeAction>
+      nudge_server_;
 
   // ROS publishers
   ros::Publisher turn_in_place_publisher_;
@@ -58,11 +64,13 @@ private:
   ros::Publisher stop_publisher_;
   ros::Publisher marker_publisher_;
   ros::Publisher occupancy_grid_debug_publisher_;
+  ros::Publisher nudge_publisher_;
 
   // Result messages
   remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
   remote_teleop_robot_backend::PointClickNavResult point_click_result_;
   remote_teleop_robot_backend::StopNavResult stop_nav_result_;
+  remote_teleop_robot_backend::NudgeResult nudge_result_;
 
   // The ROS subscriber for receiving odometry value updates
   ros::Subscriber odom_sub_;
@@ -94,13 +102,16 @@ private:
   float or_y_;  // Navigation goal orientation y
   float or_z_;  // Navigation goal orientation z
   float or_w_;  // Navigation goal orientation w
+  
+  float nudge_dist_; // Nudge distance
+  bool nudge_fwd_;   // Nudge direction
+  
+  std::string init_frame_;
 
   bool turn_in_place_running_;
   bool point_click_running_;
   bool obstacle_detected_;
   bool stop_;
-  
-  std::string init_frame_;
 
   visualization_msgs::InteractiveMarker int_marker_;
   visualization_msgs::Marker marker_;
@@ -129,6 +140,7 @@ private:
   void costmapCallback(const nav_msgs::OccupancyGrid &grid);
   void
   stopNavCallback(const remote_teleop_robot_backend::StopNavGoalConstPtr &goal);
+  void nudgeCallback(const remote_teleop_robot_backend::NudgeGoalConstPtr &goal);
 
   // Turn in place member methods
   void turnInPlace();
@@ -141,6 +153,9 @@ private:
 
   // Stop nav member methods
   void stopMovement();
+  
+  // Nudge member methods
+  void nudge();
 };
 
 #endif // RemoteTeleop_H

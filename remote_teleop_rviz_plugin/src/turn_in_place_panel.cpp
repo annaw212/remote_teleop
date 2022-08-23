@@ -43,6 +43,7 @@
 #include <remote_teleop_robot_backend/SpeedToggleActionGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
 #include <remote_teleop_robot_backend/StopNavActionGoal.h>
+#include <remote_teleop_robot_backend/NudgeActionGoal.h>
 
 #include "turn_in_place_panel.h"
 
@@ -51,7 +52,7 @@ namespace remote_teleop_rviz_plugin {
 // TurnInPlacePanel class assignment
 TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
     : rviz::Panel(parent), degrees_(30.0), turn_left_(true), lin_vel_(0.0),
-      ang_vel_(0.0) {
+      ang_vel_(0.0), dist_(0.0), fwd_(true) {
 
   // Create box for organizing all elements of the plugin
   // Vertical box layout so that everything stacks nicely
@@ -86,6 +87,18 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   QPushButton *turn_right_button_ = new QPushButton(this);
   turn_right_button_->setText(tr("Turn Right"));
   button_layout->addWidget(turn_right_button_);
+  
+  QHBoxLayout *nudge_layout = new QHBoxLayout;
+
+  // Create a button for turning left and add to the horizontal box
+  QPushButton *nudge_fwd_button_ = new QPushButton(this);
+  nudge_fwd_button_->setText(tr("Nudge Forward"));
+  nudge_layout->addWidget(nudge_fwd_button_);
+
+  // Create a button for turning right and add to the horizontal box
+  QPushButton *nudge_bwd_button_ = new QPushButton(this);
+  nudge_bwd_button_->setText(tr("Nudge Backward"));
+  nudge_layout->addWidget(nudge_bwd_button_);
 
   QHBoxLayout *nav_layout = new QHBoxLayout;
 
@@ -124,6 +137,8 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   // Add the horizontal box to the vertical box layout
   topic_layout->addWidget(new QLabel("Turn in Place"));
   topic_layout->addLayout(button_layout);
+  topic_layout->addWidget(new QLabel("Nudge"));
+  topic_layout->addLayout(nudge_layout);
   topic_layout->addWidget(
       new QLabel("Point-and-Click Navigation Confirmation"));
   topic_layout->addLayout(nav_layout);
@@ -195,6 +210,20 @@ void TurnInPlacePanel::setTurnGoalRight() {
 //  sendVelGoal();
 //}
 
+void TurnInPlacePanel::setNudgeGoalFwd() {
+  dist_ = 0.15; // 15cm
+  fwd_ = true;
+  
+  sendNudgeGoal();
+}
+
+void TurnInPlacePanel::setNudgeGoalBwd() {
+  dist_ = 0.15; // 15cm
+  fwd_ = false;
+  
+  sendNudgeGoal();
+}
+
 // Publish the degrees and direction if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
 void TurnInPlacePanel::sendTurnGoal() {
@@ -248,6 +277,18 @@ void TurnInPlacePanel::sendStopGoal() {
   }
 }
 
+
+void TurnInPlacePanel::sendNudgeGoal() {
+  
+  if ( ros::ok() && nudge_goal_publisher_ ) {
+    
+    remote_teleop_robot_backend::NudgeActionGoal msg;
+    msg.goal.dist = dist_;
+    msg.goal.fwd = fwd_;
+    nudge_goal_publisher_.publish( msg );
+  }
+}
+
 // Save all configuration data from this panel to the given
 // Config object.  It is important here that you call save()
 // on the parent class so the class id and panel name get saved.
@@ -268,6 +309,9 @@ void TurnInPlacePanel::load(const rviz::Config &config) {
   stop_goal_publisher_ =
       nh_.advertise<remote_teleop_robot_backend::StopNavActionGoal>(
           "stop_nav_as/goal", 1);
+  nudge_goal_publisher_ =
+      nh_.advertise<remote_teleop_robot_backend::NudgeActionGoal>(
+          "nudge_as/goal", 1);
   //  vel_goal_publisher_ =
   //  nh_.advertise<remote_teleop_robot_backend::SpeedToggleActionGoal>(
   //  "point_click_as/goal", 1 );

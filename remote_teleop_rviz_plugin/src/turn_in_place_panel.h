@@ -66,6 +66,9 @@ public Q_SLOTS:
   void setTurnGoalRight();
 
   /*  void setVelGoal();*/
+  
+  void setNudgeGoalFwd();
+  void setNudgeGoalBwd();
 
 protected Q_SLOTS:
 
@@ -79,6 +82,8 @@ protected Q_SLOTS:
   /*  void sendVelGoal();*/
   
   void sendStopGoal();
+  
+  void sendNudgeGoal();
 
 protected:
   // One-line text editor for entering the degrees to turn by in
@@ -89,6 +94,7 @@ protected:
   ros::Publisher nav_goal_publisher_;
   /*  ros::Publisher vel_goal_publisher_;*/
   ros::Publisher stop_goal_publisher_;
+  ros::Publisher nudge_goal_publisher_;
 
   // The ROS node handle.
   ros::NodeHandle nh_;
@@ -98,6 +104,8 @@ protected:
   bool turn_left_;
   float lin_vel_;
   float ang_vel_;
+  float dist_;
+  bool fwd_;
 };
 
 } // namespace remote_teleop_rviz_plugin

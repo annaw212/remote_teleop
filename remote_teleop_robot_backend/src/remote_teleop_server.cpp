@@ -33,6 +33,10 @@
 #include <remote_teleop_robot_backend/StopNavGoal.h>
 #include <remote_teleop_robot_backend/StopNavResult.h>
 
+#include <remote_teleop_robot_backend/NudgeAction.h>
+#include <remote_teleop_robot_backend/NudgeGoal.h>
+#include <remote_teleop_robot_backend/NudgeResult.h>
+
 #include "remote_teleop_server.h"
 
 #include <costmap_2d/costmap_2d.h>
@@ -66,6 +70,9 @@ RemoteTeleop::RemoteTeleop()
       int_marker_server_("interactive_marker_server"),
       stop_action_server_(nh_, "/stop_nav_as",
                           boost::bind(&RemoteTeleop::stopNavCallback, this, _1),
+                          false)
+      , nudge_server_(nh_, "/nudge_as",
+                          boost::bind(&RemoteTeleop::nudgeCallback, this, _1),
                           false) {
 
   ROS_INFO("In class constructor of RemoteTeleop");
@@ -138,6 +145,9 @@ void RemoteTeleop::initializePublishers() {
   // Initialize the occupancy grid debug publisher
   occupancy_grid_debug_publisher_ =
       nh_.advertise<nav_msgs::OccupancyGrid>("occupancy_grid_debug", 5);
+      
+  // Initialize the nudge publisher
+  nudge_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -154,6 +164,9 @@ void RemoteTeleop::initializeActions() {
 
   // Start stop nav action server
   stop_action_server_.start();
+  
+  // Start nudge action server
+  nudge_server_.start();
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -391,6 +404,22 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
   // Store the values of the occupancy grid in a variable for future reference
   occupancy_grid_ = grid;
   return;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleop::nudgeCallback(const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
+  nudge_dist_ = goal->dist;
+  nudge_fwd_ = goal->fwd;
+  
+  if (nudge_fwd_ == true) {
+    navigate(0.0, 0.0, nudge_dist_, 0.0, nudge_dist_);
+  } else {
+    navigate(0.0, 0.0, -nudge_dist_, 0.0, -nudge_dist_);
+  }
+  
+  nudge_result_.success = true;
+  nudge_server_.setSucceeded(nudge_result_);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -874,6 +903,31 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     }
   }
 }
+
+/*-----------------------------------------------------------------------------------*/
+
+//void RemoteTeleop::nudge() {
+//  // Drive straight
+//  while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
+//             THRESHOLD &&
+//         !stop_) {
+//    // Set the linear velocity
+//    command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)),
+//                                lin_vel_ * abs((goal_y - y_)));
+//    if (command.linear.x > lin_vel_) {
+//      command.linear.x = lin_vel_;
+//    } else if (command.linear.x < MIN_VEL) {
+//      command.linear.x = MIN_VEL;
+//    }
+//    // Publish the command
+//    point_click_nav_publisher_.publish(command);
+//  }
+//  // Stop the robot from moving
+//  command.linear.x = 0.0;
+//  point_click_nav_publisher_.publish(command);
+
+//  return;
+//}
 
 /*-----------------------------------------------------------------------------------*/
 int main(int argc, char **argv) {
