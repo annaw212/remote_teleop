@@ -51,12 +51,11 @@
   <!-- Publishes the camera to point cloud node -->
   <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" />
 
-  <node pkg="nodelet" type="nodelet" name="test_camera_to_point_cloud"
+  <node pkg="nodelet" type="nodelet" name="nodelet1"
         args="load depth_image_proc/point_cloud_xyz nodelet_manager">
-    <remap from="camera_info" to="/camera_upward/depth/camera_info_new"/>
-    <remap from="image_rect" to="/camera_upward/depth/image_raw_new"/>
-    <remap from="points" to="/camera_upward/depth/points"/>
-  </node>
+    <remap from="camera_info" to="/camera/depth/camera_info"/>
+    <remap from="image_rect" to="/camera/depth/image_rect_raw"/>
+    <remap from="points" to="/camera/depth/points"/>
   
   <!-- Include the costmap launch file -->
   <include file="$(find remote_teleop_robot_backend)/launch/costmap.launch" />
