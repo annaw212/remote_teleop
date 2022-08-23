@@ -380,6 +380,8 @@ void RemoteTeleop::nudgeCallback(const remote_teleop_robot_backend::NudgeGoalCon
   
   ROS_INFO_STREAM("distance: " << nudge_dist_ << " forward: " << nudge_fwd_);
   
+  initializeIntMarkers("d");
+  
   if (nudge_fwd_ == true) {
     navigate(0.0, 0.0, nudge_dist_, 0.0, nudge_dist_);
   } else {
@@ -388,6 +390,8 @@ void RemoteTeleop::nudgeCallback(const remote_teleop_robot_backend::NudgeGoalCon
   
   nudge_result_.success = true;
   nudge_server_.setSucceeded(nudge_result_);
+  
+  initializeIntMarkers("a");
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -519,15 +523,6 @@ void RemoteTeleop::pointClickCallback(
       robot_pose, robot_pose,
       init_frame_to_base_link); // robot_pose is the PoseStamped I want to transform
 
-  // The output value will be slightly offset, so we need to translate it to the
-  // costmap center based on the odom offset
-//  robot_pose.pose.position.x -= occupancy_grid_.info.origin.position.x;
-//  robot_pose.pose.position.y -= occupancy_grid_.info.origin.position.y;
-
-//  // Set the goal coordinates on the costmap grid
-//  x2 = ceil(robot_pose.pose.position.x / res);
-//  y2 = ceil(robot_pose.pose.position.y / res);
-
   x = robot_pose.pose.position.x;
   y = robot_pose.pose.position.y;
 
@@ -584,7 +579,7 @@ void RemoteTeleop::pointClickCallback(
 
   ROS_INFO("SAFE TO NAVIGATE");
 
-  // Delete the interactive marker so it's not confusing during navigation
+  // TODO: Delete the interactive marker so it's not confusing during navigation
   initializeIntMarkers("d");
   //  rviz_visual_tools::RvizVisualTools::deleteAllMarkers();
   //  rviz_visual_tools::RvizVisualTools vis_tool_("/base_link",
@@ -711,6 +706,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
       if (dist < 0.0) {
         command.linear.x *= -1;
       }
+      
+      ROS_INFO_STREAM("dist = " << x_dist << " curr_x = " << x_ << " goal_x = " << goal_x << " vel = " << command.linear.x);
       // Publish the command
       point_click_nav_publisher_.publish(command);
     }
