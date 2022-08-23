@@ -285,6 +285,8 @@ void TurnInPlacePanel::sendNavGoal() {
 void TurnInPlacePanel::sendVelGoal() {
 
   if (ros::ok() && vel_goal_publisher_) {
+  
+    ROS_INFO("sending vel goal now");
 
     remote_teleop_robot_backend::SpeedToggleActionGoal msg;
 
