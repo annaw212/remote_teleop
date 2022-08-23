@@ -56,6 +56,7 @@
     <remap from="camera_info" to="/camera/depth/camera_info"/>
     <remap from="image_rect" to="/camera/depth/image_rect_raw"/>
     <remap from="points" to="/camera/depth/points"/>
+  </node>
   
   <!-- Include the costmap launch file -->
   <include file="$(find remote_teleop_robot_backend)/launch/costmap.launch" />
