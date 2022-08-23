@@ -53,9 +53,9 @@
   
   <node pkg="nodelet" type="nodelet" name="node_manager" args="manager" />
 
-  <node pkg="image_proc" type="image_proc" name="ip_node1" ns="cam_to_point_cloud"
+  <node pkg="image_proc" type="image_proc" name="ip_node1" ns="cam_to_point_cloud" />
   
-  <node pkg="nodelet" type="nodelet" name="camera_to_point_cloud" args="load depth_image_proc/point_cloud_xyz node_manager --no-bond" />
+  <node pkg="nodelet" type="nodelet" name="camera_to_point_cloud" args="load depth_image_proc/point_cloud_xyz node_manager" />
   
   <!-- Include the costmap launch file -->
   <include file="$(find remote_teleop_robot_backend)/launch/costmap.launch" />
