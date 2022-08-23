@@ -729,7 +729,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     goal_y = y_ + y_dist;
     start_x = x_;
     start_y = y_;
-    int x = 0;
+    int f = 0;
     // Drive straight
     while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
                THRESHOLD &&
@@ -737,7 +737,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
       // Set the linear velocity
       command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)),
                                   lin_vel_ * abs((goal_y - y_)));
-      x++;
+      f++;
       if (command.linear.x > lin_vel_) {
         command.linear.x = lin_vel_;
       } else if (command.linear.x < MIN_VEL) {
@@ -749,11 +749,11 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     // Stop the robot from moving
     command.linear.x = 0.0;
     point_click_nav_publisher_.publish(command);
-
+    ROS_INFO_STREAM("NAVIGATED " << f << "TIMES");
     return;
   }
   
-  ROS_INFO_STREAM("NAVIGATED " << x << "TIMES");
+  
 
   if (dist == 0.0) {
     // Turn in place
