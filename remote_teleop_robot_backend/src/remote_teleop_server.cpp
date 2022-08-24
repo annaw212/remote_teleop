@@ -806,12 +806,14 @@ void RemoteTeleop::stopNavCallback(
   ROS_INFO("STOP NAV CALLBACK");
   stop_ = goal->stop;
   ROS_INFO_STREAM("Stop goal received = " << stop_);
+  
+  initializeIntMarkers("d");
   while (turn_in_place_running_ || point_click_running_) {
     // waiting
   }
   stop_ = false;
   ROS_INFO_STREAM("Stop goal ended = " << stop_);
-
+  initializeIntMarkers("a");
   stop_nav_result_.success = true;
   stop_action_server_.setSucceeded(stop_nav_result_);
 }

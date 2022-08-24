@@ -118,7 +118,7 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   lin_vel_layout->addWidget(new QLabel("Linear Velocity:"));
   lin_vel_toggle_ = new QDoubleSpinBox(this);
   lin_vel_toggle_->setMaximum(1.5);
-  lin_vel_toggle_->setMinimum(0.0);
+  lin_vel_toggle_->setMinimum(0.1);
   lin_vel_toggle_->setSuffix(" m/s");
   lin_vel_toggle_->setSingleStep(0.1);
   lin_vel_toggle_->setValue(0.5);
@@ -130,7 +130,7 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   lin_vel_layout->addWidget(new QLabel("\tAngular Velocity:"));
   ang_vel_toggle_ = new QDoubleSpinBox(this);
   ang_vel_toggle_->setMaximum(1.5);
-  ang_vel_toggle_->setMinimum(0.0);
+  ang_vel_toggle_->setMinimum(0.1);
   ang_vel_toggle_->setSuffix(" m/s");
   ang_vel_toggle_->setSingleStep(0.1);
   ang_vel_toggle_->setValue(1.0);
