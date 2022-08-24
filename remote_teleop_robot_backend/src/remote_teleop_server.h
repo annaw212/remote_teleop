@@ -147,17 +147,19 @@ private:
       const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal);
   void pointClickCallback(
       const remote_teleop_robot_backend::PointClickNavGoalConstPtr &msg);
-  void processIntMarkerFeedback(
-      const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
-  void odomCallback(const nav_msgs::Odometry &msg);
-  void costmapCallback(const nav_msgs::OccupancyGrid &grid);
   void
   stopNavCallback(const remote_teleop_robot_backend::StopNavGoalConstPtr &goal);
   void
   nudgeCallback(const remote_teleop_robot_backend::NudgeGoalConstPtr &goal);
-  void upwardCameraCallback(const sensor_msgs::ImageConstPtr &image);
   void speedToggleCallback(
       const remote_teleop_robot_backend::SpeedToggleGoalConstPtr &goal);
+
+  // Subscriber callback methods
+  void odomCallback(const nav_msgs::Odometry &msg);
+  void upwardCameraCallback(const sensor_msgs::ImageConstPtr &image);
+  void costmapCallback(const nav_msgs::OccupancyGrid &grid);
+  void processIntMarkerFeedback(
+      const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
 
   // Turn in place member methods
   void turnInPlace();
@@ -170,9 +172,6 @@ private:
 
   // Stop nav member methods
   void stopMovement();
-
-  // Nudge member methods
-  void nudge();
 };
 
 #endif // RemoteTeleop_H

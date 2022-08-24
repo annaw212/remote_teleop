@@ -88,6 +88,7 @@ RemoteTeleop::RemoteTeleop()
   ROS_INFO("In class constructor of RemoteTeleop");
 
   // Initialize the messy stuff
+  ROS_INFO("Initializing Markers");
   initializeIntMarkers("a");
   initializeSubscribers();
   initializePublishers();
@@ -194,7 +195,7 @@ void RemoteTeleop::initializeActions() {
 
 void RemoteTeleop::initializeIntMarkers(std::string type) {
 
-  ROS_INFO("Initializing Markers");
+  //  ROS_INFO("Initializing Markers");
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
@@ -325,17 +326,13 @@ void RemoteTeleop::turnInPlaceCallback(
   // Convert from degrees to radians
   angle_ = angle_ * M_PI / 180;
 
-  // TODO: update vel vars here, OR move this somewhere else
-  //  lin_vel_ = 0.5;
-  //  ang_vel_ = 0.5;
-  
   initializeIntMarkers("d");
 
   // Tell robot to turn the desired angle
   turnInPlace();
 
   initializeIntMarkers("a");
-  
+
   // Update the turn in place result and success fields
   turn_in_place_result_.success = true;
   turn_in_place_server_.setSucceeded(turn_in_place_result_);
@@ -391,7 +388,6 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
   // Store the values of the occupancy grid in a variable for future reference
   occupancy_grid_ = grid;
-  return;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -399,18 +395,24 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 void RemoteTeleop::nudgeCallback(
     const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
 
-  ROS_INFO("NUDGE CALLBACK");
+  //  ROS_INFO("NUDGE CALLBACK");
   nudge_dist_ = goal->dist;
   nudge_fwd_ = goal->fwd;
 
-  ROS_INFO_STREAM("distance: " << nudge_dist_ << " forward: " << nudge_fwd_);
+  //  ROS_INFO_STREAM("distance: " << nudge_dist_ << " forward: " <<
+  //  nudge_fwd_);
 
   initializeIntMarkers("d");
 
-  if (nudge_fwd_ == true) {
+  if (nudge_fwd_ == true && !stop_) {
     navigate(0.0, 0.0, nudge_dist_, 0.0, nudge_dist_);
-  } else {
+  } else if (nudge_fwd_ == false && !stop_) {
     navigate(0.0, 0.0, -1 * nudge_dist_, 0.0, -1 * nudge_dist_);
+  }
+
+  if (stop_) {
+    stopMovement();
+    stop_ = false;
   }
 
   nudge_result_.success = true;
@@ -423,11 +425,11 @@ void RemoteTeleop::nudgeCallback(
 
 void RemoteTeleop::speedToggleCallback(
     const remote_teleop_robot_backend::SpeedToggleGoalConstPtr &goal) {
-  
+
   // Update the velocity variables
   lin_vel_ = goal->lin_vel;
   ang_vel_ = goal->ang_vel;
-  
+
   velocity_result_.success = true;
   velocity_server_.setSucceeded(velocity_result_);
 }
@@ -467,6 +469,8 @@ void RemoteTeleop::upwardCameraCallback(
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::turnInPlace() {
+
+  ROS_INFO_STREAM("lin: " << lin_vel_ << " ang: " << ang_vel_);
 
   turn_in_place_running_ = true;
 
@@ -731,7 +735,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
     stopMovement();
     return;
   }
-
+  ROS_INFO_STREAM("lin: " << lin_vel_ << " ang: " << ang_vel_);
   // Declare local variables
   float goal_x, goal_y, start_x, start_y;
 
@@ -896,7 +900,8 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   dx = abs(x2 - x1);
   dy = abs(y2 - y1);
 
-  ROS_INFO_STREAM("(" << x1 << ", " << y1 << ") (" << x2 << ", " << y2 << ")");
+  //  ROS_INFO_STREAM("(" << x1 << ", " << y1 << ") (" << x2 << ", " << y2 <<
+  //  ")");
 
   // Brensenham's line algorithm -- geeks4geeks
   int pk = 2 * dy - dx;
@@ -939,31 +944,6 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     }
   }
 }
-
-/*-----------------------------------------------------------------------------------*/
-
-// void RemoteTeleop::nudge() {
-//  // Drive straight
-//  while (dist - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
-//             THRESHOLD &&
-//         !stop_) {
-//    // Set the linear velocity
-//    command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)),
-//                                lin_vel_ * abs((goal_y - y_)));
-//    if (command.linear.x > lin_vel_) {
-//      command.linear.x = lin_vel_;
-//    } else if (command.linear.x < MIN_VEL) {
-//      command.linear.x = MIN_VEL;
-//    }
-//    // Publish the command
-//    point_click_nav_publisher_.publish(command);
-//  }
-//  // Stop the robot from moving
-//  command.linear.x = 0.0;
-//  point_click_nav_publisher_.publish(command);
-
-//  return;
-//}
 
 /*-----------------------------------------------------------------------------------*/
 int main(int argc, char **argv) {
