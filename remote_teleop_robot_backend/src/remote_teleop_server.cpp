@@ -783,8 +783,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
         // Stop the robot from moving 
         stopMovement();
         // Update the turn in place result and success fields
-        point_click_result_.success = true;
-        point_click_server_.setSucceeded(point_click_result_);
+//        point_click_result_.success = true;
+//        point_click_server_.setSucceeded(point_click_result_);
         // Snap the interactive marker back to (0,0,0)
         initializeIntMarkers("a");
         return;
