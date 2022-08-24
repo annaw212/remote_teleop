@@ -21,6 +21,8 @@
 #include <visualization_msgs/InteractiveMarkerUpdate.h>
 #include <visualization_msgs/Marker.h>
 
+#include <remote_teleop_robot_backend/Velocity.h>
+
 #include <remote_teleop_robot_backend/TurnInPlaceAction.h>
 #include <remote_teleop_robot_backend/TurnInPlaceGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceResult.h>
@@ -59,6 +61,8 @@
 #define WIDTH 240
 #define LENGTH 240
 #define RESOLUTION 0.025
+#define INIT_LIN_VEL 0.5
+#define INIT_ANG_VEL 1.0
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -93,8 +97,8 @@ RemoteTeleop::RemoteTeleop()
   // Initialize the internal variables
   angle_ = 0.0;
   turn_left_ = true;
-  lin_vel_ = 0.5;
-  ang_vel_ = 0.5;
+  lin_vel_ = INIT_LIN_VEL;
+  ang_vel_ = INIT_ANG_VEL;
   x_ = 0.0;
   y_ = 0.0;
   z_ = 0.0;
@@ -113,6 +117,13 @@ RemoteTeleop::RemoteTeleop()
   point_click_running_ = false;
   obstacle_detected_ = false;
   stop_ = false;
+  
+  // Send the initial velocities to rviz
+  remote_teleop_robot_backend::Velocity init_vel_msg;
+  init_vel_msg.lin_vel = INIT_LIN_VEL;
+  init_vel_msg.ang_vel = INIT_ANG_VEL;
+  
+  velocity_publisher_.publish(init_vel_msg);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -155,6 +166,9 @@ void RemoteTeleop::initializePublishers() {
 
   // Initialize the nudge publisher
   nudge_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
+  
+  // Initialize the velocity publisher
+  velocity_publisher_ = nh_.advertise<remote_teleop_robot_backend::Velocity>("rt_initial_velocities", 1);
 }
 
 /*-----------------------------------------------------------------------------------*/

@@ -40,6 +40,7 @@
 #include <QVBoxLayout>
 #include <QValidator>
 
+#include <remote_teleop_robot_backend/Velocity.h>
 #include <remote_teleop_robot_backend/NudgeActionGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
 #include <remote_teleop_robot_backend/SpeedToggleActionGoal.h>
@@ -316,6 +317,15 @@ void TurnInPlacePanel::sendNudgeGoal() {
   }
 }
 
+void TurnInPlacePanel::velocityCallback(const remote_teleop_robot_backend::VelocityConstPtr& msg) {
+  lin_vel_toggle_->setValue(msg->lin_vel);
+  ang_vel_toggle_->setValue(msg->ang_vel);
+  lin_vel_ = msg->lin_vel;
+  ang_vel_ = msg->ang_vel;
+  ROS_INFO_STREAM("incoming lin: " << msg->lin_vel << " lin: " << lin_vel_ << " incoming ang: " << msg->ang_vel << " ang: " << ang_vel_);
+}
+
+
 // Save all configuration data from this panel to the given
 // Config object.  It is important here that you call save()
 // on the parent class so the class id and panel name get saved.
@@ -327,6 +337,10 @@ void TurnInPlacePanel::save(rviz::Config config) const {
 // Load all configuration data for this panel from the given Config object.
 void TurnInPlacePanel::load(const rviz::Config &config) {
   rviz::Panel::load(config);
+  // Initialize subscriber
+  velocity_subscriber_ = nh_.subscribe("/rt_initial_velocities", 1, &TurnInPlacePanel::velocityCallback, this);
+  
+  // Initialize publishers
   turn_goal_publisher_ =
       nh_.advertise<remote_teleop_robot_backend::TurnInPlaceActionGoal>(
           "turn_in_place_as/goal", 1);

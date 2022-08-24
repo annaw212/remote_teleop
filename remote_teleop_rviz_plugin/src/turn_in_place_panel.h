@@ -36,6 +36,7 @@
 #endif
 
 #include <QDoubleSpinBox>
+#include <remote_teleop_robot_backend/Velocity.h>
 
 class QLineEdit;
 
@@ -99,6 +100,11 @@ protected:
   ros::Publisher vel_goal_publisher_;
   ros::Publisher stop_goal_publisher_;
   ros::Publisher nudge_goal_publisher_;
+  
+  // The ROS subscriber for updating the initial velocities based on the backend values
+  ros::Subscriber velocity_subscriber_;
+  
+  void velocityCallback(const remote_teleop_robot_backend::VelocityConstPtr& msg);
 
   // The ROS node handle.
   ros::NodeHandle nh_;

@@ -71,6 +71,7 @@ private:
   ros::Publisher marker_publisher_;
   ros::Publisher occupancy_grid_debug_publisher_; // TODO: delete this
   ros::Publisher nudge_publisher_;
+  ros::Publisher velocity_publisher_;
 
   // Result messages
   remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
