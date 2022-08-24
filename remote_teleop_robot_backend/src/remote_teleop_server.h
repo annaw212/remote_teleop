@@ -160,12 +160,16 @@ private:
 
   // Point click navigate member methods
   void navigate(float angle, bool turn_left, float x_dist, float y_dist,
-                float dist);
+                float dist, float x2, float y2, float dx, float dy);
   void obstacleCheck(float x1, float y1, float x2, float y2, float dx, float dy,
                      bool smallSlope);
+  geometry_msgs::PoseStamped transformGoalToOdom(float goal_x, float goal_y);
 
   // Stop nav member methods
   void stopMovement();
+  
+  // Nudge member methods
+  void nudge(float x_dist, float y_dist, float dist); 
 };
 
 #endif // RemoteTeleop_H

@@ -322,7 +322,7 @@ void TurnInPlacePanel::velocityCallback(const remote_teleop_robot_backend::Veloc
   ang_vel_toggle_->setValue(msg->ang_vel);
   lin_vel_ = msg->lin_vel;
   ang_vel_ = msg->ang_vel;
-  ROS_INFO_STREAM("incoming lin: " << msg->lin_vel << " lin: " << lin_vel_ << " incoming ang: " << msg->ang_vel << " ang: " << ang_vel_);
+//  ROS_INFO_STREAM("incoming lin: " << msg->lin_vel << " lin: " << lin_vel_ << " incoming ang: " << msg->ang_vel << " ang: " << ang_vel_);
 }
 
 
