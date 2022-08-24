@@ -49,7 +49,14 @@
   <node pkg="remote_teleop_robot_backend" type="remote_teleop_server" name="remote_teleop" output="screen" />
   
 
-  
+  <node pkg="nodelet" type="nodelet" name="standalone_nodelet" args="manager" output="screen"/>
+
+  <!-- Construct point cloud of the rgb and depth topics -->
+  <node pkg="nodelet" type="nodelet" name="points_xyzrgb" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet">
+    <remap from="depth_registered/image_rect" to="camera_upward/depth/image_raw"/> 
+    <remap from="rgb/image_rect_color" to="/camera_upward/left/image_raw"/> 
+    <remap from="rgb/camera_info" to="camera_upward/left/camera_info"/> 
+  </node>
   
   
   
