@@ -52,13 +52,19 @@
   <node pkg="nodelet" type="nodelet" name="standalone_nodelet" args="manager" output="screen"/>
 
   <!-- Construct point cloud of the rgb and depth topics -->
-  <node pkg="nodelet" type="nodelet" name="points_xyzrgb" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet">
+  <node pkg="nodelet" type="nodelet" name="upwards_points_xyzrgb" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet">
     <remap from="depth_registered/image_rect" to="camera_upward/depth/image_raw"/> 
     <remap from="rgb/image_rect_color" to="/camera_upward/left/image_raw"/> 
     <remap from="rgb/camera_info" to="camera_upward/left/camera_info"/> 
+    <remap from="depth_registered/points" to="upward_depth_registered/points"/> 
   </node>
   
-  
+  <node pkg="nodelet" type="nodelet" name="downwards_points_xyzrgb" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet">
+    <remap from="depth_registered/image_rect" to="camera_downward/depth/image_raw"/> 
+    <remap from="rgb/image_rect_color" to="/camera_downward/left/image_raw"/> 
+    <remap from="rgb/camera_info" to="camera_downward/left/camera_info"/> 
+    <remap from="depth_registered/points" to="downward_depth_registered/points"/> 
+  </node>
   
   <!-- Include the costmap launch file -->
   <include file="$(find remote_teleop_robot_backend)/launch/costmap.launch" />
