@@ -14,10 +14,6 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Odometry.h>
 
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/PointField.h>
-
 #include <actionlib/server/simple_action_server.h>
 #include <interactive_markers/interactive_marker_server.h>
 
@@ -75,7 +71,6 @@ private:
   ros::Publisher marker_publisher_;
   ros::Publisher occupancy_grid_debug_publisher_; // TODO: delete this
   ros::Publisher nudge_publisher_;
-  ros::Publisher upward_point_cloud_publisher_;
 
   // Result messages
   remote_teleop_robot_backend::TurnInPlaceResult turn_in_place_result_;
@@ -87,7 +82,6 @@ private:
   // The ROS subscriber for receiving odometry value updates
   ros::Subscriber odom_sub_;
   ros::Subscriber costmap_sub_;
-  ros::Subscriber upward_camera_sub_;
 
   // Internal variables
   float angle_;    // Turn in place angle
@@ -156,7 +150,6 @@ private:
 
   // Subscriber callback methods
   void odomCallback(const nav_msgs::Odometry &msg);
-  void upwardCameraCallback(const sensor_msgs::ImageConstPtr &image);
   void costmapCallback(const nav_msgs::OccupancyGrid &grid);
   void processIntMarkerFeedback(
       const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);

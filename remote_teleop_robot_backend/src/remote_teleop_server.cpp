@@ -14,10 +14,6 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Odometry.h>
 
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/PointField.h>
-
 #include <actionlib/server/simple_action_server.h>
 #include <interactive_markers/interactive_marker_server.h>
 
@@ -131,10 +127,6 @@ void RemoteTeleop::initializeSubscribers() {
   // Initialize the costmap subscriber
   costmap_sub_ = nh_.subscribe("/rt_costmap_node/costmap/costmap", 1,
                                &RemoteTeleop::costmapCallback, this);
-
-  // Initialize the upwards camera subscriber
-  upward_camera_sub_ = nh_.subscribe("/camera_upward/depth/image_raw", 1,
-                                     &RemoteTeleop::upwardCameraCallback, this);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -163,10 +155,6 @@ void RemoteTeleop::initializePublishers() {
 
   // Initialize the nudge publisher
   nudge_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
-
-  // Initialize the point cloud publisher
-  upward_point_cloud_publisher_ =
-      nh_.advertise<sensor_msgs::PointCloud2>("upward_cam_point_cloud", 5);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -432,38 +420,6 @@ void RemoteTeleop::speedToggleCallback(
 
   velocity_result_.success = true;
   velocity_server_.setSucceeded(velocity_result_);
-}
-
-/*-----------------------------------------------------------------------------------*/
-
-void RemoteTeleop::upwardCameraCallback(
-    const sensor_msgs::ImageConstPtr &image) {
-  //  ROS_INFO("CAMERA CALLBACK");
-  // Create a point cloud message to publish
-  sensor_msgs::PointCloud2 upward_cloud_msg;
-
-  upward_cloud_msg.header = image->header;
-  //  ROS_INFO_STREAM(upward_cloud_msg.header);
-
-  upward_cloud_msg.height = image->height;
-  upward_cloud_msg.width = image->width;
-
-  //  upward_cloud_msg.fields[0].name = "upward_depth_cloud";
-  //  upward_cloud_msg.fields[0].offset = 0;
-  //  upward_cloud_msg.fields[0].datatype = 4; // image->encoding is '16UC1' ->
-  //  unsigned 16 int upward_cloud_msg.fields[0].count = 1;
-  ////
-  //  upward_cloud_msg.is_bigendian = bool(image->is_bigendian);
-  //
-  //  upward_cloud_msg.row_step = image->step;
-  ////  upward_cloud_msg.point_step = ???;
-  //
-  //  upward_cloud_msg.data = image->data;
-
-  //  upward_point_cloud_publisher_.publish(upward_cloud_msg);
-
-  //  ROS_INFO_STREAM(upward_cloud_msg);
-  return;
 }
 
 /*-----------------------------------------------------------------------------------*/

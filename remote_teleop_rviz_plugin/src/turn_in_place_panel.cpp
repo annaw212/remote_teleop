@@ -133,7 +133,7 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   ang_vel_toggle_->setMinimum(0.1);
   ang_vel_toggle_->setSuffix(" m/s");
   ang_vel_toggle_->setSingleStep(0.1);
-  ang_vel_toggle_->setValue(1.0);
+  ang_vel_toggle_->setValue(0.5);
   ang_vel_toggle_->setDecimals(1);
   ang_vel_toggle_->setButtonSymbols(QAbstractSpinBox::PlusMinus);
 
