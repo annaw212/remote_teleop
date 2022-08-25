@@ -552,23 +552,23 @@ void RemoteTeleop::pointClickCallback(
 
   //  robot_pose.header.stamp = ros::Time::now();
 
-  // Create the objects needed for the transform
-  tf2_ros::Buffer tf_buffer;
-  tf2_ros::TransformListener tf2_listener(tf_buffer);
-  geometry_msgs::TransformStamped init_frame_to_base_link;
+//  // Create the objects needed for the transform
+//  tf2_ros::Buffer tf_buffer;
+//  tf2_ros::TransformListener tf2_listener(tf_buffer);
+//  geometry_msgs::TransformStamped init_frame_to_base_link;
 
-  // Lookup the transform from the initial frame to odom and store in variable
-  init_frame_to_base_link = tf_buffer.lookupTransform(
-      "base_link", init_frame_, ros::Time(0), ros::Duration(1.0));
+//  // Lookup the transform from the initial frame to odom and store in variable
+//  init_frame_to_base_link = tf_buffer.lookupTransform(
+//      "base_link", init_frame_, ros::Time(0), ros::Duration(1.0));
 
-  // Input the point you want to transform and indicate we want to just
-  // overwrite that object with the transformed point values
-  tf2::doTransform(robot_pose, robot_pose,
-                   init_frame_to_base_link); // robot_pose is the PoseStamped I
-                                             // want to transform
+//  // Input the point you want to transform and indicate we want to just
+//  // overwrite that object with the transformed point values
+//  tf2::doTransform(robot_pose, robot_pose,
+//                   init_frame_to_base_link); // robot_pose is the PoseStamped I
+//                                             // want to transform
 
-  x = robot_pose.pose.position.x;
-  y = robot_pose.pose.position.y;
+//  x = robot_pose.pose.position.x;
+//  y = robot_pose.pose.position.y;
 
   // Declare local variables
   float travel_dist = 0.0;
@@ -644,6 +644,15 @@ void RemoteTeleop::pointClickCallback(
   }
 
   ROS_INFO("SAFE TO NAVIGATE");
+  
+//  /* TODO THIS IS ADDED IN FOR TRYING TO FIX ANGLES TO TURN*/
+//  x_ -= occupancy_grid_.info.origin.position.x;
+//  y -= occupancy_grid_.info.origin.position.y;
+//  z -= occupancy_grid_.info.origin.position.z;
+//  a -= occupancy_grid_.info.origin.orientation.x;
+//  b -= occupancy_grid_.info.origin.orientation.y;
+//  c -= occupancy_grid_.info.origin.orientation.z;
+//  d -= occupancy_grid_.info.origin.orientation.w;
 
   // TODO: Delete the interactive marker so it's not confusing during navigation
   initializeIntMarkers("d");
@@ -709,8 +718,8 @@ void RemoteTeleop::pointClickCallback(
       turn_left2 = true;
     }
     
-    ROS_INFO_STREAM("Theta1: " << theta1 * 180 / M_PI << "Left: " << turn_left1);
-    ROS_INFO_STREAM("Theta2: " << theta2* 180 / M_PI << "Left: " << turn_left2);
+    ROS_INFO_STREAM("Theta1: " << theta1 * 180 / M_PI << " Left: " << turn_left1);
+    ROS_INFO_STREAM("Theta2: " << theta2* 180 / M_PI << " Left: " << turn_left2);
     ROS_INFO_STREAM("Pre-Theta2 Orientation: " << c_ * 180 / M_PI );
 
     // Turn robot to goal orientation
@@ -1005,18 +1014,18 @@ geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(float goal_x, float
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
-  robot_pose.pose.position.x = goal_x;
-  robot_pose.pose.position.y = goal_y;
-  robot_pose.pose.position.z = 0;
-  robot_pose.pose.orientation.w = 1.0;
+//  robot_pose.pose.position.x = goal_x;
+//  robot_pose.pose.position.y = goal_y;
+//  robot_pose.pose.position.z = 0;
+//  robot_pose.pose.orientation.w = 1.0;
 
-//  robot_pose.pose.position.x = pos_x_;
-//  robot_pose.pose.position.y = pos_y_;
-//  robot_pose.pose.position.z = pos_z_;
-//  robot_pose.pose.orientation.x = or_x_;
-//  robot_pose.pose.orientation.y = or_y_;
-//  robot_pose.pose.orientation.z = or_z_;
-//  robot_pose.pose.orientation.w = or_w_;
+  robot_pose.pose.position.x = pos_x_;
+  robot_pose.pose.position.y = pos_y_;
+  robot_pose.pose.position.z = pos_z_;
+  robot_pose.pose.orientation.x = or_x_;
+  robot_pose.pose.orientation.y = or_y_;
+  robot_pose.pose.orientation.z = or_z_;
+  robot_pose.pose.orientation.w = or_w_;
 
   // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
@@ -1041,6 +1050,13 @@ geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(float goal_x, float
   // costmap center based on the odom offset
   robot_pose.pose.position.x -= occupancy_grid_.info.origin.position.x;
   robot_pose.pose.position.y -= occupancy_grid_.info.origin.position.y;
+  
+  /* NEW STUFF ADDED TODO CHECK THIS OUT */
+  robot_pose.pose.position.z -= occupancy_grid_.info.origin.position.z;
+  robot_pose.pose.orientation.x -= occupancy_grid_.info.origin.orientation.x;
+  robot_pose.pose.orientation.y -= occupancy_grid_.info.origin.orientation.y;
+  robot_pose.pose.orientation.z -= occupancy_grid_.info.origin.orientation.z;
+  robot_pose.pose.orientation.w -= occupancy_grid_.info.origin.orientation.w;
   
   return robot_pose;
 }
