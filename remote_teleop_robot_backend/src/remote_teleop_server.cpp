@@ -712,7 +712,7 @@ void RemoteTeleop::pointClickCallback(
 
     // Because theta2 is simply the angle to turn based on the original
     // orientation, we need to shift the degrees to turn appropriately
-    theta2 = theta2 - theta1;
+//    theta2 = theta2 - theta1;
 
     // Make sure theta2 is within a known range
     while (theta2 > M_PI) {
