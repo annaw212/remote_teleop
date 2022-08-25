@@ -52,6 +52,7 @@
 #include <tf/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
+#include <typeinfo>
 /*-----------------------------------------------------------------------------------*/
 
 // Define variables here
@@ -940,7 +941,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     // Find the index of the point we are currently looking at
     idx = ceil(y1 * w + x1);
     
-    ROS_INFO_STREAM("Round #" <<h << ": index=" << idx << " value=" << occupancy_grid_.data[idx]);
+    ROS_INFO_STREAM("Round #" <<h << ": index=" << idx << " value=" << occupancy_grid_.data[idx] << " type=" << typeid(occupancy_grid_.data[idx]).name());
     // Check if there is an obstacle at that point
     if (occupancy_grid_.data[idx] != 0) {
       ROS_INFO("OBSTACLE DETECTED");
