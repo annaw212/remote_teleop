@@ -91,6 +91,7 @@ private:
   float lin_vel_; // Max linear velocity
   float ang_vel_; // Max angular velocity
 
+  geometry_msgs::Pose current_odom_pose_;
   tfScalar x_; // Odom position x
   tfScalar y_; // Odom position y
   tfScalar z_; // Odom position z
@@ -103,6 +104,7 @@ private:
   tfScalar pitch_;
   tfScalar yaw_;
 
+  geometry_msgs::Pose nav_goal_pose_;
   float pos_x_; // Navigation goal position x
   float pos_y_; // Navigation goal position y
   float pos_z_; // Navigation goal position z
@@ -114,7 +116,7 @@ private:
   float nudge_dist_; // Nudge distance
   bool nudge_fwd_;   // Nudge direction
 
-  std::string init_frame_;
+  std::string nav_goal_frame_;
 
   bool turn_in_place_running_;
   bool point_click_running_;

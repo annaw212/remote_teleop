@@ -358,7 +358,7 @@ void RemoteTeleop::processIntMarkerFeedback(
   
 //  ROS_INFO_STREAM(feedback->header.frame_id);
 
-  init_frame_ = feedback->header.frame_id;
+  nav_goal_frame_ = feedback->header.frame_id;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -542,9 +542,9 @@ void RemoteTeleop::pointClickCallback(
   // put that into base_link as a sanity check
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
-  geometry_msgs::TransformStamped init_frame_to_base_link;
-  init_frame_to_base_link = tf_buffer.lookupTransform(
-		  "base_link", init_frame_, ros::Time(0), ros::Duration(1.0));
+  geometry_msgs::TransformStamped nav_goal_frame_to_base_link;
+  nav_goal_frame_to_base_link = tf_buffer.lookupTransform(
+		  "base_link", nav_goal_frame_, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values
@@ -557,7 +557,7 @@ void RemoteTeleop::pointClickCallback(
   base_link_goal.pose.orientation.y = b;
   base_link_goal.pose.orientation.z = c;
   tf2::doTransform(base_link_goal, base_link_goal,
-		  init_frame_to_base_link);
+		  nav_goal_frame_to_base_link);
 
 
   // Declare local variables
@@ -639,7 +639,7 @@ void RemoteTeleop::pointClickCallback(
   
   // Calculate the distance needed to travel
   // x_ : base_link position in odom
-  // x : marker goal position (most likely in odom, but in init_frame_ for sure)
+  // x : marker goal position (most likely in odom, but in nav_goal_frame_ for sure)
   travel_dist = sqrt(pow(abs(x - x_), 2) + pow(abs(y - y_), 2));
 
   // TODO: Delete the interactive marker so it's not confusing during navigation
@@ -907,17 +907,17 @@ geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(float goal_x, float
   // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
-  geometry_msgs::TransformStamped init_frame_to_odom;
+  geometry_msgs::TransformStamped nav_goal_frame_to_odom;
 
   // Lookup the transform from the initial frame to odom and store in variable
-  init_frame_to_odom = tf_buffer.lookupTransform(
-      "odom", init_frame_, ros::Time(0), ros::Duration(1.0));
+  nav_goal_frame_to_odom = tf_buffer.lookupTransform(
+      "odom", nav_goal_frame_, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values
   tf2::doTransform(
       robot_pose, robot_pose,
-      init_frame_to_odom); // robot_pose is the PoseStamped I want to transform
+      nav_goal_frame_to_odom); // robot_pose is the PoseStamped I want to transform
 
   // The output value will be slightly offset, so we need to translate it to the
   // costmap center based on the odom offset
