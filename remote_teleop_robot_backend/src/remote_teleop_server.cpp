@@ -538,17 +538,17 @@ void RemoteTeleop::pointClickCallback(
   float d = or_w_;
 
   // convert to init frame to base link
-  geometry_msgs::PoseStamped robot_pose;
+//  geometry_msgs::PoseStamped robot_pose;
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
-  robot_pose.pose.position.x = x;
-  robot_pose.pose.position.y = y;
-  robot_pose.pose.position.z = z;
-  robot_pose.pose.orientation.w = d;
-  robot_pose.pose.orientation.x = a;
-  robot_pose.pose.orientation.y = b;
-  robot_pose.pose.orientation.z = c;
+//  robot_pose.pose.position.x = x;
+//  robot_pose.pose.position.y = y;
+//  robot_pose.pose.position.z = z;
+//  robot_pose.pose.orientation.w = d;
+//  robot_pose.pose.orientation.x = a;
+//  robot_pose.pose.orientation.y = b;
+//  robot_pose.pose.orientation.z = c;
 
   //  robot_pose.header.stamp = ros::Time::now();
 
@@ -801,8 +801,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
            
       // TODO: Check for obstacles
       // TODO: put this goal in odom and take it in from the navigate function
-      float x1 = x_ - occupancy_grid_.info.origin.position.x;
-      float y1 = y_ - occupancy_grid_.info.origin.position.y;
+      float x1 = ceil(x_ - occupancy_grid_.info.origin.position.x / RESOLUTION);
+      float y1 = ceil(y_ - occupancy_grid_.info.origin.position.y / RESOLUTION);
       float dx = abs(x2 - x1);
       float dy = abs(y2 - y1);
 
