@@ -660,7 +660,8 @@ void RemoteTeleop::pointClickCallback(
 
   if (!stop_) {
     /* NAVIGATE */
-    ROS_INFO("\n");
+    ROS_INFO(" ");
+    ROS_INFO_STREAM("Goal position: (" << x << ", " << y << ", " << z << ") Current position: (" << x_ << ", " << y_ << ", " << z_ << ")");
     ROS_INFO_STREAM("Goal Orientation: (" << a * 180 / M_PI << ", " << b * 180 / M_PI << ", " << c * 180 / M_PI << ", " << d * 180 / M_PI << ")");
     
     ROS_INFO_STREAM("Pre-Theta1 Orientation: (" << a_ * 180 / M_PI << ", " << b_ * 180 / M_PI << ", " << c_ * 180 / M_PI << ", " << d_ * 180 / M_PI << ")");
