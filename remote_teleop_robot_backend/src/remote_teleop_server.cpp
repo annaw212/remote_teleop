@@ -730,10 +730,12 @@ void RemoteTeleop::pointClickCallback(
     navigate(0.0, true, x, y, travel_dist, x2, y2, dx, dy);
 
     // Calculate angle to turn by from goal to goal orientation
-    ROS_INFO_STREAM(a* 180 / M_PI << " " << b* 180 / M_PI << " "<<  c * 180 / M_PI<< " " << d* 180 / M_PI);
+//    ROS_INFO_STREAM(a* 180 / M_PI << " " << b* 180 / M_PI << " "<<  c * 180 / M_PI<< " " << d* 180 / M_PI);
     tf::Quaternion q(a, b, c, d);
     tf::Matrix3x3 m(q);
     m.getRPY(r, t, theta2);
+    
+    ROS_INFO_STREAM("theta2 initial: " << theta2);
     
 //    theta2 = c_ - c;
 
