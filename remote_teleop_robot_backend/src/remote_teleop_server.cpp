@@ -215,7 +215,7 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
 
   // Set the control for movement along the x-axis
   control.orientation.w = 1;
-  control.orientation.x = 1;
+  control.orientation.x = 0;
   control.orientation.y = 0;
   control.orientation.z = 0;
   control.name = "move_x";
@@ -227,7 +227,7 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
   control.orientation.w = 1;
   control.orientation.x = 0;
   control.orientation.y = 0;
-  control.orientation.z = 1;
+  control.orientation.z = 0;
   control.name = "move_y";
   control.interaction_mode =
       visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
@@ -236,7 +236,7 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
   // Set the control for movement about the z-axis
   control.orientation.w = 1;
   control.orientation.x = 0;
-  control.orientation.y = 1;
+  control.orientation.y = 0;
   control.orientation.z = 0;
   control.name = "rotate_z";
   control.interaction_mode =
