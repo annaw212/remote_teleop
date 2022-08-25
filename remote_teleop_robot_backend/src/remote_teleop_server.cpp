@@ -359,7 +359,7 @@ void RemoteTeleop::processIntMarkerFeedback(
   or_z_ = feedback->pose.orientation.z;
   or_w_ = feedback->pose.orientation.w;
   
-  ROS_INFO_STREAM(feedback->header.frame_id);
+//  ROS_INFO_STREAM(feedback->header.frame_id);
 
   init_frame_ = feedback->header.frame_id;
 }
@@ -614,8 +614,8 @@ void RemoteTeleop::pointClickCallback(
   // Determine validity of path
   
   // TODO: don't need to create unnecessary variables
-  float x1 = x_ - occupancy_grid_.info.origin.position.x; // Robot's current location
-  float y1 = y_ - occupancy_grid_.info.origin.position.y;
+  float x1 = ceil(x_ - occupancy_grid_.info.origin.position.x); // Robot's current location
+  float y1 = ceil(y_ - occupancy_grid_.info.origin.position.y);
   float x2 = x; // x1 + x, Robot's goal location
   float y2 = y;
   float dx = abs(x2 - x1);
@@ -634,9 +634,9 @@ void RemoteTeleop::pointClickCallback(
 //  x1 -= occupancy_grid_.info.origin.position.x;
 //  y1 -= occupancy_grid_.info.origin.position.y;
 
-  // Set the current coordinates on the costmap grid
-  x1 = ceil(x1 / RESOLUTION);
-  y1 = ceil(y1 / RESOLUTION);
+//  // Set the current coordinates on the costmap grid
+//  x1 = ceil(x1 / RESOLUTION);
+//  y1 = ceil(y1 / RESOLUTION);
 
   // Need to recalculate the dx/dy because they are now outdated
   dx = abs(x2 - x1);
@@ -713,7 +713,7 @@ void RemoteTeleop::pointClickCallback(
     ROS_INFO_STREAM("Curr position: (" << x_ << ", " << y_ << ", " << z_ << ")");
     ROS_INFO_STREAM("Goal Orientation: " << c * 180 / M_PI );
     
-    ROS_INFO_STREAM("Pre-Theta1 Orientation: " << c_ * 180 / M_PI);
+    ROS_INFO_STREAM("Initial Orientation: " << c_ * 180 / M_PI);
 
     // Turn to face goal location
     if (theta1 < 0.0) {
@@ -730,6 +730,7 @@ void RemoteTeleop::pointClickCallback(
     navigate(0.0, true, x, y, travel_dist, x2, y2, dx, dy);
 
     // Calculate angle to turn by from goal to goal orientation
+    ROS_INFO_STREAM(a* 180 / M_PI << " " << b* 180 / M_PI << " "<<  c * 180 / M_PI<< " " << d* 180 / M_PI);
     tf::Quaternion q(a, b, c, d);
     tf::Matrix3x3 m(q);
     m.getRPY(r, t, theta2);
