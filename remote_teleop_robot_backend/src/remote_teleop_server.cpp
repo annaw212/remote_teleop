@@ -374,6 +374,8 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
   b_ = msg.pose.pose.orientation.y;
   c_ = msg.pose.pose.orientation.z;
   d_ = msg.pose.pose.orientation.w;
+  
+  ROS_INFO_STREAM(msg.header.frame_id);
 
   // Grab the odometry quaternion values out of the message
   tf::Quaternion q(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y,
