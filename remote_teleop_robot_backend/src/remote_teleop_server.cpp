@@ -1005,18 +1005,18 @@ geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(float goal_x, float
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
-//  robot_pose.pose.position.x = goal_x;
-//  robot_pose.pose.position.y = goal_y;
-//  robot_pose.pose.position.z = 0;
-//  robot_pose.pose.orientation.w = 1.0;
+  robot_pose.pose.position.x = goal_x;
+  robot_pose.pose.position.y = goal_y;
+  robot_pose.pose.position.z = 0;
+  robot_pose.pose.orientation.w = 1.0;
 
-  robot_pose.pose.position.x = pos_x_;
-  robot_pose.pose.position.y = pos_y_;
-  robot_pose.pose.position.z = pos_z_;
-  robot_pose.pose.orientation.x = or_x_;
-  robot_pose.pose.orientation.y = or_y_;
-  robot_pose.pose.orientation.z = or_z_;
-  robot_pose.pose.orientation.w = or_w_;
+//  robot_pose.pose.position.x = pos_x_;
+//  robot_pose.pose.position.y = pos_y_;
+//  robot_pose.pose.position.z = pos_z_;
+//  robot_pose.pose.orientation.x = or_x_;
+//  robot_pose.pose.orientation.y = or_y_;
+//  robot_pose.pose.orientation.z = or_z_;
+//  robot_pose.pose.orientation.w = or_w_;
 
   // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
