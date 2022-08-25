@@ -660,10 +660,10 @@ void RemoteTeleop::pointClickCallback(
 
   if (!stop_) {
     /* NAVIGATE */
+    ROS_INFO("\n");
+    ROS_INFO_STREAM("Goal Orientation: (" << a * 180 / M_PI << ", " << b * 180 / M_PI << ", " << c * 180 / M_PI << ", " << d * 180 / M_PI << ")");
     
-    ROS_INFO_STREAM("\nGoal Orientation: (" << a << ", " << b << ", " << c << ", " << d << ")");
-    
-    ROS_INFO_STREAM("Pre-Theta1 Orientation: (" << a_ << ", " << b_ << ", " << c_ << ", " << d_ << ")");
+    ROS_INFO_STREAM("Pre-Theta1 Orientation: (" << a_ * 180 / M_PI << ", " << b_ * 180 / M_PI << ", " << c_ * 180 / M_PI << ", " << d_ * 180 / M_PI << ")");
 
     // Turn to face goal location
     if (theta1 < 0.0) {
@@ -674,7 +674,7 @@ void RemoteTeleop::pointClickCallback(
       navigate(theta1, turn_left1, 0.0, 0.0, 0.0, x2, y2, dx, dy);
     }
     
-    ROS_INFO_STREAM("Post-Theta1 Orientation: (" << a_ << ", " << b_ << ", " << c_ << ", " << d_ << ")");
+    ROS_INFO_STREAM("Post-Theta1 Orientation: (" << a_ * 180 / M_PI << ", " << b_ * 180 / M_PI << ", " << c_ * 180 / M_PI << ", " << d_ * 180 / M_PI << ")");
 
     // Drive straight to goal location
     navigate(0.0, true, x, y, travel_dist, x2, y2, dx, dy);
@@ -707,13 +707,13 @@ void RemoteTeleop::pointClickCallback(
       turn_left2 = true;
     }
     
-    ROS_INFO_STREAM("Theta1: " << theta1 << " Theta2: " << theta2);
-    ROS_INFO_STREAM("Pre-Theta2 Orientation: (" << a_ << ", " << b_ << ", " << c_ << ", " << d_ << ")");
+    ROS_INFO_STREAM("Theta1: " << theta1 * 180 / M_PI << " Theta2: " << theta2* 180 / M_PI );
+    ROS_INFO_STREAM("Pre-Theta2 Orientation: (" << a_ * 180 / M_PI << ", " << b_ * 180 / M_PI << ", " << c_ * 180 / M_PI << ", " << d_ * 180 / M_PI << ")");
 
     // Turn robot to goal orientation
     navigate(theta2, turn_left2, 0.0, 0.0, 0.0, x2, y2, dx, dy);
     
-    ROS_INFO_STREAM("Post-Theta2 Orientation: (" << a_ << ", " << b_ << ", " << c_ << ", " << d_ << ")");
+    ROS_INFO_STREAM("Post-Theta2 Orientation: (" << a_ * 180 / M_PI << ", " << b_ * 180 / M_PI << ", " << c_ * 180 / M_PI << ", " << d_ * 180 / M_PI << ")");
   } else {
     ROS_INFO("TURN IN PLACE STOP");
     stopMovement();
@@ -1002,10 +1002,18 @@ geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(float goal_x, float
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
-  robot_pose.pose.position.x = goal_x;
-  robot_pose.pose.position.y = goal_y;
-  robot_pose.pose.position.z = 0;
-  robot_pose.pose.orientation.w = 1.0;
+//  robot_pose.pose.position.x = goal_x;
+//  robot_pose.pose.position.y = goal_y;
+//  robot_pose.pose.position.z = 0;
+//  robot_pose.pose.orientation.w = 1.0;
+
+  robot_pose.pose.position.x = pos_x_;
+  robot_pose.pose.position.y = pos_y_;
+  robot_pose.pose.position.z = pos_z_;
+  robot_pose.pose.orientation.x = or_x_;
+  robot_pose.pose.orientation.y = or_y_;
+  robot_pose.pose.orientation.z = or_z_;
+  robot_pose.pose.orientation.w = or_w_;
 
   // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
