@@ -658,7 +658,11 @@ void RemoteTeleop::pointClickCallback(
   travel_dist = sqrt(pow(x, 2) + pow(y, 2));
 
   // Calculate the angle needed to turn to face goal point
-  theta1 = atan2(y, x);
+  if (abs(x_ - x) <= 0.001 && abs(y_ - y) <= 0.001) {
+    theta1 = 0;
+  } else {
+    theta1 = atan2(y, x);
+  }
 
   // Edge case checking
   if (abs(theta1) <= ANGLE_THRESHOLD) {
