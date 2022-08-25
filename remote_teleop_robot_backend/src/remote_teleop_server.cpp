@@ -766,10 +766,12 @@ void RemoteTeleop::pointClickCallback(
     
     ROS_INFO_STREAM("Theta1: " << theta1 * 180 / M_PI << " Left: " << turn_left1);
     ROS_INFO_STREAM("Theta2: " << theta2* 180 / M_PI << " Left: " << turn_left2);
-    ROS_INFO_STREAM("Pre-Theta2 Orientation: " << c_ * 180 / M_PI );
+//    ROS_INFO_STREAM("Pre-Theta2 Orientation: " << c_ * 180 / M_PI );
 
     // Turn robot to goal orientation
-    navigate(theta2, turn_left2, 0.0, 0.0, 0.0, x2, y2, dx, dy);
+    if (travel_dist > 0.03) {
+      navigate(theta2, turn_left2, 0.0, 0.0, 0.0, x2, y2, dx, dy);
+    }
     
     ROS_INFO_STREAM("Post-Theta2 Orientation: " << c_ * 180 / M_PI );
   } else {
@@ -1013,7 +1015,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     
     int val = occupancy_grid_.data[idx];
     
-    ROS_INFO_STREAM("Round #" <<h << ": index=" << idx << " value=" << val);
+//    ROS_INFO_STREAM("Round #" <<h << ": index=" << idx << " value=" << val);
     // Check if there is an obstacle at that point
     if (occupancy_grid_.data[idx] != 0) {
 //      ROS_INFO_STREAM(val);
