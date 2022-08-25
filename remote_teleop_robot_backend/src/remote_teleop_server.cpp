@@ -441,7 +441,7 @@ void RemoteTeleop::speedToggleCallback(
 
 void RemoteTeleop::turnInPlace() {
 
-  ROS_INFO_STREAM("lin: " << lin_vel_ << " ang: " << ang_vel_);
+//  ROS_INFO_STREAM("lin: " << lin_vel_ << " ang: " << ang_vel_);
 
   turn_in_place_running_ = true;
 
