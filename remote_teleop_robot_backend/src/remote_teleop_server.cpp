@@ -709,8 +709,8 @@ void RemoteTeleop::pointClickCallback(
       turn_left2 = true;
     }
     
-    ROS_INFO_STREAM("Theta1: " << theta1 * 180 / M_PI );
-    ROS_INFO_STREAM("Theta2: " << theta2* 180 / M_PI );
+    ROS_INFO_STREAM("Theta1: " << theta1 * 180 / M_PI << "Left: " << turn_left1);
+    ROS_INFO_STREAM("Theta2: " << theta2* 180 / M_PI << "Left: " << turn_left2);
     ROS_INFO_STREAM("Pre-Theta2 Orientation: " << c_ * 180 / M_PI );
 
     // Turn robot to goal orientation
