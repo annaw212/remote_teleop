@@ -769,9 +769,7 @@ void RemoteTeleop::pointClickCallback(
 //    ROS_INFO_STREAM("Pre-Theta2 Orientation: " << c_ * 180 / M_PI );
 
     // Turn robot to goal orientation
-    if (travel_dist > 0.03) {
-      navigate(theta2, turn_left2, 0.0, 0.0, 0.0, x2, y2, dx, dy);
-    }
+    navigate(theta2, turn_left2, 0.0, 0.0, 0.0, x2, y2, dx, dy);
     
     ROS_INFO_STREAM("Post-Theta2 Orientation: " << c_ * 180 / M_PI );
   } else {
