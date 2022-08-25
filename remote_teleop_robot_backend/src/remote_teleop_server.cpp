@@ -714,7 +714,7 @@ void RemoteTeleop::pointClickCallback(
     tf::Matrix3x3 m(q);
     m.getRPY(r, t, theta2);
     
-    theta2 = c_ - c;
+//    theta2 = c_ - c;
 
     // Because theta2 is simply the angle to turn based on the original
     // orientation, we need to shift the degrees to turn appropriately
