@@ -675,7 +675,8 @@ void RemoteTeleop::pointClickCallback(
 //  d = pose.pose.orientation.w;
   
   // Calculate the distance needed to travel
-  travel_dist = sqrt(pow(x, 2) + pow(y, 2));
+  travel_dist = sqrt(pow(abs(x - x_), 2) + pow(abs(y - y_), 2));
+  ROS_INFO_STREAM("Travel distance: " << travel_dist);
 
 //  // Calculate the angle needed to turn to face goal point
 //  if (abs(x_ - x) <= 0.001 && abs(y_ - y) <= 0.001) {
@@ -818,6 +819,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
   }
 
   if (angle == 0.0) {
+    ROS_INFO("DRIVE STRAIGHT");
     // Determine goal coordinates
     goal_x = x_ + x_dist;
     goal_y = y_ + y_dist;
