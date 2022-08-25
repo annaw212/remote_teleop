@@ -591,6 +591,22 @@ void RemoteTeleop::pointClickCallback(
 //    theta1 = M_PI;
 //  }
 
+  // Calculate the angle needed to turn to face goal point
+  if (abs(x_ - x) <= 0.001 && abs(y_ - y) <= 0.001) {
+    theta1 = 0;
+  } else {
+    theta1 = atan2(y, x);
+  }
+
+  // Edge case checking
+  if (abs(theta1) <= ANGLE_THRESHOLD) {
+    // If we are only turning 1-3 degrees, just don't turn
+    theta1 = 0;
+  } else if (abs(M_PI - theta1) <= ANGLE_THRESHOLD) {
+    // If we are turning to an angle within 1-3 degrees of a 180 turn, turn 180
+    theta1 = M_PI;
+  }
+
   // Determine validity of path
   
   // TODO: don't need to create unnecessary variables
@@ -657,21 +673,21 @@ void RemoteTeleop::pointClickCallback(
   // Calculate the distance needed to travel
   travel_dist = sqrt(pow(x, 2) + pow(y, 2));
 
-  // Calculate the angle needed to turn to face goal point
-  if (abs(x_ - x) <= 0.001 && abs(y_ - y) <= 0.001) {
-    theta1 = 0;
-  } else {
-    theta1 = atan2(y, x);
-  }
+//  // Calculate the angle needed to turn to face goal point
+//  if (abs(x_ - x) <= 0.001 && abs(y_ - y) <= 0.001) {
+//    theta1 = 0;
+//  } else {
+//    theta1 = atan2(y, x);
+//  }
 
-  // Edge case checking
-  if (abs(theta1) <= ANGLE_THRESHOLD) {
-    // If we are only turning 1-3 degrees, just don't turn
-    theta1 = 0;
-  } else if (abs(M_PI - theta1) <= ANGLE_THRESHOLD) {
-    // If we are turning to an angle within 1-3 degrees of a 180 turn, turn 180
-    theta1 = M_PI;
-  }
+//  // Edge case checking
+//  if (abs(theta1) <= ANGLE_THRESHOLD) {
+//    // If we are only turning 1-3 degrees, just don't turn
+//    theta1 = 0;
+//  } else if (abs(M_PI - theta1) <= ANGLE_THRESHOLD) {
+//    // If we are turning to an angle within 1-3 degrees of a 180 turn, turn 180
+//    theta1 = M_PI;
+//  }
 
   // TODO: Delete the interactive marker so it's not confusing during navigation
   initializeIntMarkers("d");
