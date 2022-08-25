@@ -641,15 +641,16 @@ void RemoteTeleop::pointClickCallback(
   // Need to recalculate the dx/dy because they are now outdated
   dx = abs(x2 - x1);
   dy = abs(y2 - y1);
-
-  if (dx > dy) {
-    // Slope is less than 1
-    //      ROS_INFO("HERE1");
-    obstacleCheck(x1, y1, x2, y2, dx, dy, true);
-  } else {
-    // Slope is greater than 1
-    //      ROS_INFO("HERE2");
-    obstacleCheck(x1, y1, x2, y2, dx, dy, false);
+  if (abs(x_ - x) >= 0.001 && abs(y_ - y) >= 0.001) {
+    if (dx > dy) {
+      // Slope is less than 1
+      //      ROS_INFO("HERE1");
+      obstacleCheck(x1, y1, x2, y2, dx, dy, true);
+    } else {
+      // Slope is greater than 1
+      //      ROS_INFO("HERE2");
+      obstacleCheck(x1, y1, x2, y2, dx, dy, false);
+    }
   }
 
   if (obstacle_detected_ == true) {
