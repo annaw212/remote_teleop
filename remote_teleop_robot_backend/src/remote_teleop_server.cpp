@@ -541,6 +541,37 @@ void RemoteTeleop::pointClickCallback(
   float c = or_z_;
   float d = or_w_;
 
+  ROS_INFO_STREAM("Debug 1: Goal in frame: " << init_frame_ << " is " << pos_x_ << ", " << pos_y_);
+  // put that into base_link as a sanity check
+  tf2_ros::Buffer tf_buffer;
+  tf2_ros::TransformListener tf2_listener(tf_buffer);
+  geometry_msgs::TransformStamped init_frame_to_base_link;
+  init_frame_to_base_link = tf_buffer.lookupTransform(
+		  "base_link", init_frame_, ros::Time(0), ros::Duration(1.0));
+
+  // Input the point you want to transform and indicate we want to just
+  // overwrite that object with the transformed point values
+  geometry_msgs::PoseStamped base_link_goal;
+  base_link_goal.pose.position.x = x;
+  base_link_goal.pose.position.y = y;
+  base_link_goal.pose.position.z = z;
+  base_link_goal.pose.orientation.w = d;
+  base_link_goal.pose.orientation.x = a;
+  base_link_goal.pose.orientation.y = b;
+  base_link_goal.pose.orientation.z = c;
+  tf2::doTransform(base_link_goal, base_link_goal,
+		  init_frame_to_base_link);
+
+ 
+  ROS_INFO_STREAM("Debug 1: Goal in frame: " << "base_link" << " is " << base_link_goal.pose.position.x << ", " << base_link_goal.pose.position.y);
+  ROS_INFO_STREAM("orientation: " << base_link_goal.pose.orientation.x << ", "
+		                  << base_link_goal.pose.orientation.y << ", "
+				  << base_link_goal.pose.orientation.z << ", "
+				  << base_link_goal.pose.orientation.w);
+
+  float base_link_yaw = atan2(base_link_goal.pose.orientation.z, base_link_goal.pose.orientation.w) * 2.0;
+  ROS_INFO_STREAM("orientation (yaw): " << base_link_yaw);
+
   // convert to init frame to base link
 //  geometry_msgs::PoseStamped robot_pose;
 
@@ -595,11 +626,13 @@ void RemoteTeleop::pointClickCallback(
 //    theta1 = M_PI;
 //  }
 
+  
+
   // Calculate the angle needed to turn to face goal point
   if (abs(x_ - x) <= 0.001 && abs(y_ - y) <= 0.001) {
     theta1 = 0;
   } else {
-    theta1 = atan2(y, x);
+    theta1 = atan2(base_link_goal.pose.position.y, base_link_goal.pose.position.x);
   }
 
   // Edge case checking
@@ -614,8 +647,8 @@ void RemoteTeleop::pointClickCallback(
   // Determine validity of path
   
   // TODO: don't need to create unnecessary variables
-  float x1 = ceil(x_ - occupancy_grid_.info.origin.position.x); // Robot's current location
-  float y1 = ceil(y_ - occupancy_grid_.info.origin.position.y);
+  float x1 = x_ - occupancy_grid_.info.origin.position.x; // Robot's current location
+  float y1 = y_ - occupancy_grid_.info.origin.position.y;
   float x2 = x; // x1 + x, Robot's goal location
   float y2 = y;
   float dx = abs(x2 - x1);
@@ -624,6 +657,7 @@ void RemoteTeleop::pointClickCallback(
   // Transform goal to odom
   geometry_msgs::PoseStamped pose;
   pose = transformGoalToOdom(x2, y2);
+  ROS_INFO_STREAM("Debug 2: Pose in odom: " << pose.pose.position.x << ", " << pose.pose.position.y);
   
   // Set the goal coordinates on the costmap grid
   x2 = ceil(pose.pose.position.x / RESOLUTION);
@@ -635,8 +669,11 @@ void RemoteTeleop::pointClickCallback(
 //  y1 -= occupancy_grid_.info.origin.position.y;
 
 //  // Set the current coordinates on the costmap grid
-//  x1 = ceil(x1 / RESOLUTION);
-//  y1 = ceil(y1 / RESOLUTION);
+  x1 = ceil(x1 / RESOLUTION);
+  y1 = ceil(y1 / RESOLUTION);
+
+  ROS_INFO_STREAM("Debug 3: Current pose coords in costmap " << x1 << ", " << y1);
+  ROS_INFO_STREAM("Debug 3: Goal pose coords in costmap " << x2 << ", " << y2);
 
   // Need to recalculate the dx/dy because they are now outdated
   dx = abs(x2 - x1);
@@ -676,6 +713,8 @@ void RemoteTeleop::pointClickCallback(
 //  d = pose.pose.orientation.w;
   
   // Calculate the distance needed to travel
+  // x_ : base_link position in odom
+  // x : marker goal position (most likely in odom, but in init_frame_ for sure)
   travel_dist = sqrt(pow(abs(x - x_), 2) + pow(abs(y - y_), 2));
   ROS_INFO_STREAM("Travel distance: " << travel_dist);
 
@@ -713,9 +752,20 @@ void RemoteTeleop::pointClickCallback(
     ROS_INFO(" ");
     ROS_INFO_STREAM("Goal position: (" << x << ", " << y << ", " << z << ")");
     ROS_INFO_STREAM("Curr position: (" << x_ << ", " << y_ << ", " << z_ << ")");
-    ROS_INFO_STREAM("Goal Orientation: " << c);
+    tfScalar goal_yaw, roll, pitch;
+
+    // Grab the odometry quaternion values out of the message
+    tf::Quaternion q(a, b, c, d);
+
+    // Turn the quaternion values into a matrix
+    tf::Matrix3x3 m(q);
+
+    // Extract the euler angles from the matrix
+    m.getRPY(roll, pitch, goal_yaw);
+
+    ROS_INFO_STREAM("Goal Orientation in odom: " << goal_yaw);
     
-    ROS_INFO_STREAM("Initial Orientation: " << c_);
+    ROS_INFO_STREAM("Initial Orientation in odom: " << yaw_);
 
     // Turn to face goal location
     if (theta1 < 0.0) {
@@ -733,9 +783,9 @@ void RemoteTeleop::pointClickCallback(
 
     // Calculate angle to turn by from goal to goal orientation
 //    ROS_INFO_STREAM(a* 180 / M_PI << " " << b* 180 / M_PI << " "<<  c * 180 / M_PI<< " " << d* 180 / M_PI);
-    tf::Quaternion q(a, b, c, d);
-    tf::Matrix3x3 m(q);
-    m.getRPY(r, t, theta2);
+    tf::Quaternion qu(base_link_goal.pose.orientation.x, base_link_goal.pose.orientation.y, base_link_goal.pose.orientation.z, base_link_goal.pose.orientation.w);
+    tf::Matrix3x3 ma(qu);
+    ma.getRPY(r, t, theta2);
     
     ROS_INFO_STREAM("theta2 initial: " << theta2);
     
@@ -1062,18 +1112,18 @@ geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(float goal_x, float
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
-//  robot_pose.pose.position.x = goal_x;
-//  robot_pose.pose.position.y = goal_y;
-//  robot_pose.pose.position.z = 0;
-//  robot_pose.pose.orientation.w = 1.0;
+  robot_pose.pose.position.x = goal_x;
+  robot_pose.pose.position.y = goal_y;
+  robot_pose.pose.position.z = 0;
+  robot_pose.pose.orientation.w = 1.0;
 
-  robot_pose.pose.position.x = pos_x_;
-  robot_pose.pose.position.y = pos_y_;
-  robot_pose.pose.position.z = pos_z_;
-  robot_pose.pose.orientation.x = or_x_;
-  robot_pose.pose.orientation.y = or_y_;
-  robot_pose.pose.orientation.z = or_z_;
-  robot_pose.pose.orientation.w = or_w_;
+  // robot_pose.pose.position.x = pos_x_;
+  // robot_pose.pose.position.y = pos_y_;
+  // robot_pose.pose.position.z = pos_z_;
+  // robot_pose.pose.orientation.x = or_x_;
+  // robot_pose.pose.orientation.y = or_y_;
+  // robot_pose.pose.orientation.z = or_z_;
+  // robot_pose.pose.orientation.w = or_w_;
 
   // Create the objects needed for the transform
   tf2_ros::Buffer tf_buffer;
@@ -1098,13 +1148,13 @@ geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(float goal_x, float
   // costmap center based on the odom offset
   robot_pose.pose.position.x -= occupancy_grid_.info.origin.position.x;
   robot_pose.pose.position.y -= occupancy_grid_.info.origin.position.y;
-  
+  ROS_INFO_STREAM("Debug 1.5: Subtracting costmap origin" << occupancy_grid_.info.origin.position.x << ", " << occupancy_grid_.info.origin.position.y);
   /* NEW STUFF ADDED TODO CHECK THIS OUT */
-  robot_pose.pose.position.z -= occupancy_grid_.info.origin.position.z;
-  robot_pose.pose.orientation.x -= occupancy_grid_.info.origin.orientation.x;
-  robot_pose.pose.orientation.y -= occupancy_grid_.info.origin.orientation.y;
-  robot_pose.pose.orientation.z -= occupancy_grid_.info.origin.orientation.z;
-  robot_pose.pose.orientation.w -= occupancy_grid_.info.origin.orientation.w;
+  // robot_pose.pose.position.z -= occupancy_grid_.info.origin.position.z;
+  // robot_pose.pose.orientation.x -= occupancy_grid_.info.origin.orientation.x;
+  // robot_pose.pose.orientation.y -= occupancy_grid_.info.origin.orientation.y;
+  // robot_pose.pose.orientation.z -= occupancy_grid_.info.origin.orientation.z;
+  // robot_pose.pose.orientation.w -= occupancy_grid_.info.origin.orientation.w;
   
   return robot_pose;
 }
