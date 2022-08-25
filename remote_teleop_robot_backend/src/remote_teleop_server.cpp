@@ -735,7 +735,7 @@ void RemoteTeleop::pointClickCallback(
     tf::Matrix3x3 m(q);
     m.getRPY(r, t, theta2);
     
-    ROS_INFO_STREAM("theta2 initial: " << theta2);
+    ROS_INFO_STREAM("theta2 initial: " << theta2 * 180 / M_PI);
     
 //    theta2 = c_ - c;
 
