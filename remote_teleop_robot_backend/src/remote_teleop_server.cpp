@@ -794,12 +794,12 @@ void RemoteTeleop::pointClickCallback(
     theta2 = theta2 - theta1;
 
     // Make sure theta2 is within a known range
-    while (theta2 > M_PI) {
-      theta2 -= 2 * M_PI;
-    }
-    while (theta2 < -M_PI) {
-      theta2 += 2 * M_PI;
-    }
+//    while (theta2 > M_PI) {
+//      theta2 -= 2 * M_PI;
+//    }
+//    while (theta2 < -M_PI) {
+//      theta2 += 2 * M_PI;
+//    }
 
     // Determine direction to turn
     if (theta2 < 0.0) {
