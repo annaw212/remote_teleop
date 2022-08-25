@@ -649,10 +649,10 @@ void RemoteTeleop::pointClickCallback(
 //  x = pose.pose.position.x;
 //  y = pose.pose.position.y;
 //  z = pose.pose.position.z;
-  a = pose.pose.orientation.x;
-  b = pose.pose.orientation.y;
-  c = pose.pose.orientation.z;
-  d = pose.pose.orientation.w;
+//  a = pose.pose.orientation.x;
+//  b = pose.pose.orientation.y;
+//  c = pose.pose.orientation.z;
+//  d = pose.pose.orientation.w;
   
   // Calculate the distance needed to travel
   travel_dist = sqrt(pow(x, 2) + pow(y, 2));
