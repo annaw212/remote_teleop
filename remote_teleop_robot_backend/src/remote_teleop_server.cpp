@@ -59,9 +59,6 @@
 #define THRESHOLD 0.03
 #define MIN_VEL 0.08
 #define ANGLE_THRESHOLD 0.035
-#define WIDTH 240
-#define LENGTH 240
-#define RESOLUTION 0.025
 #define INIT_LIN_VEL 0.5
 #define INIT_ANG_VEL 1.0
 
@@ -542,7 +539,6 @@ void RemoteTeleop::pointClickCallback(
   float c = or_z_;
   float d = or_w_;
 
-  ROS_INFO_STREAM("Debug 1: Goal in frame: " << init_frame_ << " is " << pos_x_ << ", " << pos_y_);
   // put that into base_link as a sanity check
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
@@ -562,16 +558,6 @@ void RemoteTeleop::pointClickCallback(
   base_link_goal.pose.orientation.z = c;
   tf2::doTransform(base_link_goal, base_link_goal,
 		  init_frame_to_base_link);
-
- 
-//  ROS_INFO_STREAM("Debug 1: Goal in frame: " << "base_link" << " is " << base_link_goal.pose.position.x << ", " << base_link_goal.pose.position.y);
-//  ROS_INFO_STREAM("orientation: " << base_link_goal.pose.orientation.x << ", "
-//		                  << base_link_goal.pose.orientation.y << ", "
-//				  << base_link_goal.pose.orientation.z << ", "
-//				  << base_link_goal.pose.orientation.w);
-
-//  float base_link_yaw = atan2(base_link_goal.pose.orientation.z, base_link_goal.pose.orientation.w) * 2.0;
-//  ROS_INFO_STREAM("orientation (yaw): " << base_link_yaw);
 
 
   // Declare local variables
@@ -611,24 +597,15 @@ void RemoteTeleop::pointClickCallback(
   // Transform goal to odom
   geometry_msgs::PoseStamped pose;
   pose = transformGoalToOdom(x2, y2);
-  ROS_INFO_STREAM("Debug 2: Pose in odom: " << pose.pose.position.x << ", " << pose.pose.position.y);
   
   // Set the goal coordinates on the costmap grid
-  x2 = ceil(pose.pose.position.x / RESOLUTION);
-  y2 = ceil(pose.pose.position.y / RESOLUTION);
-
-  // Need to translate the current position to the costmap based on the odom
-  // offset
-//  x1 -= occupancy_grid_.info.origin.position.x;
-//  y1 -= occupancy_grid_.info.origin.position.y;
+  x2 = ceil(pose.pose.position.x / occupancy_grid_.info.resolution);
+  y2 = ceil(pose.pose.position.y / occupancy_grid_.info.resolution);
 
 //  // Set the current coordinates on the costmap grid
   // TODO: make these their own variables --> be more descriptive --> these are the costmap indices, not floats
-  x1 = ceil(x1 / RESOLUTION);
-  y1 = ceil(y1 / RESOLUTION);
-
-//  ROS_INFO_STREAM("Debug 3: Current pose coords in costmap " << x1 << ", " << y1);
-//  ROS_INFO_STREAM("Debug 3: Goal pose coords in costmap " << x2 << ", " << y2);
+  x1 = ceil(x1 / occupancy_grid_.info.resolution);
+  y1 = ceil(y1 / occupancy_grid_.info.resolution);
 
   // Need to recalculate the dx/dy because they are now outdated
   dx = abs(x2 - x1);
@@ -778,8 +755,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
            !stop_) {
            
       // Check for obstacles
-      float x1 = ceil(x_ - occupancy_grid_.info.origin.position.x / RESOLUTION);
-      float y1 = ceil(y_ - occupancy_grid_.info.origin.position.y / RESOLUTION);
+      float x1 = ceil(x_ - occupancy_grid_.info.origin.position.x / occupancy_grid_.info.resolution);
+      float y1 = ceil(y_ - occupancy_grid_.info.origin.position.y / occupancy_grid_.info.resolution);
       float dx = abs(x2 - x1);
       float dy = abs(y2 - y1);
 
