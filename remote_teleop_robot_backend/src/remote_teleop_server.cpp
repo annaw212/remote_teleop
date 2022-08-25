@@ -713,9 +713,9 @@ void RemoteTeleop::pointClickCallback(
     ROS_INFO(" ");
     ROS_INFO_STREAM("Goal position: (" << x << ", " << y << ", " << z << ")");
     ROS_INFO_STREAM("Curr position: (" << x_ << ", " << y_ << ", " << z_ << ")");
-    ROS_INFO_STREAM("Goal Orientation: " << c * 180 / M_PI );
+    ROS_INFO_STREAM("Goal Orientation: " << c);
     
-    ROS_INFO_STREAM("Initial Orientation: " << c_ * 180 / M_PI);
+    ROS_INFO_STREAM("Initial Orientation: " << c_);
 
     // Turn to face goal location
     if (theta1 < 0.0) {
@@ -726,7 +726,7 @@ void RemoteTeleop::pointClickCallback(
       navigate(theta1, turn_left1, 0.0, 0.0, 0.0, x2, y2, dx, dy);
     }
     
-    ROS_INFO_STREAM("Post-Theta1 Orientation: " <<  c_ * 180 / M_PI);
+    ROS_INFO_STREAM("Post-Theta1 Orientation: " <<  c_ );
 
     // Drive straight to goal location
     navigate(0.0, true, x, y, travel_dist, x2, y2, dx, dy);
@@ -737,7 +737,7 @@ void RemoteTeleop::pointClickCallback(
     tf::Matrix3x3 m(q);
     m.getRPY(r, t, theta2);
     
-    ROS_INFO_STREAM("theta2 initial: " << theta2 * 180 / M_PI);
+    ROS_INFO_STREAM("theta2 initial: " << theta2);
     
 //    theta2 = c_ - c;
 
@@ -764,14 +764,14 @@ void RemoteTeleop::pointClickCallback(
       turn_left2 = true;
     }
     
-    ROS_INFO_STREAM("Theta1: " << theta1 * 180 / M_PI << " Left: " << turn_left1);
-    ROS_INFO_STREAM("Theta2: " << theta2* 180 / M_PI << " Left: " << turn_left2);
+    ROS_INFO_STREAM("Theta1: " << theta1 << " Left: " << turn_left1);
+    ROS_INFO_STREAM("Theta2: " << theta2 << " Left: " << turn_left2);
 //    ROS_INFO_STREAM("Pre-Theta2 Orientation: " << c_ * 180 / M_PI );
 
     // Turn robot to goal orientation
     navigate(theta2, turn_left2, 0.0, 0.0, 0.0, x2, y2, dx, dy);
     
-    ROS_INFO_STREAM("Post-Theta2 Orientation: " << c_ * 180 / M_PI );
+    ROS_INFO_STREAM("Post-Theta2 Orientation: " << c_ );
   } else {
     ROS_INFO("TURN IN PLACE STOP");
     stopMovement();
