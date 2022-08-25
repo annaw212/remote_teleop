@@ -576,20 +576,20 @@ void RemoteTeleop::pointClickCallback(
   double theta1 = 0.0;
   tfScalar r, t, theta2 = 0.0;
 
-  // Calculate the distance needed to travel
-  travel_dist = sqrt(pow(x, 2) + pow(y, 2));
+//  // Calculate the distance needed to travel
+//  travel_dist = sqrt(pow(x, 2) + pow(y, 2));
 
-  // Calculate the angle needed to turn to face goal point
-  theta1 = atan2(y, x);
+//  // Calculate the angle needed to turn to face goal point
+//  theta1 = atan2(y, x);
 
-  // Edge case checking
-  if (abs(theta1) <= ANGLE_THRESHOLD) {
-    // If we are only turning 1-3 degrees, just don't turn
-    theta1 = 0;
-  } else if (abs(M_PI - theta1) <= ANGLE_THRESHOLD) {
-    // If we are turning to an angle within 1-3 degrees of a 180 turn, turn 180
-    theta1 = M_PI;
-  }
+//  // Edge case checking
+//  if (abs(theta1) <= ANGLE_THRESHOLD) {
+//    // If we are only turning 1-3 degrees, just don't turn
+//    theta1 = 0;
+//  } else if (abs(M_PI - theta1) <= ANGLE_THRESHOLD) {
+//    // If we are turning to an angle within 1-3 degrees of a 180 turn, turn 180
+//    theta1 = M_PI;
+//  }
 
   // Determine validity of path
   
@@ -645,14 +645,29 @@ void RemoteTeleop::pointClickCallback(
 
   ROS_INFO("SAFE TO NAVIGATE");
   
-//  /* TODO THIS IS ADDED IN FOR TRYING TO FIX ANGLES TO TURN*/
-//  x_ -= occupancy_grid_.info.origin.position.x;
-//  y -= occupancy_grid_.info.origin.position.y;
-//  z -= occupancy_grid_.info.origin.position.z;
-//  a -= occupancy_grid_.info.origin.orientation.x;
-//  b -= occupancy_grid_.info.origin.orientation.y;
-//  c -= occupancy_grid_.info.origin.orientation.z;
-//  d -= occupancy_grid_.info.origin.orientation.w;
+  /* TODO THIS IS ADDED IN FOR TRYING TO FIX ANGLES TO TURN*/
+  x = pose.pose.position.x;
+  y = pose.pose.position.y;
+  z = pose.pose.position.z;
+  a = pose.pose.orientation.x;
+  b = pose.pose.orientation.y;
+  c = pose.pose.orientation.z;
+  d = pose.pose.orientation.w;
+  
+  // Calculate the distance needed to travel
+  travel_dist = sqrt(pow(x, 2) + pow(y, 2));
+
+  // Calculate the angle needed to turn to face goal point
+  theta1 = atan2(y, x);
+
+  // Edge case checking
+  if (abs(theta1) <= ANGLE_THRESHOLD) {
+    // If we are only turning 1-3 degrees, just don't turn
+    theta1 = 0;
+  } else if (abs(M_PI - theta1) <= ANGLE_THRESHOLD) {
+    // If we are turning to an angle within 1-3 degrees of a 180 turn, turn 180
+    theta1 = M_PI;
+  }
 
   // TODO: Delete the interactive marker so it's not confusing during navigation
   initializeIntMarkers("d");
