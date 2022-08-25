@@ -1012,10 +1012,10 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     
     int val = occupancy_grid_.data[idx];
     
-//    ROS_INFO_STREAM("Round #" <<h << ": index=" << idx << " value=" << val);
+    ROS_INFO_STREAM("Round #" <<h << ": index=" << idx << " value=" << val);
     // Check if there is an obstacle at that point
     if (occupancy_grid_.data[idx] != 0) {
-      ROS_INFO_STREAM(val);
+//      ROS_INFO_STREAM(val);
       ROS_INFO("OBSTACLE DETECTED");
       // Set the variable to indicate that an obstacle has been detected
       obstacle_detected_ = true;
