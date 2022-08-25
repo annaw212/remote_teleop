@@ -358,6 +358,8 @@ void RemoteTeleop::processIntMarkerFeedback(
   or_y_ = feedback->pose.orientation.y;
   or_z_ = feedback->pose.orientation.z;
   or_w_ = feedback->pose.orientation.w;
+  
+  ROS_INFO_STREAM(feedback->header.frame_id);
 
   init_frame_ = feedback->header.frame_id;
 }
@@ -375,7 +377,7 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
   c_ = msg.pose.pose.orientation.z;
   d_ = msg.pose.pose.orientation.w;
   
-  ROS_INFO_STREAM(msg.header.frame_id);
+//  ROS_INFO_STREAM(msg.header.frame_id);
 
   // Grab the odometry quaternion values out of the message
   tf::Quaternion q(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y,
