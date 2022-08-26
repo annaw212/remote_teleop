@@ -40,12 +40,12 @@
 #include <QVBoxLayout>
 #include <QValidator>
 
-#include <remote_teleop_robot_backend/Velocity.h>
 #include <remote_teleop_robot_backend/NudgeActionGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
 #include <remote_teleop_robot_backend/SpeedToggleActionGoal.h>
 #include <remote_teleop_robot_backend/StopNavActionGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
+#include <remote_teleop_robot_backend/Velocity.h>
 
 #include "turn_in_place_panel.h"
 
@@ -54,7 +54,7 @@ namespace remote_teleop_rviz_plugin {
 // TurnInPlacePanel class assignment
 TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
     : rviz::Panel(parent), degrees_(30.0), turn_left_(true), lin_vel_(0.0),
-      ang_vel_(0.0), dist_(0.0), fwd_(true) {
+      ang_vel_(0.0), nudge_dist_(0.0), nudge_fwd_(true) {
 
   // Create box for organizing all elements of the plugin
   // Vertical box layout so that everything stacks nicely
@@ -102,6 +102,7 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   nudge_bwd_button_->setText(tr("Nudge Backward"));
   nudge_layout->addWidget(nudge_bwd_button_);
 
+  // Create the layout for the point click navigation command
   QHBoxLayout *nav_layout = new QHBoxLayout;
 
   // Create a button for turning right and add to the horizontal box
@@ -141,24 +142,6 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   lin_vel_layout->addWidget(ang_vel_toggle_);
   velocity_layout->addLayout(lin_vel_layout);
 
-  //  QSlider* lin_vel_slider_ = new QSlider(Qt::Horizontal, this);
-  //  slider_layout->addWidget( new QLabel( "Linear Velocity:" ));
-  //  lin_vel_slider_->setRange(0,30);
-  //  lin_vel_slider_->setTickInterval(1);
-  //  lin_vel_slider_->setTickPosition(QSlider::TicksBelow);
-  //  lin_vel_slider_->setValue(5);
-  //  slider_layout->addWidget( lin_vel_slider_ );
-  //  QLabel* tmpLabel = new QLabel("0");
-  //  slider_layout->addWidget( tmpLabel );
-  //
-  //  QSlider* ang_vel_slider_ = new QSlider(Qt::Horizontal, this);
-  //  slider_layout->addWidget( new QLabel( "Angular Velocity:" ));
-  //  ang_vel_slider_->setRange(0.0,30.0);
-  //  ang_vel_slider_->setTickInterval(1);
-  //  ang_vel_slider_->setTickPosition(QSlider::TicksBelow);
-  //  ang_vel_slider_->setValue(10.0);
-  //  slider_layout->addWidget( ang_vel_slider_ );
-  //
   // Add in virtual e-stop button
   QPushButton *stop_nav_button_ = new QPushButton(this);
   stop_nav_button_->setText(tr("STOP"));
@@ -187,144 +170,191 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
   connect(turn_right_button_, SIGNAL(released()), this,
           SLOT(setTurnGoalRight()));
   connect(confirm_coords_, SIGNAL(released()), this, SLOT(sendNavGoal()));
-  connect(lin_vel_toggle_, SIGNAL(valueChanged(double)), this, SLOT(setVelGoal()));
-  connect(ang_vel_toggle_, SIGNAL(valueChanged(double)), this, SLOT(setVelGoal()));
+  connect(lin_vel_toggle_, SIGNAL(valueChanged(double)), this,
+          SLOT(setVelGoal()));
+  connect(ang_vel_toggle_, SIGNAL(valueChanged(double)), this,
+          SLOT(setVelGoal()));
   connect(stop_nav_button_, SIGNAL(released()), this, SLOT(sendStopGoal()));
   connect(nudge_fwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalFwd()));
   connect(nudge_bwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalBwd()));
 }
 
+/*-----------------------------------------------------------------------------------*/
+
 // setTurnGoalLeft() sets the degrees and direction variables and calls
 // sendTurnGoal() for the new variable values to be published
 void TurnInPlacePanel::setTurnGoalLeft() {
 
-  // Get the input from the degrees input box
-  //  QString str = degrees_topic_editor_->text();
-
-  // Convert the variable from string to float
-  // and set the internal variable value
-  // NOTE: if the string is empty, the variable just becomes 0.0
+  // Assign the value to send (this is a pre-determined static value)
   degrees_ = 30.0;
-
   // Set the turn_left_ internal variable
   turn_left_ = true;
-
   // Publish the message for the ROS node
   sendTurnGoal();
 }
+
+/*-----------------------------------------------------------------------------------*/
 
 // setTurnGoalLeft() sets the degrees and direction variables and calls
 // sendTurnGoal() for the new variable values to be published
 void TurnInPlacePanel::setTurnGoalRight() {
-  // Get the input from the degrees input box
-  //  QString str = degrees_topic_editor_->text();
 
-  // Convert the variable from string to float
-  // and set the internal variable value
-  // NOTE: if the string is empty, the variable just becomes 0.0
+  // Assign the value to send (this is a pre-determined static value)
   degrees_ = 30.0;
-
   // Set the turn_left_ internal variable
   turn_left_ = false;
-
   // Publish the message for the ROS node
   sendTurnGoal();
 }
 
+/*-----------------------------------------------------------------------------------*/
+
+// setVelGoal() allows the user to set the desired linear/angular
+// velocity and calls sendVelGoal() for the new variable values to be published
 void TurnInPlacePanel::setVelGoal() {
 
   // Get the values from the sliders --> maybe something similar to fcn above
   lin_vel_ = lin_vel_toggle_->value();
   ang_vel_ = ang_vel_toggle_->value();
-
+  // Publish the message for the ROS node
   sendVelGoal();
 }
 
+/*-----------------------------------------------------------------------------------*/
+
+// setNudgeGoalFwd() sets the distance and direction variables and calls
+// sendNudgeGoal() for the new variable values to be published
 void TurnInPlacePanel::setNudgeGoalFwd() {
-  dist_ = 0.15; // 15cm
-  fwd_ = true;
 
+  // Set the distance variable at 15cm
+  nudge_dist_ = 0.15;
+  // Set the direction to forward
+  nudge_fwd_ = true;
+  // Publish the message for the ROS node
   sendNudgeGoal();
 }
 
+/*-----------------------------------------------------------------------------------*/
+
+// setNudgeGoalBwd() sets the distance and direction variables and calls
+// sendNudgeGoal() for the new variable values to be published
 void TurnInPlacePanel::setNudgeGoalBwd() {
-  dist_ = 0.15; // 15cm
-  fwd_ = false;
 
+  // Set the distance variable at 15cm
+  nudge_dist_ = 0.15; // 15cm
+  // Set the direction to backwards
+  nudge_fwd_ = false;
+  // Publish the message for the ROS node
   sendNudgeGoal();
 }
+
+/*-----------------------------------------------------------------------------------*/
 
 // Publish the degrees and direction if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
 void TurnInPlacePanel::sendTurnGoal() {
+
   // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && turn_goal_publisher_) {
     // Create a message of the desired type
     remote_teleop_robot_backend::TurnInPlaceActionGoal msg;
-
     // Set the message fields
     msg.goal.degrees = degrees_;
     msg.goal.turn_left = turn_left_;
-
     // Publish the message
     turn_goal_publisher_.publish(msg);
   }
 }
 
+/*-----------------------------------------------------------------------------------*/
+
+// Publish the nav message if ROS is not shutting down and the
+// publisher is ready with a valid topic name.
 void TurnInPlacePanel::sendNavGoal() {
 
+  // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && nav_goal_publisher_) {
-
+    // Create a message of the desired type
     remote_teleop_robot_backend::PointClickNavActionGoal msg;
-
+    // Set the message fields
     msg.goal.coords_confimed = true;
-
+    // Publish the message
     nav_goal_publisher_.publish(msg);
   }
 }
 
+/*-----------------------------------------------------------------------------------*/
+
+// Publish the linear/angular velocity if ROS is not shutting down and the
+// publisher is ready with a valid topic name.
 void TurnInPlacePanel::sendVelGoal() {
 
+  // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && vel_goal_publisher_) {
-  
+    // Create a message of the desired type
     remote_teleop_robot_backend::SpeedToggleActionGoal msg;
-
+    // Set the message fields
     msg.goal.lin_vel = lin_vel_;
     msg.goal.ang_vel = ang_vel_;
-
+    // Publish the message
     vel_goal_publisher_.publish(msg);
   }
 }
 
+/*-----------------------------------------------------------------------------------*/
+
+// Publish the stop goal if ROS is not shutting down and the
+// publisher is ready with a valid topic name.
 void TurnInPlacePanel::sendStopGoal() {
 
+  // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && stop_goal_publisher_) {
-
+    // Create a message of the desired type
     remote_teleop_robot_backend::StopNavActionGoal msg;
+    // Set the message fields
     msg.goal.stop = true;
+    // Publish the message
     stop_goal_publisher_.publish(msg);
   }
 }
 
+/*-----------------------------------------------------------------------------------*/
+
+// Publish the distance and direction if ROS is not shutting down and the
+// publisher is ready with a valid topic name.
 void TurnInPlacePanel::sendNudgeGoal() {
 
+  // Make sure the publisher exists and ROS is not shutting down
   if (ros::ok() && nudge_goal_publisher_) {
-
+    // Create a message of the desired type
     remote_teleop_robot_backend::NudgeActionGoal msg;
-    msg.goal.dist = dist_;
-    msg.goal.fwd = fwd_;
+    // Set the message fields
+    msg.goal.dist = nudge_dist_;
+    msg.goal.fwd = nudge_fwd_;
+    // Publish the message
     nudge_goal_publisher_.publish(msg);
   }
 }
 
-void TurnInPlacePanel::velocityCallback(const remote_teleop_robot_backend::VelocityConstPtr& msg) {
+/*-----------------------------------------------------------------------------------*/
+
+// Upon the receipt of a Velocity message sent from the backend, update the
+// internal linear/angular vleocity variables and update the Rviz velocity
+// toggle values to reflect
+// NOTE: This should only be called upon the startup of a new remote_teleop node
+void TurnInPlacePanel::velocityCallback(
+    const remote_teleop_robot_backend::VelocityConstPtr &msg) {
+
+  // Update the Rviz frontend velocity toggles to reflect the correct values
   lin_vel_toggle_->setValue(msg->lin_vel);
   ang_vel_toggle_->setValue(msg->ang_vel);
+
+  // Update the internal variable values
   lin_vel_ = msg->lin_vel;
   ang_vel_ = msg->ang_vel;
-//  ROS_INFO_STREAM("incoming lin: " << msg->lin_vel << " lin: " << lin_vel_ << " incoming ang: " << msg->ang_vel << " ang: " << ang_vel_);
 }
 
+/*-----------------------------------------------------------------------------------*/
 
 // Save all configuration data from this panel to the given
 // Config object.  It is important here that you call save()
@@ -334,12 +364,15 @@ void TurnInPlacePanel::save(rviz::Config config) const {
   config.mapSetValue("Topic", "turn_in_place_as/goal");
 }
 
+/*-----------------------------------------------------------------------------------*/
+
 // Load all configuration data for this panel from the given Config object.
 void TurnInPlacePanel::load(const rviz::Config &config) {
   rviz::Panel::load(config);
   // Initialize subscriber
-  velocity_subscriber_ = nh_.subscribe("/rt_initial_velocities", 1, &TurnInPlacePanel::velocityCallback, this);
-  
+  velocity_subscriber_ = nh_.subscribe(
+      "/rt_initial_velocities", 1, &TurnInPlacePanel::velocityCallback, this);
+
   // Initialize publishers
   turn_goal_publisher_ =
       nh_.advertise<remote_teleop_robot_backend::TurnInPlaceActionGoal>(

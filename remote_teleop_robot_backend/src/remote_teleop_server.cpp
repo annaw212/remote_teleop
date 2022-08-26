@@ -10,6 +10,7 @@
 #include <tf/tf.h>
 
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Point.h>
 
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Odometry.h>
@@ -93,25 +94,34 @@ RemoteTeleop::RemoteTeleop()
   initializeActions();
 
   // Initialize the internal variables
-  angle_ = 0.0;
+  
+  angle_ = 0.0;                                     // Turn in place
   turn_left_ = true;
-  lin_vel_ = INIT_LIN_VEL;
+  
+  lin_vel_ = INIT_LIN_VEL;                          // Velocity
   ang_vel_ = INIT_ANG_VEL;
-  x_ = 0.0;
-  y_ = 0.0;
-  z_ = 0.0;
-  roll_ = 0.0;
+  
+  current_odom_pose_.position.x = 0.0;              // Current odometry pose
+  current_odom_pose_.position.y = 0.0;
+  current_odom_pose_.position.z = 0.0;
+  current_odom_pose_.orientation.w = 0.0;
+  current_odom_pose_.orientation.x = 0.0;
+  current_odom_pose_.orientation.y = 0.0;
+  current_odom_pose_.orientation.z = 0.0;
+  
+  roll_ = 0.0;                                     // Current euler angles
   pitch_ = 0.0;
   yaw_ = 0.0;
-  pos_x_ = 0.0;
-  pos_y_ = 0.0;
-  pos_z_ = 0.0;
-  or_x_ = 0.0;
-  or_y_ = 0.0;
-  or_z_ = 0.0;
-  or_w_ = 0.0;
+  
+  nav_goal_pose_.position.x = 0.0;                // Navigation goal pose
+  nav_goal_pose_.position.y = 0.0;
+  nav_goal_pose_.position.z = 0.0;
+  nav_goal_pose_.orientation.w = 0.0;
+  nav_goal_pose_.orientation.x = 0.0;
+  nav_goal_pose_.orientation.y = 0.0;
+  nav_goal_pose_.orientation.z = 0.0;
 
-  turn_in_place_running_ = false;
+  turn_in_place_running_ = false;                   // State booleans
   point_click_running_ = false;
   obstacle_detected_ = false;
   stop_ = false;
@@ -346,19 +356,10 @@ void RemoteTeleop::turnInPlaceCallback(
 void RemoteTeleop::processIntMarkerFeedback(
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
 
-  // TODO: PHASE THESE OUT
   // Grab the incoming position info from the marker
-  pos_x_ = feedback->pose.position.x;
-  pos_y_ = feedback->pose.position.y;
-  pos_z_ = feedback->pose.position.z;
-  // Grab the incoming orientation info from the marker
-  or_x_ = feedback->pose.orientation.x;
-  or_y_ = feedback->pose.orientation.y;
-  or_z_ = feedback->pose.orientation.z;
-  or_w_ = feedback->pose.orientation.w;
-
   nav_goal_pose_ = feedback->pose;
-
+  
+  // Grab the nav goal frame for later transformations
   nav_goal_frame_ = feedback->header.frame_id;
 }
 
@@ -366,19 +367,8 @@ void RemoteTeleop::processIntMarkerFeedback(
 
 void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 
-  // TODO: PHASE THESE OUT
   // Grab the odometry position and orientation values out of the message
-  x_ = msg.pose.pose.position.x;
-  y_ = msg.pose.pose.position.y;
-  z_ = msg.pose.pose.position.z;
-  a_ = msg.pose.pose.orientation.x;
-  b_ = msg.pose.pose.orientation.y;
-  c_ = msg.pose.pose.orientation.z;
-  d_ = msg.pose.pose.orientation.w;
-
   current_odom_pose_ = msg.pose.pose;
-
-  //  ROS_INFO_STREAM(msg.header.frame_id);
 
   // Grab the odometry quaternion values out of the message
   tf::Quaternion q(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y,
@@ -394,6 +384,7 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
+
   // Store the values of the occupancy grid in a variable for future reference
   occupancy_grid_ = grid;
 }
@@ -529,15 +520,7 @@ void RemoteTeleop::pointClickCallback(
   // Store values of position and orientation in local variables so they don't
   // change during calculations
   geometry_msgs::Pose goal_pose;
-  goal_pose = nav_goal_pose_;
-  // TODO: phase these out
-  float x = pos_x_; // in relation to the robot, which thinks it is at (0,0,0)
-  float y = pos_y_;
-  float z = pos_z_;
-  float a = or_x_;
-  float b = or_y_;
-  float c = or_z_;
-  float d = or_w_;
+  goal_pose = nav_goal_pose_; // in relation to the robot, which thinks it's at (0,0,0)
 
   // put that into base_link as a sanity check
   tf2_ros::Buffer tf_buffer;
@@ -550,13 +533,7 @@ void RemoteTeleop::pointClickCallback(
   // overwrite that object with the transformed point values
   // TODO: make sure these values work
   geometry_msgs::PoseStamped base_link_goal;
-  base_link_goal.pose.position.x = goal_pose.position.x;
-  base_link_goal.pose.position.y = goal_pose.position.y;
-  base_link_goal.pose.position.z = goal_pose.position.z;
-  base_link_goal.pose.orientation.w = goal_pose.orientation.w;
-  base_link_goal.pose.orientation.x = goal_pose.orientation.x;
-  base_link_goal.pose.orientation.y = goal_pose.orientation.y;
-  base_link_goal.pose.orientation.z = c = goal_pose.orientation.z;
+  base_link_goal.pose = goal_pose;
   tf2::doTransform(base_link_goal, base_link_goal, nav_goal_frame_to_base_link);
 
   // Declare local variables
@@ -564,11 +541,16 @@ void RemoteTeleop::pointClickCallback(
   bool turn_left1 = true, turn_left2 = true;
   double theta1 = 0.0;
   tfScalar r, t, theta2 = 0.0;
+  
+  // Calculate the distance needed to travel
+  // x_ : base_link position in odom
+  // x : marker goal position (most likely in odom, but in nav_goal_frame_ for
+  // sure)
+  travel_dist = sqrt(pow(abs(goal_pose.position.x - current_odom_pose_.position.x), 2) + pow(abs(goal_pose.position.y - current_odom_pose_.position.y), 2));
 
   // Calculate the angle needed to turn to face goal point
   // TODO: figure out a better way to do this
-  // TODO: Change these variables from x_ to odom x or whatever
-  if (abs(x_ - x) <= 0.001 && abs(y_ - y) <= 0.001) {
+  if (abs(current_odom_pose_.position.x - goal_pose.position.x) <= 0.001 && abs(current_odom_pose_.position.y - goal_pose.position.y) <= 0.001) {
     theta1 = 0;
   } else {
     theta1 =
@@ -584,50 +566,43 @@ void RemoteTeleop::pointClickCallback(
     theta1 = M_PI;
   }
 
-  // Determine validity of path
-
-  // TODO: don't need to create unnecessary variables
-  // TODO: rename these variables
-  // TODO: move the costmap translation somewhere else :)
-  float x1 = current_odom_pose_.position.x -
-             occupancy_grid_.info.origin.position.x; // Robot's current location
-  float y1 = y_ - occupancy_grid_.info.origin.position.y;
-  float x2 = goal_pose.position.x; // x1 + x, Robot's goal location
-  float y2 = goal_pose.position.y;
-  float dx = abs(x2 - x1);
-  float dy = abs(y2 - y1);
-
-  // Transform goal to odom
-  geometry_msgs::PoseStamped pose;
-  pose = transformGoalToOdom(x2, y2);
+  /* DETERMINE VALIDITY OF THE PATH */
 
   // Set the goal coordinates on the costmap grid
-  // TODO: make these their own variables too
-  int goal_x;
-  int goal_y;
-  x2 = ceil(pose.pose.position.x / occupancy_grid_.info.resolution);
-  y2 = ceil(pose.pose.position.y / occupancy_grid_.info.resolution);
+  geometry_msgs::Point curr_coords, goal_coords;
+  curr_coords.x = current_odom_pose_.position.x;
+  curr_coords.x = current_odom_pose_.position.y;
+  goal_coords.x = goal_pose.position.x;
+  goal_coords.x = goal_pose.position.y;
+  
+  // Transform goal to odom
+  geometry_msgs::PoseStamped pose;
+  // TODO: make sure this compiles
+  std::string goal_frame = "odom";
+  pose = transformGoalToOdom(goal_coords, nav_goal_frame_, goal_frame);
+  
+  // Translate current and goal coordinates to costmap
+  curr_coords = translateCoordinateToCostmap(curr_coords);
+  goal_coords = translateCoordinateToCostmap(goal_coords);
+  
+  // Extract the values of the coordinates into int variables
+  int curr_x = curr_coords.x;
+  int curr_y = curr_coords.y;
+  int goal_x = goal_coords.x;
+  int goal_y = goal_coords.y;
+  
+  // Find the slope between the points to determine which direction we need to draw the Brensenham's line in
+  float dx = abs(goal_x - curr_x);
+  float dy = abs(goal_y - curr_y);
 
-  //  // Set the current coordinates on the costmap grid
-  // TODO: make these their own variables --> be more descriptive --> these are
-  // the costmap indices, not floats
-  int curr_x;
-  int curr_y;
-  x1 = ceil(x1 / occupancy_grid_.info.resolution);
-  y1 = ceil(y1 / occupancy_grid_.info.resolution);
 
-  // Need to recalculate the dx/dy because they are now outdated
-  dx = abs(x2 - x1);
-  dy = abs(y2 - y1);
-  if (abs(x_ - x) >= 0.001 && abs(y_ - y) >= 0.001) {
+  if (abs(current_odom_pose_.position.x - goal_pose.position.x) <= 0.001 && abs(current_odom_pose_.position.y - goal_pose.position.y) <= 0.001) {
     if (dx > dy) {
       // Slope is less than 1
-      //      ROS_INFO("HERE1");
-      obstacleCheck(x1, y1, x2, y2, dx, dy, true);
+      obstacleCheck(curr_x, curr_y, goal_x, goal_y, dx, dy, true);
     } else {
       // Slope is greater than 1
-      //      ROS_INFO("HERE2");
-      obstacleCheck(x1, y1, x2, y2, dx, dy, false);
+      obstacleCheck(curr_x, curr_y, goal_x, goal_y, dx, dy, false);
     }
   }
 
@@ -644,11 +619,7 @@ void RemoteTeleop::pointClickCallback(
 
   ROS_INFO("SAFE TO NAVIGATE");
 
-  // Calculate the distance needed to travel
-  // x_ : base_link position in odom
-  // x : marker goal position (most likely in odom, but in nav_goal_frame_ for
-  // sure)
-  travel_dist = sqrt(pow(abs(x - x_), 2) + pow(abs(y - y_), 2));
+  
 
   // TODO: Delete the interactive marker so it's not confusing during navigation
   initializeIntMarkers("d");
@@ -661,19 +632,20 @@ void RemoteTeleop::pointClickCallback(
   // its original value...
 
   if (!stop_) {
+  
     /* NAVIGATE */
 
     // Turn to face goal location
     if (theta1 < 0.0) {
       turn_left1 = false;
-      navigate(theta1 * -1, turn_left1, 0.0, 0.0, 0.0, x2, y2, dx, dy);
+      navigate(theta1 * -1, turn_left1, 0.0, 0.0, 0.0, goal_x, goal_y, dx, dy);
     } else {
       turn_left1 = true;
-      navigate(theta1, turn_left1, 0.0, 0.0, 0.0, x2, y2, dx, dy);
+      navigate(theta1, turn_left1, 0.0, 0.0, 0.0, goal_x, goal_y, dx, dy);
     }
 
     // Drive straight to goal location
-    navigate(0.0, true, x, y, travel_dist, x2, y2, dx, dy);
+    navigate(0.0, true, goal_pose.position.x, goal_pose.position.y, travel_dist, goal_x, goal_y, dx, dy);
 
     // Calculate angle to turn by from goal to goal orientation
     tf::Quaternion q(
@@ -685,14 +657,6 @@ void RemoteTeleop::pointClickCallback(
     // Because theta2 is simply the angle to turn based on the original
     // orientation, we need to shift the degrees to turn appropriately
     theta2 = theta2 - theta1;
-
-    // Make sure theta2 is within a known range
-    //    while (theta2 > M_PI) {
-    //      theta2 -= 2 * M_PI;
-    //    }
-    //    while (theta2 < -M_PI) {
-    //      theta2 += 2 * M_PI;
-    //    }
 
     // Determine direction to turn
     if (theta2 < 0.0) {
@@ -706,7 +670,7 @@ void RemoteTeleop::pointClickCallback(
     }
 
     // Turn robot to goal orientation
-    navigate(theta2, turn_left2, 0.0, 0.0, 0.0, x2, y2, dx, dy);
+    navigate(theta2, turn_left2, 0.0, 0.0, 0.0, goal_x, goal_y, dx, dy);
 
   } else {
     stopMovement();
@@ -903,40 +867,50 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
     }
   }
 }
+
 /*-----------------------------------------------------------------------------------*/
 
-geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(float goal_x,
-                                                             float goal_y) {
+geometry_msgs::Point RemoteTeleop::translateCoordinateToCostmap(geometry_msgs::Point& point) {
+  
+  // Shift the points by the offset of the costmap from odom
+  point.x -= occupancy_grid_.info.origin.position.x;
+  point.y -= occupancy_grid_.info.origin.position.y;
+  
+  // Scale the coordinates by the resolution
+  point.x = ceil(point.x / occupancy_grid_.info.resolution);
+  point.y = ceil(point.y / occupancy_grid_.info.resolution);
+  
+  return point;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+geometry_msgs::PoseStamped transformGoalToOdom(geometry_msgs::Point& point, std::string init_frame, std::string goal_frame) {
   // Create all the necessary variables
   geometry_msgs::PoseStamped robot_pose;
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
-  robot_pose.pose.position.x = goal_x;
-  robot_pose.pose.position.y = goal_y;
+  robot_pose.pose.position.x = point.x;
+  robot_pose.pose.position.y = point.y;
   robot_pose.pose.position.z = 0;
   robot_pose.pose.orientation.w = 1.0;
 
   // Create the objects needed for the transform
+  // TODO: make the buffer and the listener internal variables
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
-  geometry_msgs::TransformStamped nav_goal_frame_to_odom;
+  geometry_msgs::TransformStamped init_to_goal_frame;
 
   // Lookup the transform from the initial frame to odom and store in variable
-  nav_goal_frame_to_odom = tf_buffer.lookupTransform(
-      "odom", nav_goal_frame_, ros::Time(0), ros::Duration(1.0));
+  init_to_goal_frame = tf_buffer.lookupTransform(
+      goal_frame, init_frame, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values
   tf2::doTransform(robot_pose, robot_pose,
-                   nav_goal_frame_to_odom); // robot_pose is the PoseStamped I
+                   init_to_goal_frame); // robot_pose is the PoseStamped I
                                             // want to transform
-
-  // The output value will be slightly offset, so we need to translate it to the
-  // costmap center based on the odom offset
-  // TODO: move the costmap translation out of this function
-  robot_pose.pose.position.x -= occupancy_grid_.info.origin.position.x;
-  robot_pose.pose.position.y -= occupancy_grid_.info.origin.position.y;
 
   return robot_pose;
 }

@@ -68,9 +68,19 @@ public Q_SLOTS:
   // function
   void setTurnGoalRight();
 
+  // Once one of the velocity input steppers has been toggled, this function
+  // is called to handle the assignment of internal variables and call the
+  // sendTurnGoal function
   void setVelGoal();
 
+  // Once the 'nudge forward' button has been pushed, this function is called
+  // to handle the assignment of internal variables and call the sendNudgeGoal
+  // function
   void setNudgeGoalFwd();
+
+  // Once the 'nudge backward' button has been pushed, this function is called
+  // to handle the assignment of internal variables and call the sendNudgeGoal
+  // function
   void setNudgeGoalBwd();
 
 protected Q_SLOTS:
@@ -80,12 +90,24 @@ protected Q_SLOTS:
   // that message to values, and then publishes the message
   void sendTurnGoal();
 
+  // sendNavGoal() checks the validity of the publisher and ROS,
+  // creates a message of the desired type, assigns the fields of
+  // hat message to values, and then publishes the message
   void sendNavGoal();
 
+  // sendVelGoal() checks the validity of the publisher and ROS,
+  // creates a message of the desired type, assigns the fields of
+  // hat message to values, and then publishes the message
   void sendVelGoal();
 
+  // sendStopGoal() checks the validity of the publisher and ROS,
+  // creates a message of the desired type, assigns the fields of
+  // hat message to values, and then publishes the message
   void sendStopGoal();
 
+  // sendNudgeGoal() checks the validity of the publisher and ROS,
+  // creates a message of the desired type, assigns the fields of
+  // hat message to values, and then publishes the message
   void sendNudgeGoal();
 
 protected:
@@ -94,28 +116,34 @@ protected:
   QDoubleSpinBox *lin_vel_toggle_;
   QDoubleSpinBox *ang_vel_toggle_;
 
-  // The ROS publisher for the degrees and direction to turn in
+  // The ROS publisher for messages to be sent
   ros::Publisher turn_goal_publisher_;
   ros::Publisher nav_goal_publisher_;
   ros::Publisher vel_goal_publisher_;
   ros::Publisher stop_goal_publisher_;
   ros::Publisher nudge_goal_publisher_;
-  
-  // The ROS subscriber for updating the initial velocities based on the backend values
+
+  // The ROS subscriber for updating the initial velocities based on the backend
+  // values
   ros::Subscriber velocity_subscriber_;
-  
-  void velocityCallback(const remote_teleop_robot_backend::VelocityConstPtr& msg);
 
   // The ROS node handle.
   ros::NodeHandle nh_;
 
   // Internal variables for storing the degrees and direction commands in
-  float degrees_;
-  bool turn_left_;
-  float lin_vel_;
-  float ang_vel_;
-  float dist_;
-  bool fwd_;
+  float degrees_;    // Turn in place
+  bool turn_left_;   // Turn in place
+  float lin_vel_;    // Velocity
+  float ang_vel_;    // Velocity
+  float nudge_dist_; // Nudge
+  bool nudge_fwd_;   // Nudge
+
+  // velocityCallback() is subscribed to an incoming Velocity message that is
+  // sent by the backend upon the startup of the remote_teleop node and receives
+  // the current linear and angular velocity values that are set on the backend
+  // so the Rviz frontend can update their currently shown values accordingly
+  void
+  velocityCallback(const remote_teleop_robot_backend::VelocityConstPtr &msg);
 };
 
 } // namespace remote_teleop_rviz_plugin
