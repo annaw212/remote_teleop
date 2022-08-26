@@ -91,7 +91,8 @@ private:
   float lin_vel_; // Max linear velocity
   float ang_vel_; // Max angular velocity
 
-  geometry_msgs::Pose current_odom_pose_;
+  geometry_msgs::Pose current_odom_pose_; // Odometry pose
+  // TODO: Phase these out
   tfScalar x_; // Odom position x
   tfScalar y_; // Odom position y
   tfScalar z_; // Odom position z
@@ -104,7 +105,8 @@ private:
   tfScalar pitch_;
   tfScalar yaw_;
 
-  geometry_msgs::Pose nav_goal_pose_;
+  geometry_msgs::Pose nav_goal_pose_; // Navigation goal pose
+  // TODO: phase these out
   float pos_x_; // Navigation goal position x
   float pos_y_; // Navigation goal position y
   float pos_z_; // Navigation goal position z
@@ -169,9 +171,9 @@ private:
 
   // Stop nav member methods
   void stopMovement();
-  
+
   // Nudge member methods
-  void nudge(float x_dist, float y_dist, float dist); 
+  void nudge(float x_dist, float y_dist, float dist);
 };
 
 #endif // RemoteTeleop_H
