@@ -949,7 +949,7 @@ void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
 
     // Set the linear velocity
     command.linear.x =
-        std::min(lin_vel_ * abs((goal_x - x_)), lin_vel_ * abs((goal_y - y_)));
+        std::min(lin_vel_ * abs((goal_x - current_odom_pose_.position.x)), lin_vel_ * abs((goal_y - current_odom_pose_.position.y)));
 
     if (command.linear.x > lin_vel_) {
       command.linear.x = lin_vel_;
