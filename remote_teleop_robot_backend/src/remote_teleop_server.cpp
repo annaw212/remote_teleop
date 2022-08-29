@@ -720,19 +720,20 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
   if (angle == 0.0) {
     // Determine goal coordinates
-    goal_x = x_ + x_dist;
-    goal_y = y_ + y_dist;
-    start_x = x_;
-    start_y = y_;
+    goal_x = current_odom_pose_.position.x + x_dist;
+    goal_y = current_odom_pose_.position.y + y_dist;
+    start_x = current_odom_pose_.position.x;
+    start_y = current_odom_pose_.position.y;
     // Drive straight
-    while (abs(dist) - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
+    // TODO: should this be goal_x instead of start_x?????
+    while (abs(dist) - (sqrt(pow(current_odom_pose_.position.x - start_x, 2) + pow(current_odom_pose_.position.y - start_y, 2))) >
                THRESHOLD &&
            !stop_) {
 
       // Check for obstacles
-      float x1 = ceil(x_ - occupancy_grid_.info.origin.position.x /
+      float x1 = ceil(current_odom_pose_.position.x - occupancy_grid_.info.origin.position.x /
                                occupancy_grid_.info.resolution);
-      float y1 = ceil(y_ - occupancy_grid_.info.origin.position.y /
+      float y1 = ceil(current_odom_pose_.position.y - occupancy_grid_.info.origin.position.y /
                                occupancy_grid_.info.resolution);
       float dx = abs(x2 - x1);
       float dy = abs(y2 - y1);
@@ -756,8 +757,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
       }
 
       // Set the linear velocity
-      command.linear.x = std::min(lin_vel_ * abs((goal_x - x_)),
-                                  lin_vel_ * abs((goal_y - y_)));
+      command.linear.x = std::min(lin_vel_ * abs((goal_x - current_odom_pose_.position.x)),
+                                  lin_vel_ * abs((goal_y - current_odom_pose_.position.y)));
 
       if (command.linear.x > lin_vel_) {
         command.linear.x = lin_vel_;
@@ -937,13 +938,16 @@ void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
   command.angular.z = 0.0;
 
   // Determine goal coordinates
-  float goal_x = x_ + x_dist;
-  float goal_y = y_ + y_dist;
+  float start_x = current_odom_pose_.position.x;
+  float start_y = current_odom_pose_.position.y;
+  float goal_x = start_x + x_dist;
+  float goal_y = start_y + y_dist;
+  
   float start_x = current_odom_pose_.position.x;
   float start_y = current_odom_pose_.position.y;
   ROS_INFO_STREAM("Goal: (" << goal_x << ", " << goal_y << ")\t Start: (" << start_x << ", " << start_y << ")");
   // Drive straight
-  while (abs(dist) - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
+  while (abs(dist) - (sqrt(pow(current_odom_pose_.position.x - start_x, 2) + pow(current_odom_pose_.position.y - start_y, 2))) >
              THRESHOLD &&
          !stop_) {
 
