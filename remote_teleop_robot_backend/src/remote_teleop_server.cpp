@@ -941,7 +941,7 @@ void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
   float goal_y = y_ + y_dist;
   float start_x = x_;
   float start_y = y_;
-  ROS_INFO_STREAM("Goal: (" << goal_x << ", " << goal_y << ")\t Start: (" << start_x << ", " << start_y ")");
+  ROS_INFO_STREAM("Goal: (" << goal_x << ", " << goal_y << ")\t Start: (" << start_x << ", " << start_y << ")");
   // Drive straight
   while (abs(dist) - (sqrt(pow(x_ - start_x, 2) + pow(y_ - start_y, 2))) >
              THRESHOLD &&
