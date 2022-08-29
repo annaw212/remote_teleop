@@ -919,7 +919,7 @@ RemoteTeleop::transformGoalToOdom(geometry_msgs::Point &point,
   // Create the objects needed for the transform
   // TODO: make the buffer and the listener internal variables
 //  tf2_ros::Buffer tf_buffer;
-//  tf2_ros::TransformListener tf2_listener(tf_buffer);
+  tf2_ros::TransformListener tf2_listener(tf_buffer_);
   geometry_msgs::TransformStamped init_to_goal_frame;
 
   // Lookup the transform from the initial frame to odom and store in variable
