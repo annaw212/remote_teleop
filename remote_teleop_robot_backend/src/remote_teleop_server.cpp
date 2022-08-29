@@ -322,7 +322,7 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::placeGoalMarker() {
-  marker_.header.frame_id = nav_goal_frame_;
+  marker_.header.frame_id = "base_link";
   marker_.header.stamp = ros::Time::now();
   
   marker_.action = visualization_msgs::Marker::ADD;
