@@ -15,6 +15,10 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Odometry.h>
 
+#include <tf/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/buffer.h>
+
 #include <actionlib/server/simple_action_server.h>
 #include <interactive_markers/interactive_marker_server.h>
 
@@ -46,14 +50,6 @@
 
 #include "remote_teleop_server.h"
 
-#include <costmap_2d/costmap_2d.h>
-#include <costmap_2d/costmap_2d_ros.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <rviz_visual_tools/rviz_visual_tools.h>
-#include <tf/transform_listener.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/buffer.h>
-#include <typeinfo>
 /*-----------------------------------------------------------------------------------*/
 
 // Define variables here
@@ -325,7 +321,7 @@ void RemoteTeleop::turnInPlaceCallback(
 
   // TODO: gray out rviz plugin buttons when turn is being executed
 
-  // Set a variable to "claim" the drivers
+  // Set a variable to signal that turning in place is currently happening
   turn_in_place_running_ = true;
 
   // TODO: check if point_and_click is running
@@ -336,18 +332,22 @@ void RemoteTeleop::turnInPlaceCallback(
 
   // Convert from degrees to radians
   angle_ = angle_ * M_PI / 180;
-
+  
+  // Delete the marker
   initializeIntMarkers("d");
 
   // Tell robot to turn the desired angle
   turnInPlace();
 
+  // Create a new marker
   initializeIntMarkers("a");
 
   // Update the turn in place result and success fields
   turn_in_place_result_.success = true;
   turn_in_place_server_.setSucceeded(turn_in_place_result_);
-
+  
+  
+  // Set a variable to signal that turning in place has ended
   turn_in_place_running_ = false;
 }
 
@@ -393,20 +393,18 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 
 void RemoteTeleop::nudgeCallback(
     const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
-
+  
+  // Set the internal variables with the direction and 
   nudge_dist_ = goal->dist;
   nudge_fwd_ = goal->fwd;
 
   initializeIntMarkers("d");
 
-  if (nudge_fwd_ == true && !stop_) {
-    nudge(nudge_dist_, 0.0, nudge_dist_);
-  } else if (nudge_fwd_ == false && !stop_) {
-    nudge(-1 * nudge_dist_, 0.0, -1 * nudge_dist_);
-  }
-
-  if (stop_) {
-    ROS_INFO("Nudge Stop");
+  if (goal->fwd == true && !stop_) {
+    nudge(goal->dist, 0.0, goal->dist);
+  } else if (goal->fwd == false && !stop_) {
+    nudge(-1 * goal->dist, 0.0, -1 * goal->dist);
+  } else {
     stopMovement();
     stop_ = false;
   }
@@ -921,7 +919,6 @@ geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(geometry_msgs::Poin
 void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
 
   if (stop_) {
-    ROS_INFO("stopped inside of nudge function");
     stopMovement();
     return;
   }
@@ -938,19 +935,19 @@ void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
   command.angular.z = 0.0;
 
   // Determine goal coordinates
-  float start_x = current_odom_pose_.position.x;
-  float start_y = current_odom_pose_.position.y;
-  float goal_x = start_x + x_dist;
-  float goal_y = start_y + y_dist;
-  ROS_INFO_STREAM("Goal: (" << goal_x << ", " << goal_y << ")\t Start: (" << start_x << ", " << start_y << ")");
+  geometry_msgs::Point start, goal;
+  start.x = current_odom_pose_.position.x;
+  start.y = current_odom_pose_.position.y;
+  goal.x = start.x + x_dist;
+  goal.y = start.y + y_dist;
   // Drive straight
-  while (abs(dist) - (sqrt(pow(current_odom_pose_.position.x - start_x, 2) + pow(current_odom_pose_.position.y - start_y, 2))) >
+  while (abs(dist) - (sqrt(pow(current_odom_pose_.position.x - start.x, 2) + pow(current_odom_pose_.position.y - start.y, 2))) >
              THRESHOLD &&
          !stop_) {
 
     // Set the linear velocity
     command.linear.x =
-        std::min(lin_vel_ * abs((goal_x - current_odom_pose_.position.x)), lin_vel_ * abs((goal_y - current_odom_pose_.position.y)));
+        std::min(lin_vel_ * abs((goal.x - current_odom_pose_.position.x)), lin_vel_ * abs((goal.y - current_odom_pose_.position.y)));
 
     if (command.linear.x > lin_vel_) {
       command.linear.x = lin_vel_;
