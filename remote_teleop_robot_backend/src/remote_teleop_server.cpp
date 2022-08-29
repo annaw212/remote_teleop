@@ -354,7 +354,8 @@ void RemoteTeleop::turnInPlaceCallback(
   angle_ = angle_ * M_PI / 180;
 
   // Delete the marker
-  initializeIntMarkers("d");
+  int_marker_server_.clear();
+  int_marker_server_.applyChanges();
 
   // Tell robot to turn the desired angle
   turnInPlace();
@@ -411,12 +412,11 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::resetMarkerCallback(const remote_teleop_robot_backend::ResetMarkerGoalConstPtr &msg) {
-  // Delete the marker and then create a new one
-  initializeIntMarkers("d");
-  
-  int_marker_server_.clear(); // visualization.markers.clear())
+  // Delete the marker and then create a new one  
+  int_marker_server_.clear();
   int_marker_server_.applyChanges();
-//  initializeIntMarkers("a");
+
+  initializeIntMarkers("a");
   
   // Update the reset marker result and success fields
   reset_marker_result_.success = true;
@@ -429,7 +429,8 @@ void RemoteTeleop::nudgeCallback(
     const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
 
   // Delete the marker
-  initializeIntMarkers("d");
+  int_marker_server_.clear();
+  int_marker_server_.applyChanges();
 
   // Initiate the nudge command
   if (goal->fwd == true && !stop_) {
@@ -655,7 +656,8 @@ void RemoteTeleop::pointClickCallback(
   ROS_INFO("SAFE TO NAVIGATE");
 
   // TODO: Delete the interactive marker so it's not confusing during navigation
-  initializeIntMarkers("d");
+  int_marker_server_.clear();
+  int_marker_server_.applyChanges();
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
@@ -836,7 +838,9 @@ void RemoteTeleop::stopNavCallback(
   stop_ = goal->stop;
   
   // Delete the markers
-  initializeIntMarkers("d");
+  int_marker_server_.clear();
+  int_marker_server_.applyChanges();
+  
   while (turn_in_place_running_ || point_click_running_) {
     // Keep the stop signal alive until point-click and turn-in-place are finished
   }
