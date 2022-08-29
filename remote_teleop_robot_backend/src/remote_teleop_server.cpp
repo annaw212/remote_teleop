@@ -360,8 +360,6 @@ void RemoteTeleop::turnInPlaceCallback(
   // Set a variable to signal that turning in place is currently happening
   turn_in_place_running_ = true;
 
-  // TODO: check if point_and_click is running
-
   // Get inputs from Rviz and store them in variables
   angle_ = goal->degrees;
   turn_left_ = goal->turn_left;
