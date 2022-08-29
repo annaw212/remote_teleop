@@ -125,14 +125,13 @@ private:
   void initializeSubscribers();
   void initializePublishers();
   void initializeActions();
-  void initializeIntMarkers(std::string type);
+  void initializeIntMarkers();
   void initializeFrontendVelocities(float lin_vel, float ang_vel);
 
   // Marker member methods
-  visualization_msgs::Marker makeIntMarker(std::string type);
+  visualization_msgs::Marker makeIntMarker();
   visualization_msgs::InteractiveMarkerControl &
-  makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg,
-                       std::string type);
+  makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg);
 
   // Callback member methods
   void turnInPlaceCallback(

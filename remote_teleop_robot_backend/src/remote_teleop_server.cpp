@@ -91,7 +91,7 @@ RemoteTeleop::RemoteTeleop()
 
   // Initialize the messy stuff
   ROS_INFO("Initializing Markers");
-  initializeIntMarkers("a");
+  initializeIntMarkers();
   initializeSubscribers();
   initializePublishers();
   initializeActions();
@@ -205,7 +205,7 @@ void RemoteTeleop::initializeActions() {
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::initializeIntMarkers(std::string type) {
+void RemoteTeleop::initializeIntMarkers() {
 
   //  ROS_INFO("Initializing Markers");
 
@@ -217,7 +217,7 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
   int_marker.description = "Simple 6-DOF Control";
 
   // Create the box marker and the non-interactive control containing the box
-  makeIntMarkerControl(int_marker, type);
+  makeIntMarkerControl(int_marker);
 
   // Create the interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
@@ -283,35 +283,21 @@ void RemoteTeleop::initializeFrontendVelocities(float lin_vel, float ang_vel) {
 
 /*-----------------------------------------------------------------------------------*/
 
-visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
+visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
 
   // Create a marker
   visualization_msgs::Marker marker;
   // Assign a type to the marker
-  if (type == "a") {
-    marker_.type = visualization_msgs::Marker::ARROW;
-    // Scale the marker
-    marker.scale.x = 1.0;
-    marker.scale.y = 0.45;
-    marker.scale.z = 0.45;
-    // Assign colors to the marker
-    marker.color.r = 1.0;
-    marker.color.g = 0.5;
-    marker.color.b = 0.5;
-    marker.color.a = 1.0;
-
-  } else {
-    marker_.action = visualization_msgs::Marker::MODIFY;
-    // Scale the marker
-    marker.scale.x = 1.0;
-    marker.scale.y = 0.45;
-    marker.scale.z = 0.45;
-    // Assign colors to the marker
-    marker.color.r = 1.0;
-    marker.color.g = 0.5;
-    marker.color.b = 0.5;
-    marker.color.a = 0.0;
-  }
+  marker_.type = visualization_msgs::Marker::ARROW;
+  // Scale the marker
+  marker.scale.x = 1.0;
+  marker.scale.y = 0.45;
+  marker.scale.z = 0.45;
+  // Assign colors to the marker
+  marker.color.r = 1.0;
+  marker.color.g = 0.5;
+  marker.color.b = 0.5;
+  marker.color.a = 1.0;
 
   return marker;
 }
@@ -319,15 +305,14 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker(std::string type) {
 /*-----------------------------------------------------------------------------------*/
 
 visualization_msgs::InteractiveMarkerControl &
-RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg,
-                                   std::string type) {
+RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 
   // Create an interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
   // Set the control variables
   control.always_visible = true;
   // Assign a marker to the control
-  control.markers.push_back(makeIntMarker("a"));
+  control.markers.push_back(makeIntMarker());
   // Assign the control to an interactive marker
   msg.controls.push_back(control);
 
@@ -361,7 +346,7 @@ void RemoteTeleop::turnInPlaceCallback(
   turnInPlace();
 
   // Create a new marker
-  initializeIntMarkers("a");
+  initializeIntMarkers();
 
   // Update the turn in place result and success fields
   turn_in_place_result_.success = true;
@@ -416,7 +401,7 @@ void RemoteTeleop::resetMarkerCallback(const remote_teleop_robot_backend::ResetM
   int_marker_server_.clear();
   int_marker_server_.applyChanges();
 
-  initializeIntMarkers("a");
+  initializeIntMarkers();
   
   // Update the reset marker result and success fields
   reset_marker_result_.success = true;
@@ -450,7 +435,7 @@ void RemoteTeleop::nudgeCallback(
   nudge_server_.setSucceeded(nudge_result_);
 
   // Initialize the markers
-  initializeIntMarkers("a");
+  initializeIntMarkers();
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -649,7 +634,7 @@ void RemoteTeleop::pointClickCallback(
     point_click_result_.success = true;
     point_click_server_.setSucceeded(point_click_result_);
     // Snap the interactive marker back to (0,0,0)
-    initializeIntMarkers("a");
+    initializeIntMarkers();
     return;
   }
 
@@ -717,7 +702,7 @@ void RemoteTeleop::pointClickCallback(
   point_click_server_.setSucceeded(point_click_result_);
 
   // Snap the interactive marker back to (0,0,0)
-  initializeIntMarkers("a");
+  initializeIntMarkers();
 
   // Set a variable to signal that navigation is complete
   point_click_running_ = false;
@@ -795,7 +780,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
         // Stop the robot from moving
         stopMovement();
         // Snap the interactive marker back to (0,0,0)
-        initializeIntMarkers("a");
+        initializeIntMarkers();
         return;
       }
 
@@ -849,7 +834,7 @@ void RemoteTeleop::stopNavCallback(
   stop_ = false;
   
   // Initialize the markers
-  initializeIntMarkers("a");
+  initializeIntMarkers();
   
   // Set the result and success fields
   stop_nav_result_.success = true;
