@@ -885,7 +885,7 @@ geometry_msgs::Point RemoteTeleop::translateCoordinateToCostmap(geometry_msgs::P
 
 /*-----------------------------------------------------------------------------------*/
 
-geometry_msgs::PoseStamped transformGoalToOdom(geometry_msgs::Point& point, std::string init_frame, std::string goal_frame) {
+geometry_msgs::PoseStamped RemoteTeleop::transformGoalToOdom(geometry_msgs::Point& point, const std::string init_frame, const std::string goal_frame) {
   // Create all the necessary variables
   geometry_msgs::PoseStamped robot_pose;
 
