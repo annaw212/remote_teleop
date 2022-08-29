@@ -413,7 +413,9 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 void RemoteTeleop::resetMarkerCallback(const remote_teleop_robot_backend::ResetMarkerGoalConstPtr &msg) {
   // Delete the marker and then create a new one
   initializeIntMarkers("d");
-  initializeIntMarkers("a");
+  
+  int_marker_server_.clear(); // visualization.markers.clear())
+//  initializeIntMarkers("a");
   
   // Update the reset marker result and success fields
   reset_marker_result_.success = true;
