@@ -85,49 +85,34 @@ private:
   ros::Subscriber costmap_sub_;
 
   // Internal variables
-  float angle_;    // Turn in place angle
-  bool turn_left_; // Turn in place direction
+  float angle_;                                       // Turn in place angle
+  bool turn_left_;                                    // Turn in place direction
 
-  float lin_vel_; // Max linear velocity
-  float ang_vel_; // Max angular velocity
+  float lin_vel_;                                     // Max linear velocity
+  float ang_vel_;                                     // Max angular velocity
 
-  geometry_msgs::Pose current_odom_pose_; // Odometry pose
-  // TODO: Phase these out
-  tfScalar x_; // Odom position x
-  tfScalar y_; // Odom position y
-  tfScalar z_; // Odom position z
-  tfScalar a_; // Odom orientation x
-  tfScalar b_; // Odom orientation y
-  tfScalar c_; // Odom orientation z
-  tfScalar d_; // Odom orientation w
+  geometry_msgs::Pose current_odom_pose_;             // Odometry pose
 
-  tfScalar roll_; // Euler angles from odom
+  tfScalar roll_;                                     // Euler angles from odom
   tfScalar pitch_;
   tfScalar yaw_;
 
-  geometry_msgs::Pose nav_goal_pose_; // Navigation goal pose
-  // TODO: phase these out
-  float pos_x_; // Navigation goal position x
-  float pos_y_; // Navigation goal position y
-  float pos_z_; // Navigation goal position z
-  float or_x_;  // Navigation goal orientation x
-  float or_y_;  // Navigation goal orientation y
-  float or_z_;  // Navigation goal orientation z
-  float or_w_;  // Navigation goal orientation w
+  geometry_msgs::Pose nav_goal_pose_;                 // Navigation goal pose
 
-  float nudge_dist_; // Nudge distance
-  bool nudge_fwd_;   // Nudge direction
+  std::string nav_goal_frame_;                        // Frame of navigation goal
 
-  std::string nav_goal_frame_;
-
-  bool turn_in_place_running_;
+  bool turn_in_place_running_;                        // State variables
   bool point_click_running_;
   bool obstacle_detected_;
   bool stop_;
 
-  visualization_msgs::InteractiveMarker int_marker_;
-  visualization_msgs::Marker marker_;
-  nav_msgs::OccupancyGrid occupancy_grid_;
+  visualization_msgs::InteractiveMarker int_marker_;  // Interactive marker
+  visualization_msgs::Marker marker_;                 // Regular marker TODO necessary?
+  
+  nav_msgs::OccupancyGrid occupancy_grid_;            // Occupancy grid
+  
+  tf2_ros::Buffer tf_buffer_;                          // Objects for frame transforms
+  tf2_ros::TransformListener tf2_listener_(tf2_ros::Buffer tf_buffer_);
 
   // Initialization member methods
   void initializeSubscribers();
@@ -173,10 +158,13 @@ private:
 
   // Nudge member methods
   void nudge(float x_dist, float y_dist, float dist);
-  
+
   // Miscellaneous member methods
-  geometry_msgs::PoseStamped transformGoalToOdom(geometry_msgs::Point& point, const std::string init_frame, const std::string goal_frame);
-  geometry_msgs::Point translateCoordinateToCostmap(geometry_msgs::Point& point);
+  geometry_msgs::PoseStamped transformGoalToOdom(geometry_msgs::Point &point,
+                                                 const std::string init_frame,
+                                                 const std::string goal_frame);
+  geometry_msgs::Point
+  translateCoordinateToCostmap(geometry_msgs::Point &point);
 };
 
 #endif // RemoteTeleop_H
