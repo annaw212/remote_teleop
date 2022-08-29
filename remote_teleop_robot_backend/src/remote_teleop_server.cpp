@@ -48,6 +48,10 @@
 #include <remote_teleop_robot_backend/NudgeGoal.h>
 #include <remote_teleop_robot_backend/NudgeResult.h>
 
+#include <remote_teleop_robot_backend/ResetMarkerAction.h>
+#include <remote_teleop_robot_backend/ResetMarkerGoal.h>
+#include <remote_teleop_robot_backend/ResetMarkerResult.h>
+
 #include "remote_teleop_server.h"
 
 /*-----------------------------------------------------------------------------------*/
@@ -78,7 +82,10 @@ RemoteTeleop::RemoteTeleop()
                     boost::bind(&RemoteTeleop::nudgeCallback, this, _1), false),
       velocity_server_(
           nh_, "/speed_toggle_as",
-          boost::bind(&RemoteTeleop::speedToggleCallback, this, _1), false) {
+          boost::bind(&RemoteTeleop::speedToggleCallback, this, _1), false),
+      reset_marker_server_(
+          nh_, "/reset_marker_as",
+          boost::bind(&RemoteTeleop::resetMarkerCallback, this, _1), false) {
 
   ROS_INFO("In class constructor of RemoteTeleop");
 
@@ -191,6 +198,9 @@ void RemoteTeleop::initializeActions() {
 
   // Start speed toggle action server
   velocity_server_.start();
+  
+  // Start the reset marker action server
+  reset_marker_server_.start();
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -396,6 +406,18 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 
   // Store the values of the occupancy grid in a variable for future reference
   occupancy_grid_ = grid;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleop::resetMarkerCallback(const remote_teleop_robot_backend::ResetMarkerGoalConstPtr &msg) {
+  // Delete the marker and then create a new one
+  initializeIntMarkers("d");
+  initializeIntMarkers("a");
+  
+  // Update the reset marker result and success fields
+  reset_marker_result_.success = true;
+  reset_marker_server_.setSucceeded(reset_marker_result_);
 }
 
 /*-----------------------------------------------------------------------------------*/

@@ -92,23 +92,28 @@ protected Q_SLOTS:
 
   // sendNavGoal() checks the validity of the publisher and ROS,
   // creates a message of the desired type, assigns the fields of
-  // hat message to values, and then publishes the message
+  // that message to values, and then publishes the message
   void sendNavGoal();
 
   // sendVelGoal() checks the validity of the publisher and ROS,
   // creates a message of the desired type, assigns the fields of
-  // hat message to values, and then publishes the message
+  // that message to values, and then publishes the message
   void sendVelGoal();
 
   // sendStopGoal() checks the validity of the publisher and ROS,
   // creates a message of the desired type, assigns the fields of
-  // hat message to values, and then publishes the message
+  // that message to values, and then publishes the message
   void sendStopGoal();
 
   // sendNudgeGoal() checks the validity of the publisher and ROS,
   // creates a message of the desired type, assigns the fields of
-  // hat message to values, and then publishes the message
+  // that message to values, and then publishes the message
   void sendNudgeGoal();
+  
+  // sendResetMarkerGoal() checks the validity of the publisher
+  // and ROS, creates a message of the desired type, assigns the
+  // fields of that message to values, and then publishes the message
+  void sendResetMarkerGoal();
 
 protected:
   // One-line text editor for entering the degrees to turn by in
@@ -122,6 +127,7 @@ protected:
   ros::Publisher vel_goal_publisher_;
   ros::Publisher stop_goal_publisher_;
   ros::Publisher nudge_goal_publisher_;
+  ros::Publisher reset_marker_goal_publisher_;
 
   // The ROS subscriber for updating the initial velocities based on the backend
   // values

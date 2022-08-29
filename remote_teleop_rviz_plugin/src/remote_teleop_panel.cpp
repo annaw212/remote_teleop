@@ -45,6 +45,7 @@
 #include <remote_teleop_robot_backend/SpeedToggleActionGoal.h>
 #include <remote_teleop_robot_backend/StopNavActionGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
+#include <remote_teleop_robot_backend/ResetMarkerActionGoal.h>
 #include <remote_teleop_robot_backend/Velocity.h>
 
 #include "remote_teleop_panel.h"
@@ -109,6 +110,11 @@ RemoteTeleopPanel::RemoteTeleopPanel(QWidget *parent)
   QPushButton *confirm_coords_ = new QPushButton(this);
   confirm_coords_->setText(tr("Confirm Coordinates"));
   nav_layout->addWidget(confirm_coords_);
+  
+  // Create a button for resetting the marker and add to the horizontal box
+  QPushButton *reset_marker_ = new QPushButton(this);
+  reset_marker_->setText(tr("Reset Marker"));
+  nav_layout->addWidget(reset_marker_);
 
   // Create box layout for speed sliders
   QVBoxLayout *velocity_layout = new QVBoxLayout;
@@ -154,7 +160,7 @@ RemoteTeleopPanel::RemoteTeleopPanel(QWidget *parent)
   topic_layout->addWidget(new QLabel("Nudge"));
   topic_layout->addLayout(nudge_layout);
   topic_layout->addWidget(
-      new QLabel("Point-and-Click Navigation Confirmation"));
+      new QLabel("Point-and-Click Navigation"));
   topic_layout->addLayout(nav_layout);
   topic_layout->addLayout(velocity_layout);
   topic_layout->addWidget(stop_nav_button_);
@@ -177,6 +183,7 @@ RemoteTeleopPanel::RemoteTeleopPanel(QWidget *parent)
   connect(stop_nav_button_, SIGNAL(released()), this, SLOT(sendStopGoal()));
   connect(nudge_fwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalFwd()));
   connect(nudge_bwd_button_, SIGNAL(released()), this, SLOT(setNudgeGoalBwd()));
+  connect(reset_marker_, SIGNAL(released()), this, SLOT(sendResetMarkerGoal()));
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -338,6 +345,21 @@ void RemoteTeleopPanel::sendNudgeGoal() {
 
 /*-----------------------------------------------------------------------------------*/
 
+void RemoteTeleopPanel::sendResetMarkerGoal() {
+  
+  // Make sure the publisher exists and ROS is not shutting down
+  if (ros::ok() && reset_marker_goal_publisher_) {
+    // Create a message of the desired type
+    remote_teleop_robot_backend::ResetMarkerActionGoal msg;
+    // Set the message fields
+    msg.goal.reset_marker = true;
+    // Publish the message
+    reset_marker_goal_publisher_.publish(msg);
+  }
+}
+
+/*-----------------------------------------------------------------------------------*/
+
 // Upon the receipt of a Velocity message sent from the backend, update the
 // internal linear/angular vleocity variables and update the Rviz velocity
 // toggle values to reflect
@@ -389,6 +411,8 @@ void RemoteTeleopPanel::load(const rviz::Config &config) {
   vel_goal_publisher_ =
       nh_.advertise<remote_teleop_robot_backend::SpeedToggleActionGoal>(
           "speed_toggle_as/goal", 1);
+  reset_marker_goal_publisher_ = nh_.advertise<remote_teleop_robot_backend::ResetMarkerActionGoal>(
+          "reset_marker_as/goal", 1);
   Q_EMIT configChanged();
 }
 

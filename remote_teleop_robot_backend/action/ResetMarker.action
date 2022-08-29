@@ -1,0 +1,7 @@
+#goal
+bool reset_marker
+---
+#result
+bool success
+---
+#feedback

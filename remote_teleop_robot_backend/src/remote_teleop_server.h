@@ -41,6 +41,10 @@
 #include <remote_teleop_robot_backend/NudgeGoal.h>
 #include <remote_teleop_robot_backend/NudgeResult.h>
 
+#include <remote_teleop_robot_backend/ResetMarkerAction.h>
+#include <remote_teleop_robot_backend/ResetMarkerGoal.h>
+#include <remote_teleop_robot_backend/ResetMarkerResult.h>
+
 class RemoteTeleop {
 
 public:
@@ -63,6 +67,8 @@ private:
       nudge_server_;
   actionlib::SimpleActionServer<remote_teleop_robot_backend::SpeedToggleAction>
       velocity_server_;
+  actionlib::SimpleActionServer<remote_teleop_robot_backend::ResetMarkerAction>
+      reset_marker_server_;
 
   // ROS publishers
   ros::Publisher turn_in_place_publisher_;
@@ -79,6 +85,7 @@ private:
   remote_teleop_robot_backend::StopNavResult stop_nav_result_;
   remote_teleop_robot_backend::NudgeResult nudge_result_;
   remote_teleop_robot_backend::SpeedToggleResult velocity_result_;
+  remote_teleop_robot_backend::ResetMarkerResult reset_marker_result_;
 
   // The ROS subscriber for receiving odometry value updates
   ros::Subscriber odom_sub_;
@@ -138,6 +145,7 @@ private:
   nudgeCallback(const remote_teleop_robot_backend::NudgeGoalConstPtr &goal);
   void speedToggleCallback(
       const remote_teleop_robot_backend::SpeedToggleGoalConstPtr &goal);
+  void resetMarkerCallback(const remote_teleop_robot_backend::ResetMarkerGoalConstPtr &msg);
 
   // Subscriber callback methods
   void odomCallback(const nav_msgs::Odometry &msg);

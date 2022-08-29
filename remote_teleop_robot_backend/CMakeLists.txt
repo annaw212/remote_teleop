@@ -76,6 +76,7 @@ find_package(catkin REQUIRED COMPONENTS
    SpeedToggle.action
    StopNav.action
    Nudge.action
+   ResetMarker.action
  )
 
 ## Generate added messages and services with any dependencies listed here
