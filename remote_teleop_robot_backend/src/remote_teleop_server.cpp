@@ -415,6 +415,7 @@ void RemoteTeleop::resetMarkerCallback(const remote_teleop_robot_backend::ResetM
   initializeIntMarkers("d");
   
   int_marker_server_.clear(); // visualization.markers.clear())
+  int_marker_server_.applyChanges();
 //  initializeIntMarkers("a");
   
   // Update the reset marker result and success fields
