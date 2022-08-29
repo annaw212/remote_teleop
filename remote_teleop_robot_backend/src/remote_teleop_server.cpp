@@ -329,13 +329,13 @@ void RemoteTeleop::placeGoalMarker() {
   marker_.type = visualization_msgs::Marker::CUBE;
   marker_.id = 0;
   
-  marker.pose.position.x = 0;
-  marker.pose.position.y = 0;
-  marker.pose.position.z = 0;
-  marker.pose.orientation.x = 0.0;
-  marker.pose.orientation.y = 0.0;
-  marker.pose.orientation.z = 0.0;
-  marker.pose.orientation.w = 1.0;
+  marker_.pose.position.x = 0;
+  marker_.pose.position.y = 0;
+  marker_.pose.position.z = 0;
+  marker_.pose.orientation.x = 0.0;
+  marker_.pose.orientation.y = 0.0;
+  marker_.pose.orientation.z = 0.0;
+  marker_.pose.orientation.w = 1.0;
   
   marker_.scale.x = 1.0;
   marker_.scale.y = 1.0;
