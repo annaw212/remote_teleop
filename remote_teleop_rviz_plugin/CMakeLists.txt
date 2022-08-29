@@ -39,7 +39,7 @@ set(SRC_FILES
 #  src/imu_display.cpp
 #  src/imu_visual.cpp
 #  src/plant_flag_tool.cpp
-  src/turn_in_place_panel.cpp
+  src/remote_teleop_panel.cpp
 #  src/point_click_nav_panel.cpp
 #  src/costmap.cpp
 )

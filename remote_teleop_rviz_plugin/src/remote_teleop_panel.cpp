@@ -47,12 +47,12 @@
 #include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
 #include <remote_teleop_robot_backend/Velocity.h>
 
-#include "turn_in_place_panel.h"
+#include "remote_teleop_panel.h"
 
 namespace remote_teleop_rviz_plugin {
 
-// TurnInPlacePanel class assignment
-TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
+// RemoteTeleopPanel class assignment
+RemoteTeleopPanel::RemoteTeleopPanel(QWidget *parent)
     : rviz::Panel(parent), degrees_(30.0), turn_left_(true), lin_vel_(0.0),
       ang_vel_(0.0), nudge_dist_(0.0), nudge_fwd_(true) {
 
@@ -183,7 +183,7 @@ TurnInPlacePanel::TurnInPlacePanel(QWidget *parent)
 
 // setTurnGoalLeft() sets the degrees and direction variables and calls
 // sendTurnGoal() for the new variable values to be published
-void TurnInPlacePanel::setTurnGoalLeft() {
+void RemoteTeleopPanel::setTurnGoalLeft() {
 
   // Assign the value to send (this is a pre-determined static value)
   degrees_ = 30.0;
@@ -197,7 +197,7 @@ void TurnInPlacePanel::setTurnGoalLeft() {
 
 // setTurnGoalLeft() sets the degrees and direction variables and calls
 // sendTurnGoal() for the new variable values to be published
-void TurnInPlacePanel::setTurnGoalRight() {
+void RemoteTeleopPanel::setTurnGoalRight() {
 
   // Assign the value to send (this is a pre-determined static value)
   degrees_ = 30.0;
@@ -211,7 +211,7 @@ void TurnInPlacePanel::setTurnGoalRight() {
 
 // setVelGoal() allows the user to set the desired linear/angular
 // velocity and calls sendVelGoal() for the new variable values to be published
-void TurnInPlacePanel::setVelGoal() {
+void RemoteTeleopPanel::setVelGoal() {
 
   // Get the values from the sliders --> maybe something similar to fcn above
   lin_vel_ = lin_vel_toggle_->value();
@@ -224,7 +224,7 @@ void TurnInPlacePanel::setVelGoal() {
 
 // setNudgeGoalFwd() sets the distance and direction variables and calls
 // sendNudgeGoal() for the new variable values to be published
-void TurnInPlacePanel::setNudgeGoalFwd() {
+void RemoteTeleopPanel::setNudgeGoalFwd() {
 
   // Set the distance variable at 15cm
   nudge_dist_ = 0.15;
@@ -238,7 +238,7 @@ void TurnInPlacePanel::setNudgeGoalFwd() {
 
 // setNudgeGoalBwd() sets the distance and direction variables and calls
 // sendNudgeGoal() for the new variable values to be published
-void TurnInPlacePanel::setNudgeGoalBwd() {
+void RemoteTeleopPanel::setNudgeGoalBwd() {
 
   // Set the distance variable at 15cm
   nudge_dist_ = 0.15; // 15cm
@@ -252,7 +252,7 @@ void TurnInPlacePanel::setNudgeGoalBwd() {
 
 // Publish the degrees and direction if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
-void TurnInPlacePanel::sendTurnGoal() {
+void RemoteTeleopPanel::sendTurnGoal() {
 
   // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && turn_goal_publisher_) {
@@ -270,7 +270,7 @@ void TurnInPlacePanel::sendTurnGoal() {
 
 // Publish the nav message if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
-void TurnInPlacePanel::sendNavGoal() {
+void RemoteTeleopPanel::sendNavGoal() {
 
   // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && nav_goal_publisher_) {
@@ -287,7 +287,7 @@ void TurnInPlacePanel::sendNavGoal() {
 
 // Publish the linear/angular velocity if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
-void TurnInPlacePanel::sendVelGoal() {
+void RemoteTeleopPanel::sendVelGoal() {
 
   // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && vel_goal_publisher_) {
@@ -305,7 +305,7 @@ void TurnInPlacePanel::sendVelGoal() {
 
 // Publish the stop goal if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
-void TurnInPlacePanel::sendStopGoal() {
+void RemoteTeleopPanel::sendStopGoal() {
 
   // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && stop_goal_publisher_) {
@@ -322,7 +322,7 @@ void TurnInPlacePanel::sendStopGoal() {
 
 // Publish the distance and direction if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
-void TurnInPlacePanel::sendNudgeGoal() {
+void RemoteTeleopPanel::sendNudgeGoal() {
 
   // Make sure the publisher exists and ROS is not shutting down
   if (ros::ok() && nudge_goal_publisher_) {
@@ -342,7 +342,7 @@ void TurnInPlacePanel::sendNudgeGoal() {
 // internal linear/angular vleocity variables and update the Rviz velocity
 // toggle values to reflect
 // NOTE: This should only be called upon the startup of a new remote_teleop node
-void TurnInPlacePanel::velocityCallback(
+void RemoteTeleopPanel::velocityCallback(
     const remote_teleop_robot_backend::VelocityConstPtr &msg) {
 
   // Update the Rviz frontend velocity toggles to reflect the correct values
@@ -359,7 +359,7 @@ void TurnInPlacePanel::velocityCallback(
 // Save all configuration data from this panel to the given
 // Config object.  It is important here that you call save()
 // on the parent class so the class id and panel name get saved.
-void TurnInPlacePanel::save(rviz::Config config) const {
+void RemoteTeleopPanel::save(rviz::Config config) const {
   rviz::Panel::save(config);
   config.mapSetValue("Topic", "turn_in_place_as/goal");
 }
@@ -367,11 +367,11 @@ void TurnInPlacePanel::save(rviz::Config config) const {
 /*-----------------------------------------------------------------------------------*/
 
 // Load all configuration data for this panel from the given Config object.
-void TurnInPlacePanel::load(const rviz::Config &config) {
+void RemoteTeleopPanel::load(const rviz::Config &config) {
   rviz::Panel::load(config);
   // Initialize subscriber
   velocity_subscriber_ = nh_.subscribe(
-      "/rt_initial_velocities", 1, &TurnInPlacePanel::velocityCallback, this);
+      "/rt_initial_velocities", 1, &RemoteTeleopPanel::velocityCallback, this);
 
   // Initialize publishers
   turn_goal_publisher_ =
@@ -398,4 +398,4 @@ void TurnInPlacePanel::load(const rviz::Config &config) {
 // loadable by pluginlib::ClassLoader must have these two lines
 // compiled in its .cpp file, outside of any namespace scope.
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(remote_teleop_rviz_plugin::TurnInPlacePanel, rviz::Panel)
+PLUGINLIB_EXPORT_CLASS(remote_teleop_rviz_plugin::RemoteTeleopPanel, rviz::Panel)

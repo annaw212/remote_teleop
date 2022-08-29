@@ -1,9 +1,9 @@
 <library path="lib/libremote_teleop_rviz_plugin">
-  <class name="remote_teleop_rviz_plugin/TurnInPlacePanel"
-         type="remote_teleop_rviz_plugin::TurnInPlacePanel"
+  <class name="remote_teleop_rviz_plugin/RemoteTeleopPanel"
+         type="remote_teleop_rviz_plugin::RemoteTeleopPanel"
          base_class_type="rviz::Panel">
     <description>
-      A panel widget allowing the user to input turn-in-place commands.
+      Remote Teleop Panel.
     </description>
   </class>
 </library>

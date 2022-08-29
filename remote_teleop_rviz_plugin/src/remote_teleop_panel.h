@@ -26,8 +26,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef TURNINPLACE_PANEL_H
-#define TURNINPLACE_PANEL_H
+#ifndef REMOTETELEOP_PANEL_H
+#define REMOTETELEOP_PANEL_H
 
 #ifndef Q_MOC_RUN
 #include <ros/ros.h>
@@ -42,14 +42,14 @@ class QLineEdit;
 
 namespace remote_teleop_rviz_plugin {
 
-// Declare the TurnInPlacePanel class of type rviz panel
-class TurnInPlacePanel : public rviz::Panel {
+// Declare the RemoteTeleopPanel class of type rviz panel
+class RemoteTeleopPanel : public rviz::Panel {
   // This class uses Qt slots and is a subclass of QObject, so it needs
   // the Q_OBJECT macro.
   Q_OBJECT
 public:
   // QWidget subclass constructor
-  TurnInPlacePanel(QWidget *parent = 0);
+  RemoteTeleopPanel(QWidget *parent = 0);
 
   // Declare overrides of rviz::Panel functions for saving
   // and loading from config file
@@ -148,4 +148,4 @@ protected:
 
 } // namespace remote_teleop_rviz_plugin
 
-#endif // TURNINPLACE_PANEL_H
+#endif // REMOTETELEOP_PANEL_H

@@ -90,14 +90,13 @@ RemoteTeleop::RemoteTeleop()
   initializeActions();
 
   // Initialize the internal variables
-
-  angle_ = 0.0; // Turn in place
+  angle_ = 0.0;                           // Turn in place
   turn_left_ = true;
 
-  lin_vel_ = INIT_LIN_VEL; // Velocity
+  lin_vel_ = INIT_LIN_VEL;                // Velocity
   ang_vel_ = INIT_ANG_VEL;
 
-  current_odom_pose_.position.x = 0.0; // Current odometry pose
+  current_odom_pose_.position.x = 0.0;    // Current odometry pose
   current_odom_pose_.position.y = 0.0;
   current_odom_pose_.position.z = 0.0;
   current_odom_pose_.orientation.w = 0.0;
@@ -105,11 +104,11 @@ RemoteTeleop::RemoteTeleop()
   current_odom_pose_.orientation.y = 0.0;
   current_odom_pose_.orientation.z = 0.0;
 
-  roll_ = 0.0; // Current euler angles
+  roll_ = 0.0;                            // Current euler angles
   pitch_ = 0.0;
   yaw_ = 0.0;
 
-  nav_goal_pose_.position.x = 0.0; // Navigation goal pose
+  nav_goal_pose_.position.x = 0.0;        // Navigation goal pose
   nav_goal_pose_.position.y = 0.0;
   nav_goal_pose_.position.z = 0.0;
   nav_goal_pose_.orientation.w = 0.0;
@@ -117,17 +116,13 @@ RemoteTeleop::RemoteTeleop()
   nav_goal_pose_.orientation.y = 0.0;
   nav_goal_pose_.orientation.z = 0.0;
 
-  turn_in_place_running_ = false; // State booleans
+  turn_in_place_running_ = false;         // State booleans
   point_click_running_ = false;
   obstacle_detected_ = false;
   stop_ = false;
 
   // Send the initial velocities to rviz
-  remote_teleop_robot_backend::Velocity init_vel_msg;
-  init_vel_msg.lin_vel = INIT_LIN_VEL;
-  init_vel_msg.ang_vel = INIT_ANG_VEL;
-
-  velocity_publisher_.publish(init_vel_msg);
+  initializeFrontendVelocities(lin_vel_, ang_vel_);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -259,6 +254,21 @@ void RemoteTeleop::initializeIntMarkers(std::string type) {
   int_marker_server_.applyChanges();
 
   return;
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleop::initializeFrontendVelocities(float lin_vel, float ang_vel) {
+
+  // Create message
+  remote_teleop_robot_backend::Velocity init_vel_msg;
+  
+  // Assign values to message fields
+  init_vel_msg.lin_vel = lin_vel;
+  init_vel_msg.ang_vel = lin_vel;
+
+  // Publish the message
+  velocity_publisher_.publish(init_vel_msg);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -917,8 +927,7 @@ RemoteTeleop::transformGoalToOdom(geometry_msgs::Point &point,
   robot_pose.pose.orientation.w = 1.0;
 
   // Create the objects needed for the transform
-  // TODO: make the buffer and the listener internal variables
-//  tf2_ros::Buffer tf_buffer;
+  // TODO: make the listener an internal variable
   tf2_ros::TransformListener tf2_listener(tf_buffer_);
   geometry_msgs::TransformStamped init_to_goal_frame;
 
@@ -960,6 +969,7 @@ void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
   start.y = current_odom_pose_.position.y;
   goal.x = start.x + x_dist;
   goal.y = start.y + y_dist;
+  
   // Drive straight
   while (abs(dist) - (sqrt(pow(current_odom_pose_.position.x - start.x, 2) +
                            pow(current_odom_pose_.position.y - start.y, 2))) >
