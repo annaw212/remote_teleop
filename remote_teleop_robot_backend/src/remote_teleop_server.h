@@ -132,6 +132,7 @@ private:
   visualization_msgs::Marker makeIntMarker();
   visualization_msgs::InteractiveMarkerControl &
   makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg);
+  void placeGoalMarker();
 
   // Callback member methods
   void turnInPlaceCallback(

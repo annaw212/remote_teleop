@@ -321,6 +321,31 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 
 /*-----------------------------------------------------------------------------------*/
 
+void RemoteTeleop::placeGoalMarker() {
+  marker_.header.frame_id = nav_goal_frame_;
+  marker_.header.stamp = ros::Time::now();
+  
+  marker_.action = visualization_msgs::Marker::ADD;
+  marker_.type = visualization_msgs::Marker::CUBE;
+  marker_.id = 0;
+  
+  marker_.pose = nav_goal_pose_;
+  
+  marker_.scale.x = 1.0;
+  marker_.scale.y = 1.0;
+  marker_.scale.z = 1.0;
+  
+  marker_.color.r = 0.0;
+  marker_.color.g = 1.0;
+  marker_.color.b = 1.0;
+  marker_.color.a = 1.0;
+  
+  marker_publisher_.publish(marker_);
+  
+}
+
+/*-----------------------------------------------------------------------------------*/
+
 void RemoteTeleop::turnInPlaceCallback(
     const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal) {
 
