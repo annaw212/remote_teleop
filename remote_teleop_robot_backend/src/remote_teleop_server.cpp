@@ -301,13 +301,15 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
   marker.color.a = 1.0;
   
   if (goal_marker_ == true) {
-    marker.pose.position.x = nav_goal_pose_.position.x;
-    marker.pose.position.y = nav_goal_pose_.position.y;
-    marker.pose.position.z = nav_goal_pose_.position.z;
-    marker.pose.orientation.x = nav_goal_pose_.orientation.x;
-    marker.pose.orientation.y = nav_goal_pose_.orientation.y;
-    marker.pose.orientation.z = nav_goal_pose_.orientation.z;
-    marker.pose.orientation.w = nav_goal_pose_.orientation.w;
+//    geometry_msgs::Point point;
+//    point.x = nav_goal_pose_.position.x;
+//    point.y = nav_goal_pose_.position.y;
+//    point.z = nav_goal_pose_.position.z;
+//    point = transformGoalToOdom(point, nav_goal_frame_, "odom");
+//    point = translateCoordinateToCostmap(point);
+//    marker.pose.position.x = point.x;
+//    marker.pose.position.y = point.y;
+//    marker.pose.position.z = point.z;
   }
 
   return marker;
@@ -596,7 +598,7 @@ void RemoteTeleop::pointClickCallback(
   goal_pose =
       nav_goal_pose_; // in relation to the robot, which thinks it's at (0,0,0)
 
-  // put that into base_link as a sanity check
+  // Put that into base link
   tf2_ros::Buffer tf_buffer;
   tf2_ros::TransformListener tf2_listener(tf_buffer);
   geometry_msgs::TransformStamped nav_goal_frame_to_base_link;
@@ -655,7 +657,7 @@ void RemoteTeleop::pointClickCallback(
 
   // Translate current and goal coordinates to costmap
   curr_coords = translateCoordinateToCostmap(curr_coords);
-  goal_coords = translateCoordinateToCostmap(goal_coords);
+  goal_coords = translateCoordinateToCostmap(pose.pose.position); // used to be goal_coords
 
   // Extract the values of the coordinates into int variables
   int curr_x = curr_coords.x;
