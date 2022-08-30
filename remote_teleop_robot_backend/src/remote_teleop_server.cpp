@@ -381,7 +381,7 @@ void RemoteTeleop::turnInPlaceCallback(
   int_marker_server_.applyChanges();
 
   // Tell robot to turn the desired angle
-  turnInPlace(goal->degrees * M_PI / 180, goal->turn_left);
+  turnInPlace(goal->degrees*(M_PI/180), goal->turn_left);
 
   // Create a new marker
   initializeIntMarkers();
@@ -538,6 +538,8 @@ void RemoteTeleop::turnInPlace(float angle, bool turn_left) {
       goal_yaw += 2 * M_PI;
     }
   }
+  
+  ROS_DEBUG_STREAM("Goal angle: " << goal_yaw << " Input angle: " << angle << " Current angle: " << curr_angle[2]);
 
   // Turn the robot until it reaches the desired angle
   while (abs(goal_yaw - curr_angle[2]) > THRESHOLD && !stop_) {
