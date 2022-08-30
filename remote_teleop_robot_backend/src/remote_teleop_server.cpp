@@ -623,15 +623,15 @@ void RemoteTeleop::pointClickCallback(
     // If we are turning to an angle within 1-3 degrees of a 180 turn, turn 180
     theta1 = M_PI;
   }
-
+  
   /* DETERMINE VALIDITY OF THE PATH */
 
   // Set the goal coordinates on the costmap grid
   geometry_msgs::Point curr_coords, goal_coords;
   curr_coords.x = current_odom_pose_.pose.position.x;
-  curr_coords.x = current_odom_pose_.pose.position.y;
+  curr_coords.y = current_odom_pose_.pose.position.y;
   goal_coords.x = goal_pose.pose.position.x; // TODO used to be goal_pose
-  goal_coords.x = goal_pose.pose.position.y;
+  goal_coords.y = goal_pose.pose.position.y;
 
   // Transform goal to odom
   geometry_msgs::PoseStamped pose;
