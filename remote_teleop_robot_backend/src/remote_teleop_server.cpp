@@ -5,7 +5,7 @@
 #include <ros/ros.h>
 
 #include <cmath>
-#include <mutex>
+#include <array>
 
 #include <tf/tf.h>
 
@@ -87,10 +87,8 @@ RemoteTeleop::RemoteTeleop()
           nh_, "/reset_marker_as",
           boost::bind(&RemoteTeleop::resetMarkerCallback, this, _1), false) {
 
-  ROS_INFO("In class constructor of RemoteTeleop");
 
   // Initialize the messy stuff
-  ROS_INFO("Initializing Markers");
   initializeIntMarkers();
   initializeSubscribers();
   initializePublishers();
@@ -137,8 +135,6 @@ RemoteTeleop::RemoteTeleop()
 
 void RemoteTeleop::initializeSubscribers() {
 
-  ROS_INFO("Initializing Subscribers");
-
   // Initialize the odometry subscriber
   odom_sub_ = nh_.subscribe("/odom", 1, &RemoteTeleop::odomCallback, this);
 
@@ -150,8 +146,6 @@ void RemoteTeleop::initializeSubscribers() {
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializePublishers() {
-
-  ROS_INFO("Initializing Publishers");
 
   // Initialize the turn in place publisher
   turn_in_place_publisher_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
@@ -183,8 +177,6 @@ void RemoteTeleop::initializePublishers() {
 
 void RemoteTeleop::initializeActions() {
 
-  ROS_INFO("Starting Action Servers");
-
   // Start the turn in place action server
   turn_in_place_server_.start();
 
@@ -207,8 +199,6 @@ void RemoteTeleop::initializeActions() {
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializeIntMarkers() {
-
-  //  ROS_INFO("Initializing Markers");
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
@@ -429,15 +419,15 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
   // Grab the odometry position and orientation values out of the message
   current_odom_pose_ = msg.pose.pose;
 
-  // Grab the odometry quaternion values out of the message
-  tf::Quaternion q(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y,
-                   msg.pose.pose.orientation.z, msg.pose.pose.orientation.w);
+//  // Grab the odometry quaternion values out of the message
+//  tf::Quaternion q(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y,
+//                   msg.pose.pose.orientation.z, msg.pose.pose.orientation.w);
 
-  // Turn the quaternion values into a matrix
-  tf::Matrix3x3 m(q);
+//  // Turn the quaternion values into a matrix
+//  tf::Matrix3x3 m(q);
 
-  // Extract the euler angles from the matrix
-  m.getRPY(roll_, pitch_, yaw_);
+//  // Extract the euler angles from the matrix
+//  m.getRPY(roll_, pitch_, yaw_);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -523,10 +513,14 @@ void RemoteTeleop::turnInPlace() {
 
   // Create the goal yaw variable
   float goal_yaw = 0.0;
+  
+  // Calculate current yaw angle
+  std::array<tfScalar,3> angle;
+  angle = eulerFromQuaternion(current_odom_pose_);
 
   if (turn_left_ == false) {
     // TURNING RIGHT
-    goal_yaw = yaw_ - angle_;
+    goal_yaw = angle[2] - angle_;
     // Make sure the goal angle is within a valid range
     while (goal_yaw < -M_PI) {
       goal_yaw += 2 * M_PI;
@@ -539,7 +533,7 @@ void RemoteTeleop::turnInPlace() {
 
   } else {
     // TURNING LEFT
-    goal_yaw = yaw_ + angle_;
+    goal_yaw = angle[2] + angle_;
     // Make sure the goal angle is within a valid range
     while (goal_yaw > M_PI) {
       goal_yaw -= 2 * M_PI;
@@ -552,10 +546,13 @@ void RemoteTeleop::turnInPlace() {
   }
 
   // Turn the robot until it reaches the desired angle
-  while (abs(goal_yaw - yaw_) > THRESHOLD && !stop_) {
+  while (abs(goal_yaw - angle[2]) > THRESHOLD && !stop_) {
+  
+    // Calculate current yaw angle
+    angle = eulerFromQuaternion(current_odom_pose_);
 
     // Set the turn rate
-    command.angular.z = ang_vel_ * (goal_yaw - yaw_);
+    command.angular.z = ang_vel_ * (goal_yaw - angle[2]);
 
     // Ensure the robot will be turning in the correct direction
     if (turn_left_ == true && command.angular.z < 0.0) {
@@ -727,15 +724,17 @@ void RemoteTeleop::pointClickCallback(
              goal_x, goal_y, dx, dy);
 
     // Calculate angle to turn by from goal to goal orientation
-    tf::Quaternion q(
-        base_link_goal.pose.orientation.x, base_link_goal.pose.orientation.y,
-        base_link_goal.pose.orientation.z, base_link_goal.pose.orientation.w);
-    tf::Matrix3x3 m(q);
-    m.getRPY(r, t, theta2);
+//    tf::Quaternion q(
+//        base_link_goal.pose.orientation.x, base_link_goal.pose.orientation.y,
+//        base_link_goal.pose.orientation.z, base_link_goal.pose.orientation.w);
+//    tf::Matrix3x3 m(q);
+//    m.getRPY(r, t, theta2);
+    std::array<tfScalar,3> angle;
+    angle = eulerFromQuaternion(base_link_goal.pose);
 
     // Because theta2 is simply the angle to turn based on the original
     // orientation, we need to shift the degrees to turn appropriately
-    theta2 = theta2 - theta1;
+    theta2 = angle[2] - theta1;
 
     // Determine direction to turn
     if (theta2 < 0.0) {
@@ -1072,8 +1071,28 @@ void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
   // Stop the robot from moving
   command.linear.x = 0.0;
   point_click_nav_publisher_.publish(command);
-  return;
 }
+
+/*-----------------------------------------------------------------------------------*/
+
+std::array<tfScalar,3> RemoteTeleop::eulerFromQuaternion(geometry_msgs::Pose &angle) {
+  
+  // Create array to store values in
+  std::array<tfScalar,3> arr;
+  
+  // Grab the odometry quaternion values out of the message
+  tf::Quaternion q(angle.orientation.x, angle.orientation.y,
+                   angle.orientation.z, angle.orientation.w);
+
+  // Turn the quaternion values into a matrix
+  tf::Matrix3x3 m(q);
+
+  // Extract the euler angles from the matrix
+  m.getRPY(arr[0], arr[1], arr[2]);
+  
+  return arr;
+}
+
 /*-----------------------------------------------------------------------------------*/
 
 int main(int argc, char **argv) {

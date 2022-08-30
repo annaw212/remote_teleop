@@ -4,7 +4,6 @@
 #include <ros/ros.h>
 
 #include <cmath>
-#include <mutex>
 #include <stdlib.h>
 
 #include <tf/tf.h>
@@ -175,6 +174,7 @@ private:
                                                  const std::string goal_frame);
   geometry_msgs::Point
   translateCoordinateToCostmap(geometry_msgs::Point &point);
+  std::array<tfScalar,3> eulerFromQuaternion(geometry_msgs::Pose &angle);
 };
 
 #endif // RemoteTeleop_H
