@@ -630,13 +630,15 @@ void RemoteTeleop::pointClickCallback(
   geometry_msgs::Point curr_coords, goal_coords;
   curr_coords.x = current_odom_pose_.pose.position.x;
   curr_coords.x = current_odom_pose_.pose.position.y;
-//  goal_coords.x = nav_goal_pose_.position.x; // TODO used to be goal_pose
-//  goal_coords.x = nav_goal_pose_.position.y;
+  goal_coords.x = goal_pose.pose.position.x; // TODO used to be goal_pose
+  goal_coords.x = goal_pose.pose.position.y;
 
   // Transform goal to odom
   geometry_msgs::PoseStamped pose;
+  pose.pose.position.x = goal_coords.x;
+  pose.pose.position.y = goal_coords.y;
   goal_frame = "odom";
-  pose = transformPose(nav_goal_pose_, goal_frame);
+  pose = transformPose(pose, goal_frame);
 
   // Translate current and goal coordinates to costmap
   curr_coords = translateCoordinateToCostmap(curr_coords);
