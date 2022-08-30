@@ -99,10 +99,6 @@ private:
 
   geometry_msgs::Pose current_odom_pose_;             // Odometry pose
 
-  tfScalar roll_;                                     // Euler angles from odom
-  tfScalar pitch_;
-  tfScalar yaw_;
-
   geometry_msgs::Pose nav_goal_pose_;                 // Navigation goal pose
 
   std::string nav_goal_frame_;                        // Frame of navigation goal
@@ -154,7 +150,7 @@ private:
       const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
 
   // Turn in place member methods
-  void turnInPlace();
+  void turnInPlace(float angle, bool turn_left);
 
   // Point click navigate member methods
   void navigate(float angle, bool turn_left, float x_dist, float y_dist,

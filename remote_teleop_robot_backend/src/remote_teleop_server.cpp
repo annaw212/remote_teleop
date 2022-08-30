@@ -95,8 +95,6 @@ RemoteTeleop::RemoteTeleop()
   initializeActions();
 
   // Initialize the internal variables
-  angle_ = 0.0;                           // Turn in place
-  turn_left_ = true;
 
   lin_vel_ = INIT_LIN_VEL;                // Velocity
   ang_vel_ = INIT_ANG_VEL;
@@ -108,10 +106,6 @@ RemoteTeleop::RemoteTeleop()
   current_odom_pose_.orientation.x = 0.0;
   current_odom_pose_.orientation.y = 0.0;
   current_odom_pose_.orientation.z = 0.0;
-
-  roll_ = 0.0;                            // Current euler angles
-  pitch_ = 0.0;
-  yaw_ = 0.0;
 
   nav_goal_pose_.position.x = 0.0;        // Navigation goal pose
   nav_goal_pose_.position.y = 0.0;
@@ -375,19 +369,19 @@ void RemoteTeleop::turnInPlaceCallback(
   // Set a variable to signal that turning in place is currently happening
   turn_in_place_running_ = true;
 
-  // Get inputs from Rviz and store them in variables
-  angle_ = goal->degrees;
-  turn_left_ = goal->turn_left;
+//  // Get inputs from Rviz and store them in variables
+//  angle_ = goal->degrees;
+//  turn_left_ = goal->turn_left;
 
-  // Convert from degrees to radians
-  angle_ = angle_ * M_PI / 180;
+//  // Convert from degrees to radians
+//  angle_ = angle_ * M_PI / 180;
 
   // Delete the marker
   int_marker_server_.clear();
   int_marker_server_.applyChanges();
 
   // Tell robot to turn the desired angle
-  turnInPlace();
+  turnInPlace(goal->degrees * M_PI / 180, goal->turn_left);
 
   // Create a new marker
   initializeIntMarkers();
@@ -498,7 +492,7 @@ void RemoteTeleop::speedToggleCallback(
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::turnInPlace() {
+void RemoteTeleop::turnInPlace(float angle, bool turn_left) {
 
   // Create message to be sent
   geometry_msgs::Twist command;
@@ -515,12 +509,12 @@ void RemoteTeleop::turnInPlace() {
   float goal_yaw = 0.0;
   
   // Calculate current yaw angle
-  std::array<tfScalar,3> angle;
-  angle = eulerFromQuaternion(current_odom_pose_);
+  std::array<tfScalar,3> curr_angle;
+  curr_angle = eulerFromQuaternion(current_odom_pose_);
 
-  if (turn_left_ == false) {
+  if (turn_left == false) {
     // TURNING RIGHT
-    goal_yaw = angle[2] - angle_;
+    goal_yaw = curr_angle[2] - angle;
     // Make sure the goal angle is within a valid range
     while (goal_yaw < -M_PI) {
       goal_yaw += 2 * M_PI;
@@ -533,7 +527,7 @@ void RemoteTeleop::turnInPlace() {
 
   } else {
     // TURNING LEFT
-    goal_yaw = angle[2] + angle_;
+    goal_yaw = curr_angle[2] + angle;
     // Make sure the goal angle is within a valid range
     while (goal_yaw > M_PI) {
       goal_yaw -= 2 * M_PI;
@@ -546,13 +540,13 @@ void RemoteTeleop::turnInPlace() {
   }
 
   // Turn the robot until it reaches the desired angle
-  while (abs(goal_yaw - angle[2]) > THRESHOLD && !stop_) {
+  while (abs(goal_yaw - curr_angle[2]) > THRESHOLD && !stop_) {
   
     // Calculate current yaw angle
-    angle = eulerFromQuaternion(current_odom_pose_);
+    curr_angle = eulerFromQuaternion(current_odom_pose_);
 
     // Set the turn rate
-    command.angular.z = ang_vel_ * (goal_yaw - angle[2]);
+    command.angular.z = ang_vel_ * (goal_yaw - curr_angle[2]);
 
     // Ensure the robot will be turning in the correct direction
     if (turn_left_ == true && command.angular.z < 0.0) {
@@ -866,9 +860,9 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
   if (dist == 0.0) {
     // Turn in place
-    angle_ = angle;
-    turn_left_ = turn_left;
-    turnInPlace();
+//    angle_ = angle;
+//    turn_left_ = turn_left;
+    turnInPlace(angle, turn_left);
 
     return;
   }
