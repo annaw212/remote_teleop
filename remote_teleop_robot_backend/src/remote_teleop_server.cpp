@@ -127,6 +127,7 @@ RemoteTeleop::RemoteTeleop()
   point_click_running_ = false;
   obstacle_detected_ = false;
   stop_ = false;
+  goal_marker_ = false;
 
   // Send the initial velocities to rviz
   initializeFrontendVelocities(lin_vel_, ang_vel_);
@@ -298,6 +299,16 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
   marker.color.g = 0.5;
   marker.color.b = 0.5;
   marker.color.a = 1.0;
+  
+  if (goal_marker_ == true) {
+    marker.pose.position.x = nav_goal_pose_.position.x;
+    marker.pose.position.y = nav_goal_pose_.position.y;
+    marker.pose.position.z = nav_goal_pose_.position.z;
+    marker.pose.orientation.x = nav_goal_pose_.orientation.x;
+    marker.pose.orientation.y = nav_goal_pose_.orientation.y;
+    marker.pose.orientation.z = nav_goal_pose_.orientation.z;
+    marker.pose.orientation.w = nav_goal_pose_.orientation.w;
+  }
 
   return marker;
 }
@@ -685,7 +696,9 @@ void RemoteTeleop::pointClickCallback(
   int_marker_server_.clear();
   int_marker_server_.applyChanges();
   
-  placeGoalMarker();
+  goal_marker_ = true;
+  initializeIntMarkers();
+  goal_marker_ = false;
 
   // Determine direction to turn, and turn to face goal location
   // The reason for having the navigation command inside this function instead
@@ -745,6 +758,9 @@ void RemoteTeleop::pointClickCallback(
   point_click_server_.setSucceeded(point_click_result_);
 
   // Snap the interactive marker back to (0,0,0)
+  int_marker_server_.clear();
+  int_marker_server_.applyChanges();
+  
   initializeIntMarkers();
 
   // Set a variable to signal that navigation is complete

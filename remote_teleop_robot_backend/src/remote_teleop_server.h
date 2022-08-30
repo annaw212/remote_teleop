@@ -112,6 +112,7 @@ private:
   bool point_click_running_;
   bool obstacle_detected_;
   bool stop_;
+  bool goal_marker_;
 
   visualization_msgs::InteractiveMarker int_marker_;  // Interactive marker
   visualization_msgs::Marker marker_;                 // Regular marker TODO necessary?
