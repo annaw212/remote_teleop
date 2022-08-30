@@ -97,10 +97,10 @@ private:
   float lin_vel_;                                     // Max linear velocity
   float ang_vel_;                                     // Max angular velocity
 
-  geometry_msgs::Pose current_odom_pose_;             // Odometry pose
+  geometry_msgs::PoseStamped current_odom_pose_;      // Odometry pose
 
-  geometry_msgs::Pose nav_goal_pose_;                 // Navigation goal pose
-
+  geometry_msgs::PoseStamped nav_goal_pose_;          // Navigation goal pose
+  // TODO: remove this
   std::string nav_goal_frame_;                        // Frame of navigation goal
 
   bool turn_in_place_running_;                        // State variables
@@ -130,7 +130,7 @@ private:
   makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg);
   void placeGoalMarker();
 
-  // Callback member methods
+  // Callbacks for action server interface
   void turnInPlaceCallback(
       const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal);
   void pointClickCallback(
@@ -164,9 +164,8 @@ private:
   // Nudge member methods
   void nudge(float x_dist, float y_dist, float dist);
 
-  // Miscellaneous member methods
-  geometry_msgs::PoseStamped transformGoalToOdom(geometry_msgs::Point &point,
-                                                 const std::string init_frame,
+  // Helper functions
+  geometry_msgs::PoseStamped transformGoalToOdom(geometry_msgs::PoseStamped pose,
                                                  const std::string goal_frame);
   geometry_msgs::Point
   translateCoordinateToCostmap(geometry_msgs::Point &point);

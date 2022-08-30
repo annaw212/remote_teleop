@@ -99,21 +99,21 @@ RemoteTeleop::RemoteTeleop()
   lin_vel_ = INIT_LIN_VEL;                // Velocity
   ang_vel_ = INIT_ANG_VEL;
 
-  current_odom_pose_.position.x = 0.0;    // Current odometry pose
-  current_odom_pose_.position.y = 0.0;
-  current_odom_pose_.position.z = 0.0;
-  current_odom_pose_.orientation.w = 0.0;
-  current_odom_pose_.orientation.x = 0.0;
-  current_odom_pose_.orientation.y = 0.0;
-  current_odom_pose_.orientation.z = 0.0;
+  current_odom_pose_.pose.position.x = 0.0;    // Current odometry pose
+  current_odom_pose_.pose.position.y = 0.0;
+  current_odom_pose_.pose.position.z = 0.0;
+  current_odom_pose_.pose.orientation.w = 0.0;
+  current_odom_pose_.pose.orientation.x = 0.0;
+  current_odom_pose_.pose.orientation.y = 0.0;
+  current_odom_pose_.pose.orientation.z = 0.0;
 
-  nav_goal_pose_.position.x = 0.0;        // Navigation goal pose
-  nav_goal_pose_.position.y = 0.0;
-  nav_goal_pose_.position.z = 0.0;
-  nav_goal_pose_.orientation.w = 0.0;
-  nav_goal_pose_.orientation.x = 0.0;
-  nav_goal_pose_.orientation.y = 0.0;
-  nav_goal_pose_.orientation.z = 0.0;
+  nav_goal_pose_.pose.position.x = 0.0;        // Navigation goal pose
+  nav_goal_pose_.pose.position.y = 0.0;
+  nav_goal_pose_.pose.position.z = 0.0;
+  nav_goal_pose_.pose.orientation.w = 0.0;
+  nav_goal_pose_.pose.orientation.x = 0.0;
+  nav_goal_pose_.pose.orientation.y = 0.0;
+  nav_goal_pose_.pose.orientation.z = 0.0;
 
   turn_in_place_running_ = false;         // State booleans
   point_click_running_ = false;
@@ -317,47 +317,47 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 }
 
 /*-----------------------------------------------------------------------------------*/
+// TODO: remove this function
+//void RemoteTeleop::placeGoalMarker() {
+//  marker_.header.frame_id = "base_link";
+//  marker_.header.stamp = ros::Time::now();
+//  
+//  marker_.action = visualization_msgs::Marker::ADD;
+//  marker_.type = visualization_msgs::Marker::CUBE;
+//  marker_.id = 0;
+//  
+////  marker_.pose.position.x = 0;
+////  marker_.pose.position.y = 0;
+////  marker_.pose.position.z = 0;
+////  marker_.pose.orientation.x = 0.0;
+////  marker_.pose.orientation.y = 0.0;
+////  marker_.pose.orientation.z = 0.0;
+////  marker_.pose.orientation.w = 1.0;
 
-void RemoteTeleop::placeGoalMarker() {
-  marker_.header.frame_id = "base_link";
-  marker_.header.stamp = ros::Time::now();
-  
-  marker_.action = visualization_msgs::Marker::ADD;
-  marker_.type = visualization_msgs::Marker::CUBE;
-  marker_.id = 0;
-  
-//  marker_.pose.position.x = 0;
-//  marker_.pose.position.y = 0;
-//  marker_.pose.position.z = 0;
-//  marker_.pose.orientation.x = 0.0;
-//  marker_.pose.orientation.y = 0.0;
-//  marker_.pose.orientation.z = 0.0;
-//  marker_.pose.orientation.w = 1.0;
-
-  marker_.pose.position.x = nav_goal_pose_.position.x;
-  marker_.pose.position.y = nav_goal_pose_.position.y;
-  marker_.pose.position.z = nav_goal_pose_.position.z;
-  marker_.pose.orientation.x = nav_goal_pose_.orientation.x;
-  marker_.pose.orientation.y = nav_goal_pose_.orientation.y;
-  marker_.pose.orientation.z = nav_goal_pose_.orientation.z;
-  marker_.pose.orientation.w = nav_goal_pose_.orientation.w;
-  
-  
-  ROS_INFO_STREAM(nav_goal_pose_);
-  ROS_INFO_STREAM(marker_.pose);
-  
-  marker_.scale.x = 1.0;
-  marker_.scale.y = 1.0;
-  marker_.scale.z = 1.0;
-  
-  marker_.color.r = 0.0;
-  marker_.color.g = 1.0;
-  marker_.color.b = 1.0;
-  marker_.color.a = 1.0;
-  
-  marker_publisher_.publish(marker_);
-  
-}
+//  marker_.pose.position.x = nav_goal_pose_.position.x;
+//  marker_.pose.position.y = nav_goal_pose_.position.y;
+//  marker_.pose.position.z = nav_goal_pose_.position.z;
+//  marker_.pose.orientation.x = nav_goal_pose_.orientation.x;
+//  marker_.pose.orientation.y = nav_goal_pose_.orientation.y;
+//  marker_.pose.orientation.z = nav_goal_pose_.orientation.z;
+//  marker_.pose.orientation.w = nav_goal_pose_.orientation.w;
+//  
+//  
+//  ROS_INFO_STREAM(nav_goal_pose_);
+//  ROS_INFO_STREAM(marker_.pose);
+//  
+//  marker_.scale.x = 1.0;
+//  marker_.scale.y = 1.0;
+//  marker_.scale.z = 1.0;
+//  
+//  marker_.color.r = 0.0;
+//  marker_.color.g = 1.0;
+//  marker_.color.b = 1.0;
+//  marker_.color.a = 1.0;
+//  
+//  marker_publisher_.publish(marker_);
+//  
+//}
 
 /*-----------------------------------------------------------------------------------*/
 
@@ -400,10 +400,8 @@ void RemoteTeleop::processIntMarkerFeedback(
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
 
   // Grab the incoming position info from the marker
-  nav_goal_pose_ = feedback->pose;
-
-  // Grab the nav goal frame for later transformations
-  nav_goal_frame_ = feedback->header.frame_id;
+  nav_goal_pose_.header = feedback->header;
+  nav_goal_pose_.pose = feedback->pose;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -411,17 +409,8 @@ void RemoteTeleop::processIntMarkerFeedback(
 void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 
   // Grab the odometry position and orientation values out of the message
-  current_odom_pose_ = msg.pose.pose;
-
-//  // Grab the odometry quaternion values out of the message
-//  tf::Quaternion q(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y,
-//                   msg.pose.pose.orientation.z, msg.pose.pose.orientation.w);
-
-//  // Turn the quaternion values into a matrix
-//  tf::Matrix3x3 m(q);
-
-//  // Extract the euler angles from the matrix
-//  m.getRPY(roll_, pitch_, yaw_);
+  current_odom_pose_.header = msg.header;
+  current_odom_pose_.pose = msg.pose.pose;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -510,7 +499,7 @@ void RemoteTeleop::turnInPlace(float angle, bool turn_left) {
   
   // Calculate current yaw angle
   std::array<tfScalar,3> curr_angle;
-  curr_angle = eulerFromQuaternion(current_odom_pose_);
+  curr_angle = eulerFromQuaternion(current_odom_pose_.pose);
 
   if (turn_left == false) {
     // TURNING RIGHT
@@ -539,13 +528,11 @@ void RemoteTeleop::turnInPlace(float angle, bool turn_left) {
     }
   }
   
-  ROS_INFO_STREAM("Goal angle: " << goal_yaw << " Input angle: " << angle << " Current angle: " << curr_angle[2] << " Turn Left?: " << turn_left);
-
   // Turn the robot until it reaches the desired angle
   while (abs(goal_yaw - curr_angle[2]) > THRESHOLD && !stop_) {
   
     // Calculate current yaw angle
-    curr_angle = eulerFromQuaternion(current_odom_pose_);
+    curr_angle = eulerFromQuaternion(current_odom_pose_.pose);
 
     // Set the turn rate
     command.angular.z = ang_vel_ * (goal_yaw - curr_angle[2]);
@@ -587,22 +574,25 @@ void RemoteTeleop::pointClickCallback(
 
   // Store values of position and orientation in local variables so they don't
   // change during calculations
-  geometry_msgs::Pose goal_pose;
+  // TODO: why do we declare goal_pose instead of just using nav_goal_pose_?
+  geometry_msgs::PoseStamped goal_pose;
   goal_pose =
       nav_goal_pose_; // in relation to the robot, which thinks it's at (0,0,0)
 
   // Put that into base link
-  tf2_ros::Buffer tf_buffer;
-  tf2_ros::TransformListener tf2_listener(tf_buffer);
-  geometry_msgs::TransformStamped nav_goal_frame_to_base_link;
-  nav_goal_frame_to_base_link = tf_buffer.lookupTransform(
-      "base_link", nav_goal_frame_, ros::Time(0), ros::Duration(1.0));
+//  tf2_ros::Buffer tf_buffer;
+//  tf2_ros::TransformListener tf2_listener(tf_buffer);
+//  geometry_msgs::TransformStamped nav_goal_frame_to_base_link;
+//  nav_goal_frame_to_base_link = tf_buffer.lookupTransform(
+//      "base_link", nav_goal_frame_, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values
   geometry_msgs::PoseStamped base_link_goal;
-  base_link_goal.pose = goal_pose;
-  tf2::doTransform(base_link_goal, base_link_goal, nav_goal_frame_to_base_link);
+  std::string goal_frame = "base_link";
+//  base_link_goal.pose = goal_pose;
+//  tf2::doTransform(base_link_goal, base_link_goal, nav_goal_frame_to_base_link);
+  base_link_goal = transformGoalToOdom(goal_pose, goal_frame);
 
   // Declare local variables
   float travel_dist = 0.0;
@@ -612,13 +602,13 @@ void RemoteTeleop::pointClickCallback(
 
   // Calculate the distance needed to travel
   travel_dist =
-      sqrt(pow(abs(goal_pose.position.x - current_odom_pose_.position.x), 2) +
-           pow(abs(goal_pose.position.y - current_odom_pose_.position.y), 2));
+      sqrt(pow(abs(goal_pose.pose.position.x - current_odom_pose_.pose.position.x), 2) +
+           pow(abs(goal_pose.pose.position.y - current_odom_pose_.pose.position.y), 2));
 
   // Calculate the angle needed to turn to face goal point
   // TODO: figure out a better way to do this
-  if (abs(current_odom_pose_.position.x - goal_pose.position.x) <= 0.001 &&
-      abs(current_odom_pose_.position.y - goal_pose.position.y) <= 0.001) {
+  if (abs(current_odom_pose_.pose.position.x - goal_pose.pose.position.x) <= 0.001 &&
+      abs(current_odom_pose_.pose.position.y - goal_pose.pose.position.y) <= 0.001) {
     theta1 = 0;
   } else {
     theta1 =
@@ -638,15 +628,15 @@ void RemoteTeleop::pointClickCallback(
 
   // Set the goal coordinates on the costmap grid
   geometry_msgs::Point curr_coords, goal_coords;
-  curr_coords.x = current_odom_pose_.position.x;
-  curr_coords.x = current_odom_pose_.position.y;
-  goal_coords.x = goal_pose.position.x;
-  goal_coords.x = goal_pose.position.y;
+  curr_coords.x = current_odom_pose_.pose.position.x;
+  curr_coords.x = current_odom_pose_.pose.position.y;
+//  goal_coords.x = nav_goal_pose_.position.x; // TODO used to be goal_pose
+//  goal_coords.x = nav_goal_pose_.position.y;
 
   // Transform goal to odom
   geometry_msgs::PoseStamped pose;
-  std::string goal_frame = "odom";
-  pose = transformGoalToOdom(goal_coords, nav_goal_frame_, goal_frame);
+  goal_frame = "odom";
+  pose = transformGoalToOdom(nav_goal_pose_, goal_frame);
 
   // Translate current and goal coordinates to costmap
   curr_coords = translateCoordinateToCostmap(curr_coords);
@@ -663,8 +653,8 @@ void RemoteTeleop::pointClickCallback(
   float dx = abs(goal_x - curr_x);
   float dy = abs(goal_y - curr_y);
 
-  if (abs(current_odom_pose_.position.x - goal_pose.position.x) <= 0.001 &&
-      abs(current_odom_pose_.position.y - goal_pose.position.y) <= 0.001) {
+  if (abs(current_odom_pose_.pose.position.x - goal_pose.pose.position.x) <= 0.001 &&
+      abs(current_odom_pose_.pose.position.y - goal_pose.pose.position.y) <= 0.001) {
     if (dx > dy) {
       // Slope is less than 1
       obstacleCheck(curr_x, curr_y, goal_x, goal_y, dx, dy, true);
@@ -716,7 +706,7 @@ void RemoteTeleop::pointClickCallback(
     }
 
     // Drive straight to goal location
-    navigate(0.0, true, goal_pose.position.x, goal_pose.position.y, travel_dist,
+    navigate(0.0, true, goal_pose.pose.position.x, goal_pose.pose.position.y, travel_dist,
              goal_x, goal_y, dx, dy);
 
     // Calculate angle to turn by from goal to goal orientation
@@ -796,20 +786,20 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
   if (angle == 0.0) {
     // Determine goal coordinates
     geometry_msgs::Point start, goal;
-    start.x = current_odom_pose_.position.x;
-    start.y = current_odom_pose_.position.y;
+    start.x = current_odom_pose_.pose.position.x;
+    start.y = current_odom_pose_.pose.position.y;
     goal.x = start.x + x_dist;
     goal.y = start.y + y_dist;
     // Drive straight
-    while (abs(dist) - (sqrt(pow(current_odom_pose_.position.x - start.x, 2) +
-                             pow(current_odom_pose_.position.y - start.y, 2))) >
+    while (abs(dist) - (sqrt(pow(current_odom_pose_.pose.position.x - start.x, 2) +
+                             pow(current_odom_pose_.pose.position.y - start.y, 2))) >
                THRESHOLD &&
            !stop_) {
 
       // Check for obstacles
       geometry_msgs::Point start_point;
-      start_point.x = current_odom_pose_.position.x;
-      start_point.y = current_odom_pose_.position.y;
+      start_point.x = current_odom_pose_.pose.position.x;
+      start_point.y = current_odom_pose_.pose.position.y;
 
       // Translate the current coordinates to the costmap
       start_point = translateCoordinateToCostmap(start_point);
@@ -842,8 +832,8 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
 
       // Set the linear velocity
       command.linear.x =
-          std::min(lin_vel_ * abs((goal.x - current_odom_pose_.position.x)),
-                   lin_vel_ * abs((goal.y - current_odom_pose_.position.y)));
+          std::min(lin_vel_ * abs((goal.x - current_odom_pose_.pose.position.x)),
+                   lin_vel_ * abs((goal.y - current_odom_pose_.pose.position.y)));
       //Make sure the velocity is within the set bounds
       if (command.linear.x > lin_vel_) {
         command.linear.x = lin_vel_;
@@ -982,8 +972,7 @@ RemoteTeleop::translateCoordinateToCostmap(geometry_msgs::Point &point) {
 /*-----------------------------------------------------------------------------------*/
 
 geometry_msgs::PoseStamped
-RemoteTeleop::transformGoalToOdom(geometry_msgs::Point &point,
-                                  const std::string init_frame,
+RemoteTeleop::transformGoalToOdom(geometry_msgs::PoseStamped pose,
                                   const std::string goal_frame) {
                                   
   // Create all the necessary variables
@@ -991,8 +980,8 @@ RemoteTeleop::transformGoalToOdom(geometry_msgs::Point &point,
 
   // Set the robot_pose values --> these are the values of our goal since that
   // is the point that needs to be converted from base link to odom frame
-  robot_pose.pose.position.x = point.x;
-  robot_pose.pose.position.y = point.y;
+  robot_pose.pose.position.x = pose.pose.position.x;
+  robot_pose.pose.position.y = pose.pose.position.y;
   robot_pose.pose.position.z = 0;
   robot_pose.pose.orientation.w = 1.0;
 
@@ -1003,7 +992,7 @@ RemoteTeleop::transformGoalToOdom(geometry_msgs::Point &point,
 
   // Lookup the transform from the initial frame to odom and store in variable
   init_to_goal_frame = tf_buffer_.lookupTransform(
-      goal_frame, init_frame, ros::Time(0), ros::Duration(1.0));
+      goal_frame, pose.header.frame_id, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values
@@ -1035,21 +1024,21 @@ void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
 
   // Determine goal coordinates
   geometry_msgs::Point start, goal;
-  start.x = current_odom_pose_.position.x;
-  start.y = current_odom_pose_.position.y;
+  start.x = current_odom_pose_.pose.position.x;
+  start.y = current_odom_pose_.pose.position.y;
   goal.x = start.x + x_dist;
   goal.y = start.y + y_dist;
   
   // Drive straight
-  while (abs(dist) - (sqrt(pow(current_odom_pose_.position.x - start.x, 2) +
-                           pow(current_odom_pose_.position.y - start.y, 2))) >
+  while (abs(dist) - (sqrt(pow(current_odom_pose_.pose.position.x - start.x, 2) +
+                           pow(current_odom_pose_.pose.position.y - start.y, 2))) >
              THRESHOLD &&
          !stop_) {
 
     // Set the linear velocity
     command.linear.x =
-        std::min(lin_vel_ * abs((goal.x - current_odom_pose_.position.x)),
-                 lin_vel_ * abs((goal.y - current_odom_pose_.position.y)));
+        std::min(lin_vel_ * abs((goal.x - current_odom_pose_.pose.position.x)),
+                 lin_vel_ * abs((goal.y - current_odom_pose_.pose.position.y)));
     // Make sure the velocity is within the set bounds
     if (command.linear.x > lin_vel_) {
       command.linear.x = lin_vel_;
