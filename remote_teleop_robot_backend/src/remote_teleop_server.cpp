@@ -289,7 +289,7 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
 //    point.x = nav_goal_pose_.position.x;
 //    point.y = nav_goal_pose_.position.y;
 //    point.z = nav_goal_pose_.position.z;
-//    point = transformGoalToOdom(point, nav_goal_frame_, "odom");
+//    point = transformPose(point, nav_goal_frame_, "odom");
 //    point = translateCoordinateToCostmap(point);
 //    marker.pose.position.x = point.x;
 //    marker.pose.position.y = point.y;
@@ -592,7 +592,7 @@ void RemoteTeleop::pointClickCallback(
   std::string goal_frame = "base_link";
 //  base_link_goal.pose = goal_pose;
 //  tf2::doTransform(base_link_goal, base_link_goal, nav_goal_frame_to_base_link);
-  base_link_goal = transformGoalToOdom(goal_pose, goal_frame);
+  base_link_goal = transformPose(goal_pose, goal_frame);
 
   // Declare local variables
   float travel_dist = 0.0;
@@ -636,7 +636,7 @@ void RemoteTeleop::pointClickCallback(
   // Transform goal to odom
   geometry_msgs::PoseStamped pose;
   goal_frame = "odom";
-  pose = transformGoalToOdom(nav_goal_pose_, goal_frame);
+  pose = transformPose(nav_goal_pose_, goal_frame);
 
   // Translate current and goal coordinates to costmap
   curr_coords = translateCoordinateToCostmap(curr_coords);
@@ -972,7 +972,7 @@ RemoteTeleop::translateCoordinateToCostmap(geometry_msgs::Point &point) {
 /*-----------------------------------------------------------------------------------*/
 
 geometry_msgs::PoseStamped
-RemoteTeleop::transformGoalToOdom(geometry_msgs::PoseStamped pose,
+RemoteTeleop::transformPose(geometry_msgs::PoseStamped pose,
                                   const std::string goal_frame) {
                                   
   // Create all the necessary variables

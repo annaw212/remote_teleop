@@ -165,7 +165,7 @@ private:
   void nudge(float x_dist, float y_dist, float dist);
 
   // Helper functions
-  geometry_msgs::PoseStamped transformGoalToOdom(geometry_msgs::PoseStamped pose,
+  geometry_msgs::PoseStamped transformPose(geometry_msgs::PoseStamped pose,
                                                  const std::string goal_frame);
   geometry_msgs::Point
   translateCoordinateToCostmap(geometry_msgs::Point &point);
