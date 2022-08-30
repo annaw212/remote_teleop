@@ -604,7 +604,7 @@ void RemoteTeleop::pointClickCallback(
   travel_dist =
       sqrt(pow(abs(goal_pose.pose.position.x - current_odom_pose_.pose.position.x), 2) +
            pow(abs(goal_pose.pose.position.y - current_odom_pose_.pose.position.y), 2));
-
+  h
   // Calculate the angle needed to turn to face goal point
   // TODO: figure out a better way to do this
   if (abs(current_odom_pose_.pose.position.x - goal_pose.pose.position.x) <= 0.001 &&
