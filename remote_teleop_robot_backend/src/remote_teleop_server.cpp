@@ -539,7 +539,7 @@ void RemoteTeleop::turnInPlace(float angle, bool turn_left) {
     }
   }
   
-  ROS_DEBUG_STREAM("Goal angle: " << goal_yaw << " Input angle: " << angle << " Current angle: " << curr_angle[2]);
+  ROS_INFO_STREAM("Goal angle: " << goal_yaw << " Input angle: " << angle << " Current angle: " << curr_angle[2]);
 
   // Turn the robot until it reaches the desired angle
   while (abs(goal_yaw - curr_angle[2]) > THRESHOLD && !stop_) {
