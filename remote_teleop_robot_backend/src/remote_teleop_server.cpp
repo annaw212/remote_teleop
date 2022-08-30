@@ -551,21 +551,21 @@ void RemoteTeleop::turnInPlace(float angle, bool turn_left) {
     command.angular.z = ang_vel_ * (goal_yaw - curr_angle[2]);
 
     // Ensure the robot will be turning in the correct direction
-    if (turn_left_ == true && command.angular.z < 0.0) {
+    if (turn_left == true && command.angular.z < 0.0) {
       command.angular.z *= -1;
-    } else if (turn_left_ == false && command.angular.z > 0.0) {
+    } else if (turn_left == false && command.angular.z > 0.0) {
       command.angular.z *= -1;
     }
 
     // Ensure the robot will never be turning at a speed greater than the
     // desired angular velocity
-    if (turn_left_ == true && command.angular.z > ang_vel_) {
+    if (turn_left == true && command.angular.z > ang_vel_) {
       command.angular.z = ang_vel_;
-    } else if (turn_left_ == false && abs(command.angular.z) > ang_vel_) {
+    } else if (turn_left == false && abs(command.angular.z) > ang_vel_) {
       command.angular.z = -ang_vel_;
-    } else if (turn_left_ == true && command.angular.z < MIN_VEL) {
+    } else if (turn_left == true && command.angular.z < MIN_VEL) {
       command.angular.z = MIN_VEL;
-    } else if (turn_left_ == false && abs(command.angular.z) < MIN_VEL) {
+    } else if (turn_left == false && abs(command.angular.z) < MIN_VEL) {
       command.angular.z = -MIN_VEL;
     }
     // Publish the message to the drivers
