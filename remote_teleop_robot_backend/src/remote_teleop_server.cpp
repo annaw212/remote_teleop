@@ -580,19 +580,19 @@ void RemoteTeleop::pointClickCallback(
       nav_goal_pose_; // in relation to the robot, which thinks it's at (0,0,0)
 
   // Put that into base link
-//  tf2_ros::Buffer tf_buffer;
-//  tf2_ros::TransformListener tf2_listener(tf_buffer);
-//  geometry_msgs::TransformStamped nav_goal_frame_to_base_link;
-//  nav_goal_frame_to_base_link = tf_buffer.lookupTransform(
-//      "base_link", nav_goal_frame_, ros::Time(0), ros::Duration(1.0));
+  tf2_ros::Buffer tf_buffer;
+  tf2_ros::TransformListener tf2_listener(tf_buffer);
+  geometry_msgs::TransformStamped nav_goal_frame_to_base_link;
+  nav_goal_frame_to_base_link = tf_buffer.lookupTransform(
+      "base_link", nav_goal_frame_, ros::Time(0), ros::Duration(1.0));
 
   // Input the point you want to transform and indicate we want to just
   // overwrite that object with the transformed point values
   geometry_msgs::PoseStamped base_link_goal;
   std::string goal_frame = "base_link";
-//  base_link_goal.pose = goal_pose;
-//  tf2::doTransform(base_link_goal, base_link_goal, nav_goal_frame_to_base_link);
-  base_link_goal = transformPose(goal_pose, goal_frame);
+  base_link_goal = goal_pose;
+  tf2::doTransform(base_link_goal, base_link_goal, nav_goal_frame_to_base_link);
+//  base_link_goal = transformPose(goal_pose, goal_frame);
 
   // Declare local variables
   float travel_dist = 0.0;
