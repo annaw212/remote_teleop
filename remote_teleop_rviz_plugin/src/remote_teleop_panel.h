@@ -35,10 +35,10 @@
 #include <rviz/panel.h>
 #endif
 
-#include <QLabel>
 #include <QDoubleSpinBox>
-#include <remote_teleop_robot_backend/Velocity.h>
+#include <QLabel>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
+#include <remote_teleop_robot_backend/Velocity.h>
 
 class QLineEdit;
 
@@ -111,7 +111,7 @@ protected Q_SLOTS:
   // creates a message of the desired type, assigns the fields of
   // that message to values, and then publishes the message
   void sendNudgeGoal();
-  
+
   // sendResetMarkerGoal() checks the validity of the publisher
   // and ROS, creates a message of the desired type, assigns the
   // fields of that message to values, and then publishes the message
@@ -153,10 +153,11 @@ protected:
   // so the Rviz frontend can update their currently shown values accordingly
   void
   velocityCallback(const remote_teleop_robot_backend::VelocityConstPtr &msg);
-  
+
   // pointClickResultCallback() is subscribed to the point_click_as/result topic
   // and receives the incoming updates. It updates the status bar accordingly.
-  void pointClickResultCallback(const remote_teleop_robot_backend::PointClickNavResultConstPtr &result);
+  void pointClickResultCallback(
+      const remote_teleop_robot_backend::PointClickNavResultConstPtr &result);
 };
 
 } // namespace remote_teleop_rviz_plugin
