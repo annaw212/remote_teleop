@@ -52,7 +52,7 @@
 #include <remote_teleop_robot_backend/ResetMarkerGoal.h>
 #include <remote_teleop_robot_backend/ResetMarkerResult.h>
 
-#include "remote_teleop_server.h"
+#include "remote_teleop_robot_backend/remote_teleop_server.h"
 
 /*----------------------------------------------------------------------------------*/
 

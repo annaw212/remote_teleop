@@ -117,7 +117,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES remote_teleop
   CATKIN_DEPENDS actionlib_msgs rospy std_msgs message_runtime
 #  DEPENDS system_lib
