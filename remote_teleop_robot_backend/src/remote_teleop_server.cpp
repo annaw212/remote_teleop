@@ -118,7 +118,6 @@ RemoteTeleop::RemoteTeleop()
   point_click_running_ = false;
   obstacle_detected_ = false;
   stop_ = false;
-  goal_marker_ = false;
 
   // Send the initial velocities to rviz
   initializeFrontendVelocities(lin_vel_, ang_vel_);
@@ -282,18 +281,6 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
   marker.color.g = 0.5;
   marker.color.b = 0.5;
   marker.color.a = 1.0;
-
-  if (goal_marker_ == true) {
-    //    geometry_msgs::Point point;
-    //    point.x = nav_goal_pose_.position.x;
-    //    point.y = nav_goal_pose_.position.y;
-    //    point.z = nav_goal_pose_.position.z;
-    //    point = transformPose(point, nav_goal_frame_, "odom");
-    //    point = translateCoordinateToCostmap(point);
-    //    marker.pose.position.x = point.x;
-    //    marker.pose.position.y = point.y;
-    //    marker.pose.position.z = point.z;
-  }
 
   return marker;
 }
