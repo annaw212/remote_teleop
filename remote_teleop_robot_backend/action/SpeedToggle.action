@@ -1,0 +1,8 @@
+#goal
+float64 lin_vel
+float64 ang_vel
+---
+#result
+bool success
+---
+#feedback

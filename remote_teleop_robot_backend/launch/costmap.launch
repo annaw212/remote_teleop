@@ -1,0 +1,11 @@
+<launch>
+  
+  <!-- Publishes the costmap node stuff -->
+  <node pkg="costmap_2d" type="costmap_2d_markers" name="rt_voxel_visualizer" output="screen">
+    <remap from="voxel_grid" to="rt_costmap/voxel_grid" />
+  </node>
+  <node pkg="costmap_2d" type="costmap_2d_node" name="rt_costmap_node" output="screen">
+    <rosparam file="$(find remote_teleop_robot_backend)/launch/costmap_freight.yaml" command="load" ns="costmap" />
+  </node>
+
+</launch>

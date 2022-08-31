@@ -1,0 +1,8 @@
+#goal
+float64 dist
+bool fwd
+---
+#result
+bool success
+---
+#feedback

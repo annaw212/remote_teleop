@@ -1,0 +1,72 @@
+<launch>
+  
+  <!-- Publishes the throttled camera stream -->
+  <node pkg="topic_tools" type="throttle" name="camera_topic_throttle"  args="messages /camera_upward/left/image_raw 30 /camera_upward/left/image_raw/throttled" />
+  
+  <!-- Publishes the rotated b/w camera stream for upward camera -->
+  <node pkg="image_rotate" type="image_rotate" name="image_rotater" args="image:=/camera_upward/left/image_raw rotated/image:=camera_upward/left/image_raw/rotated" />
+  
+  <!-- Publishes the rotated camera stream for upward color camera -->
+  <node pkg="image_rotate" type="image_rotate" name="image_rotater_upward_color" args="image:=/camera_upward/color/image_raw rotated/image:=camera_upward/color/image_raw/rotated _input_frame_id:=camera_upward_rgb_optical_frame _use_camera_info:=false" />
+  
+  <!-- Publishes the rotated camera stream for downward color camera -->
+  <node pkg="image_rotate" type="image_rotate" name="image_rotater_downward_color" args="image:=/camera_downward/color/image_raw rotated/image:=camera_downward/color/image_raw/rotated _input_frame_id:=camera_downward_rgb_optical_frame _use_camera_info:=false" />
+  
+  <!-- Rotates the camera streams all the way -->
+  <node pkg="dynamic_reconfigure" type="dynparam" name="image_full_rotate" args="set_from_parameters image_rotater">
+    <param name="target_x" type="double" value="10.0" />
+    <param name="target_y" type="double" value="2.0" />
+    <param name="target_z" type="double" value="1.0" />
+    <param name="source_x" type="double" value="0.0" />
+    <param name="source_y" type="double" value="-1.0" />
+    <param name="source_z" type="double" value="0.0" />
+  </node>
+  
+  <node pkg="dynamic_reconfigure" type="dynparam" name="downward_rotate" args="set_from_parameters image_rotater_downward_color">
+    <param name="target_x" type="double" value="10.0" />
+    <param name="target_y" type="double" value="2.0" />
+    <param name="target_z" type="double" value="1.4" />
+    <param name="source_x" type="double" value="-0.2" />
+    <param name="source_y" type="double" value="-1.0" />
+    <param name="source_z" type="double" value="0.0" />
+  </node>
+  
+  <node pkg="dynamic_reconfigure" type="dynparam" name="upward_rotate" args="set_from_parameters image_rotater_upward_color">
+    <param name="target_x" type="double" value="10.0" />
+    <param name="target_y" type="double" value="2.0" />
+    <param name="target_z" type="double" value="1.0" />
+    <param name="source_x" type="double" value="0.0" />
+    <param name="source_y" type="double" value="-1.0" />
+    <param name="source_z" type="double" value="0.0" />
+  </node>
+  
+  <!-- Allows the color camera streams to be visible in Rviz -->
+  <node pkg="tf" type="static_transform_publisher" name="tf_upward_frame_rotate" args="0 0 0 0 0 0 camera_upward_rgb_optical_frame camera_upward_color_optical_frame 0.5" />
+  
+  <node pkg="tf" type="static_transform_publisher" name="tf_downward_frame_rotate" args="0 0 0 0 0 0 camera_downward_rgb_optical_frame camera_downward_color_optical_frame 0.5" />
+  
+  <!-- Publishes the remote teleop node -->
+  <node pkg="remote_teleop_robot_backend" type="remote_teleop_server" name="remote_teleop" output="screen" />
+  
+
+  <node pkg="nodelet" type="nodelet" name="standalone_nodelet" args="manager" output="screen"/>
+
+  <!-- Construct point cloud of the rgb and depth topics -->
+  <node pkg="nodelet" type="nodelet" name="upwards_points_xyzrgb" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet">
+    <remap from="depth_registered/image_rect" to="camera_upward/depth/image_raw"/> 
+    <remap from="rgb/image_rect_color" to="/camera_upward/left/image_raw"/> 
+    <remap from="rgb/camera_info" to="camera_upward/left/camera_info"/> 
+    <remap from="depth_registered/points" to="upward_depth_registered/points"/> 
+  </node>
+  
+  <node pkg="nodelet" type="nodelet" name="downwards_points_xyzrgb" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet">
+    <remap from="depth_registered/image_rect" to="camera_downward/depth/image_raw"/> 
+    <remap from="rgb/image_rect_color" to="/camera_downward/left/image_raw"/> 
+    <remap from="rgb/camera_info" to="camera_downward/left/camera_info"/> 
+    <remap from="depth_registered/points" to="downward_depth_registered/points"/> 
+  </node>
+  
+  <!-- Include the costmap launch file -->
+  <include file="$(find remote_teleop_robot_backend)/launch/costmap.launch" />
+
+</launch>

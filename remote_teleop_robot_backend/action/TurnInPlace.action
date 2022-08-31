@@ -1,0 +1,8 @@
+#goal
+float64 degrees
+bool turn_left
+---
+#result
+bool success
+---
+#feedback
