@@ -54,7 +54,7 @@
 
 #include "remote_teleop_server.h"
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 // Define variables here
 #define THRESHOLD 0.03
@@ -63,7 +63,7 @@
 #define INIT_LIN_VEL 0.5
 #define INIT_ANG_VEL 1.0
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 // CONSTRUCTOR: this will get called whenever an instance of this class is
 // created
@@ -118,13 +118,12 @@ RemoteTeleop::RemoteTeleop()
   point_click_running_ = false;
   obstacle_detected_ = false;
   stop_ = false;
-  goal_marker_ = false;
 
   // Send the initial velocities to rviz
   initializeFrontendVelocities(lin_vel_, ang_vel_);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializeSubscribers() {
 
@@ -136,7 +135,7 @@ void RemoteTeleop::initializeSubscribers() {
                                &RemoteTeleop::costmapCallback, this);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializePublishers() {
 
@@ -166,7 +165,7 @@ void RemoteTeleop::initializePublishers() {
       "rt_initial_velocities", 1);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializeActions() {
 
@@ -189,7 +188,7 @@ void RemoteTeleop::initializeActions() {
   reset_marker_server_.start();
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializeIntMarkers() {
 
@@ -250,7 +249,7 @@ void RemoteTeleop::initializeIntMarkers() {
   return;
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializeFrontendVelocities(float lin_vel, float ang_vel) {
 
@@ -265,7 +264,7 @@ void RemoteTeleop::initializeFrontendVelocities(float lin_vel, float ang_vel) {
   velocity_publisher_.publish(init_vel_msg);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
 
@@ -283,22 +282,10 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
   marker.color.b = 0.5;
   marker.color.a = 1.0;
 
-  if (goal_marker_ == true) {
-    //    geometry_msgs::Point point;
-    //    point.x = nav_goal_pose_.position.x;
-    //    point.y = nav_goal_pose_.position.y;
-    //    point.z = nav_goal_pose_.position.z;
-    //    point = transformPose(point, nav_goal_frame_, "odom");
-    //    point = translateCoordinateToCostmap(point);
-    //    marker.pose.position.x = point.x;
-    //    marker.pose.position.y = point.y;
-    //    marker.pose.position.z = point.z;
-  }
-
   return marker;
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 visualization_msgs::InteractiveMarkerControl &
 RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
@@ -315,10 +302,10 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
   return msg.controls.back();
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
- void RemoteTeleop::placeGoalMarker() {
-  
+void RemoteTeleop::placeGoalMarker() {
+
   // Create a non-interactive marker
   visualization_msgs::Marker marker;
   // Give the marker header values and a namespace
@@ -342,7 +329,7 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
   marker.pose.orientation.x = marker_pose.pose.orientation.x;
   marker.pose.orientation.y = marker_pose.pose.orientation.y;
   marker.pose.orientation.z = marker_pose.pose.orientation.z;
-  marker.pose.orientation.w = marker_pose.pose.orientation.w; 
+  marker.pose.orientation.w = marker_pose.pose.orientation.w;
   // Scale the marker
   marker.scale.x = .5;
   marker.scale.y = .5;
@@ -355,11 +342,10 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
   // Set the lifetime of the marker (0 = forever)
   marker.lifetime = ros::Duration();
   // Publish the marker
-  marker_publisher_.publish( marker );
-
+  marker_publisher_.publish(marker);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::deleteGoalMarker() {
 
@@ -370,10 +356,10 @@ void RemoteTeleop::deleteGoalMarker() {
   // Set a duration
   marker.lifetime = ros::Duration();
   // Publish the marker
-  marker_publisher_.publish( marker );
+  marker_publisher_.publish(marker);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::turnInPlaceCallback(
     const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal) {
@@ -401,7 +387,7 @@ void RemoteTeleop::turnInPlaceCallback(
   turn_in_place_running_ = false;
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::processIntMarkerFeedback(
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
@@ -411,7 +397,7 @@ void RemoteTeleop::processIntMarkerFeedback(
   nav_goal_pose_.pose = feedback->pose;
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
 
@@ -420,7 +406,7 @@ void RemoteTeleop::odomCallback(const nav_msgs::Odometry &msg) {
   current_odom_pose_.pose = msg.pose.pose;
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 
@@ -428,7 +414,7 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
   occupancy_grid_ = grid;
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::resetMarkerCallback(
     const remote_teleop_robot_backend::ResetMarkerGoalConstPtr &msg) {
@@ -443,7 +429,7 @@ void RemoteTeleop::resetMarkerCallback(
   reset_marker_server_.setSucceeded(reset_marker_result_);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::nudgeCallback(
     const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
@@ -473,7 +459,7 @@ void RemoteTeleop::nudgeCallback(
   initializeIntMarkers();
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::speedToggleCallback(
     const remote_teleop_robot_backend::SpeedToggleGoalConstPtr &goal) {
@@ -487,7 +473,7 @@ void RemoteTeleop::speedToggleCallback(
   velocity_server_.setSucceeded(velocity_result_);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::turnInPlace(float angle, bool turn_left) {
 
@@ -573,7 +559,7 @@ void RemoteTeleop::turnInPlace(float angle, bool turn_left) {
   turn_in_place_publisher_.publish(command);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::pointClickCallback(
     const remote_teleop_robot_backend::PointClickNavGoalConstPtr &msg) {
@@ -659,12 +645,12 @@ void RemoteTeleop::pointClickCallback(
   pose.pose.position.y = goal_coords.y;
   goal_frame = "odom";
   pose = transformPose(pose, goal_frame);
-  
+
   // Translate current and goal coordinates to costmap
   curr_coords = translateCoordinateToCostmap(curr_coords);
   goal_coords = translateCoordinateToCostmap(
       pose.pose.position); // used to be goal_coords
-      
+
   // Extract the values of the coordinates into int variables
   int curr_x = curr_coords.x;
   int curr_y = curr_coords.y;
@@ -705,7 +691,7 @@ void RemoteTeleop::pointClickCallback(
   // TODO: Delete the interactive marker so it's not confusing during navigation
   int_marker_server_.clear();
   int_marker_server_.applyChanges();
-  
+
   placeGoalMarker();
 
   // Determine direction to turn, and turn to face goal location
@@ -774,7 +760,7 @@ void RemoteTeleop::pointClickCallback(
   point_click_running_ = false;
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
                             float y_dist, float dist, float x2, float y2,
@@ -880,7 +866,7 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
   }
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::stopNavCallback(
     const remote_teleop_robot_backend::StopNavGoalConstPtr &goal) {
@@ -909,7 +895,7 @@ void RemoteTeleop::stopNavCallback(
   stop_action_server_.setSucceeded(stop_nav_result_);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::stopMovement() {
 
@@ -928,7 +914,7 @@ void RemoteTeleop::stopMovement() {
   stop_publisher_.publish(command);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
                                  float dx, float dy, bool smallSlope) {
@@ -975,7 +961,7 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
   }
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 geometry_msgs::Point
 RemoteTeleop::translateCoordinateToCostmap(geometry_msgs::Point &point) {
@@ -983,15 +969,15 @@ RemoteTeleop::translateCoordinateToCostmap(geometry_msgs::Point &point) {
   // Shift the points by the offset of the costmap from odom
   point.x -= occupancy_grid_.info.origin.position.x;
   point.y -= occupancy_grid_.info.origin.position.y;
-  
+
   // Scale the coordinates by the resolution
   point.x = ceil(point.x / occupancy_grid_.info.resolution);
   point.y = ceil(point.y / occupancy_grid_.info.resolution);
-  
+
   return point;
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 geometry_msgs::PoseStamped
 RemoteTeleop::transformPose(geometry_msgs::PoseStamped pose,
@@ -1024,7 +1010,8 @@ RemoteTeleop::transformPose(geometry_msgs::PoseStamped pose,
 
   return robot_pose;
 }
-/*-----------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
 
@@ -1081,7 +1068,7 @@ void RemoteTeleop::nudge(float x_dist, float y_dist, float dist) {
   point_click_nav_publisher_.publish(command);
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 std::array<tfScalar, 3>
 RemoteTeleop::eulerFromQuaternion(geometry_msgs::Pose &angle) {
@@ -1102,7 +1089,7 @@ RemoteTeleop::eulerFromQuaternion(geometry_msgs::Pose &angle) {
   return arr;
 }
 
-/*-----------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 int main(int argc, char **argv) {
 

@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 
+#include <QApplication>
 #include <QDoubleSpinBox>
 #include <QHBoxLayout>
 #include <QIntValidator>
@@ -39,14 +40,13 @@
 #include <QString>
 #include <QVBoxLayout>
 #include <QValidator>
-#include <QApplication>
 
 #include <remote_teleop_robot_backend/NudgeActionGoal.h>
 #include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
+#include <remote_teleop_robot_backend/ResetMarkerActionGoal.h>
 #include <remote_teleop_robot_backend/SpeedToggleActionGoal.h>
 #include <remote_teleop_robot_backend/StopNavActionGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
-#include <remote_teleop_robot_backend/ResetMarkerActionGoal.h>
 #include <remote_teleop_robot_backend/Velocity.h>
 
 #include "remote_teleop_panel.h"
@@ -111,7 +111,7 @@ RemoteTeleopPanel::RemoteTeleopPanel(QWidget *parent)
   QPushButton *confirm_coords_ = new QPushButton(this);
   confirm_coords_->setText(tr("Confirm Coordinates"));
   nav_layout->addWidget(confirm_coords_);
-  
+
   // Create a button for resetting the marker and add to the horizontal box
   QPushButton *reset_marker_ = new QPushButton(this);
   reset_marker_->setText(tr("Reset Marker"));
@@ -154,14 +154,12 @@ RemoteTeleopPanel::RemoteTeleopPanel(QWidget *parent)
   stop_nav_button_->setText(tr("STOP"));
   stop_nav_button_->setStyleSheet(
       "font:bold;background-color:red;font-size:36px;height:42px;width:100px");
-      
-      
+
   status_label_ = new QLabel("Status: ");
 
   // Add the horizontal box to the vertical box layout
   topic_layout->addWidget(status_label_);
-  topic_layout->addWidget(
-      new QLabel("Point-and-Click Navigation"));
+  topic_layout->addWidget(new QLabel("Point-and-Click Navigation"));
   topic_layout->addLayout(nav_layout);
   topic_layout->addWidget(new QLabel("Turn in Place"));
   topic_layout->addLayout(button_layout);
@@ -351,7 +349,7 @@ void RemoteTeleopPanel::sendNudgeGoal() {
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleopPanel::sendResetMarkerGoal() {
-  
+
   // Make sure the publisher exists and ROS is not shutting down
   if (ros::ok() && reset_marker_goal_publisher_) {
     // Create a message of the desired type
@@ -383,8 +381,11 @@ void RemoteTeleopPanel::velocityCallback(
 
 /*-----------------------------------------------------------------------------------*/
 
-void RemoteTeleopPanel::pointClickResultCallback(const remote_teleop_robot_backend::PointClickNavResultConstPtr &result) {
-// This wasn't being printed yesterday, so maybe try to figure out if this message is even being published. I would recommend 'rosmsg echo' :) Good luck
+void RemoteTeleopPanel::pointClickResultCallback(
+    const remote_teleop_robot_backend::PointClickNavResultConstPtr &result) {
+  // This wasn't being printed yesterday, so maybe try to figure out if this
+  // message is even being published. I would recommend 'rosmsg echo' :) Good
+  // luck
   printf("Got here\n");
   if (result->success == true) {
     status_label_->setText("Status: Navigation completed successfully.");
@@ -430,7 +431,8 @@ void RemoteTeleopPanel::load(const rviz::Config &config) {
   vel_goal_publisher_ =
       nh_.advertise<remote_teleop_robot_backend::SpeedToggleActionGoal>(
           "speed_toggle_as/goal", 1);
-  reset_marker_goal_publisher_ = nh_.advertise<remote_teleop_robot_backend::ResetMarkerActionGoal>(
+  reset_marker_goal_publisher_ =
+      nh_.advertise<remote_teleop_robot_backend::ResetMarkerActionGoal>(
           "reset_marker_as/goal", 1);
   Q_EMIT configChanged();
 }
@@ -441,4 +443,5 @@ void RemoteTeleopPanel::load(const rviz::Config &config) {
 // loadable by pluginlib::ClassLoader must have these two lines
 // compiled in its .cpp file, outside of any namespace scope.
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(remote_teleop_rviz_plugin::RemoteTeleopPanel, rviz::Panel)
+PLUGINLIB_EXPORT_CLASS(remote_teleop_rviz_plugin::RemoteTeleopPanel,
+                       rviz::Panel)
