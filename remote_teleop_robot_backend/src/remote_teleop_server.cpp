@@ -292,8 +292,7 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
 
 /*----------------------------------------------------------------------------------*/
 
-visualization_msgs::InteractiveMarkerControl &
-RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
+void RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 
   // Create an interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
@@ -303,8 +302,6 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
   control.markers.push_back(makeIntMarker());
   // Assign the control to an interactive marker
   msg.controls.push_back(control);
-
-  return msg.controls.back();
 }
 
 /*----------------------------------------------------------------------------------*/
