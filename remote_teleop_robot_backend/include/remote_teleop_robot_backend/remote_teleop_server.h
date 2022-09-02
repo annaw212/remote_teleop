@@ -124,8 +124,7 @@ private:
 
   // Marker member methods
   visualization_msgs::Marker makeIntMarker();
-  visualization_msgs::InteractiveMarkerControl &
-  makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg);
+  void makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg);
   void placeGoalMarker();
   void deleteGoalMarker();
 

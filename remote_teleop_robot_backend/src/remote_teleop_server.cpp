@@ -267,28 +267,32 @@ void RemoteTeleop::initializeFrontendVelocities(float lin_vel, float ang_vel) {
 /*----------------------------------------------------------------------------------*/
 
 visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
-
   // Create a marker
   visualization_msgs::Marker marker;
-  // Assign a type to the marker
-  marker_.type = visualization_msgs::Marker::ARROW;
+  marker.header.frame_id = "base_link";
+  // Use mesh
+  marker.type = visualization_msgs::Marker::MESH_RESOURCE;
   // Scale the marker
   marker.scale.x = 1.0;
-  marker.scale.y = 0.45;
-  marker.scale.z = 0.45;
+  marker.scale.y = 1.0;
+  marker.scale.z = 1.0;
   // Assign colors to the marker
-  marker.color.r = 1.0;
+  marker.color.r = 0.5;
   marker.color.g = 0.5;
-  marker.color.b = 0.5;
+  marker.color.b = 0.0;
   marker.color.a = 1.0;
+  marker.mesh_use_embedded_materials = false;
+
+  // Add the mesh
+  marker.mesh_resource = "package://freight_100_description/meshes/freight.dae";
+  marker.pose.orientation.w = 1;
 
   return marker;
 }
 
 /*----------------------------------------------------------------------------------*/
 
-visualization_msgs::InteractiveMarkerControl &
-RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
+void RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
 
   // Create an interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
@@ -298,8 +302,6 @@ RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
   control.markers.push_back(makeIntMarker());
   // Assign the control to an interactive marker
   msg.controls.push_back(control);
-
-  return msg.controls.back();
 }
 
 /*----------------------------------------------------------------------------------*/

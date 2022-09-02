@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   costmap_2d
   rviz_visual_tools
   nodelet
+  freight_100_description
 )
 
 ## System dependencies are found with CMake's conventions

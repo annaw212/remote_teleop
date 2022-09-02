@@ -49,6 +49,7 @@
   <build_depend>visualization_msgs</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>nodelet</build_depend>
+  <build_depend>freight_100_description</build_depend>
 
   
   <build_export_depend>actionlib_msgs</build_export_depend>
@@ -66,6 +67,7 @@
   <exec_depend>visualization_msgs</exec_depend>
   <exec_depend>tf</exec_depend>
   <exec_depend>nodelet</exec_depend>
+  <exec_depend>freight_100_description</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
