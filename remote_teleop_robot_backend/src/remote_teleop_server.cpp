@@ -277,9 +277,9 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
   marker.scale.y = 1.0;
   marker.scale.z = 1.0;
   // Assign colors to the marker
-  marker.color.r = 0.5;
-  marker.color.g = 0.5;
-  marker.color.b = 0.0;
+  marker.color.r = 0.1;
+  marker.color.g = 0.56;
+  marker.color.b = 1.0;
   marker.color.a = 1.0;
   marker.mesh_use_embedded_materials = false;
 
