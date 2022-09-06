@@ -308,43 +308,80 @@ void RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &m
 
 void RemoteTeleop::placeGoalMarker() {
 
-  // Create a non-interactive marker
-  visualization_msgs::Marker marker;
-  // Give the marker header values and a namespace
-  marker.header.frame_id = "odom";
-  marker.header.stamp = ros::Time::now();
-  marker.ns = "remote_teleop_goal_marker";
-  marker.id = 0;
-  // Assign a shape to the marker and add the marker to rviz
-  marker.type = visualization_msgs::Marker::CUBE;
-  marker.action = visualization_msgs::Marker::ADD;
+  // Set the goal frame
+  std::string goal_frame = "odom";
+
+  // Create non-interactive markers
+  visualization_msgs::Marker sphere_marker;
+  visualization_msgs::Marker cylinder_marker;
+
+  // Give the markers header values and a namespace
+  sphere_marker.header.frame_id = goal_frame;
+  cylinder_marker.header.frame_id = goal_frame;
+  sphere_marker.header.stamp = ros::Time::now();
+  cylinder_marker.header.stamp = ros::Time::now();
+  sphere_marker.ns = "remote_teleop_goal_marker";
+  cylinder_marker.ns = "remote_teleop_goal_marker";
+  sphere_marker.id = 0;
+  cylinder_marker.id = 1;
+
+  // Assign shapes to the markers and add the markers to rviz
+  sphere_marker.type = visualization_msgs::Marker::SPHERE;
+  cylinder_marker.type = visualization_msgs::Marker::CYLINDER;
+
+  sphere_marker.action = visualization_msgs::Marker::ADD;
+  cylinder_marker.action = visualization_msgs::Marker::ADD;
+
   // Create a PoseStamped message to store the pose goal of the marker in
   geometry_msgs::PoseStamped marker_pose = nav_goal_pose_;
-  // Signal the goal frame
-  std::string goal_frame = "odom";
-  // Make sure the marker's goal pose is in odom
+
+  // Make sure the markers' goal poses are in odom
   marker_pose = transformPose(nav_goal_pose_, goal_frame);
+
+  // Scale the markers
+  sphere_marker.scale.x = 0.4;
+  sphere_marker.scale.y = 0.4;
+  sphere_marker.scale.z = 0.4;
+
+  cylinder_marker.scale.x = 0.1;
+  cylinder_marker.scale.y = 0.1;
+  cylinder_marker.scale.z = 0.9;
+
   // Assign the pose values to the marker
-  marker.pose.position.x = marker_pose.pose.position.x;
-  marker.pose.position.y = marker_pose.pose.position.y;
-  marker.pose.position.z = marker_pose.pose.position.z;
-  marker.pose.orientation.x = marker_pose.pose.orientation.x;
-  marker.pose.orientation.y = marker_pose.pose.orientation.y;
-  marker.pose.orientation.z = marker_pose.pose.orientation.z;
-  marker.pose.orientation.w = marker_pose.pose.orientation.w;
-  // Scale the marker
-  marker.scale.x = .5;
-  marker.scale.y = .5;
-  marker.scale.z = .5;
-  // Give the marker a color
-  marker.color.a = 1.0; // Don't forget to set the alpha!
-  marker.color.r = 0.0;
-  marker.color.g = 1.0;
-  marker.color.b = 0.0;
-  // Set the lifetime of the marker (0 = forever)
-  marker.lifetime = ros::Duration();
-  // Publish the marker
-  marker_publisher_.publish(marker);
+  sphere_marker.pose.position.x = marker_pose.pose.position.x;
+  sphere_marker.pose.position.y = marker_pose.pose.position.y;
+  sphere_marker.pose.position.z = marker_pose.pose.position.z + cylinder_marker.scale.z;
+  sphere_marker.pose.orientation.x = 0.0;
+  sphere_marker.pose.orientation.y = 0.0;
+  sphere_marker.pose.orientation.z = 0.0;
+  sphere_marker.pose.orientation.w = 1.0;
+
+  cylinder_marker.pose.position.x = marker_pose.pose.position.x;
+  cylinder_marker.pose.position.y = marker_pose.pose.position.y;
+  cylinder_marker.pose.position.z = marker_pose.pose.position.z + cylinder_marker.scale.z / 2.0;
+  cylinder_marker.pose.orientation.x = 0.0;
+  cylinder_marker.pose.orientation.y = 0.0;
+  cylinder_marker.pose.orientation.z = 0.0;
+  cylinder_marker.pose.orientation.w = 1.0;
+
+  // Give the markers colors
+  sphere_marker.color.r = 1.0;
+  sphere_marker.color.g = 0.0;
+  sphere_marker.color.b = 0.0;
+  sphere_marker.color.a = 1.0;
+
+  cylinder_marker.color.r = 0.9;
+  cylinder_marker.color.g = 0.9;
+  cylinder_marker.color.b = 0.9;
+  cylinder_marker.color.a = 1.0;
+
+  // Set the lifetime of the markers; ros::Duration() = forever
+  sphere_marker.lifetime = ros::Duration();
+  cylinder_marker.lifetime = ros::Duration();
+
+  // Publish the markers
+  marker_publisher_.publish(sphere_marker);
+  marker_publisher_.publish(cylinder_marker);
 }
 
 /*----------------------------------------------------------------------------------*/
