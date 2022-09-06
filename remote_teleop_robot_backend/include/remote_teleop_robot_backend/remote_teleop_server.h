@@ -120,11 +120,14 @@ private:
   void initializePublishers();
   void initializeActions();
   void initializeIntMarkers();
+  void initializeIntMarkers(const geometry_msgs::PoseStamped &marker_pose);
   void initializeFrontendVelocities(float lin_vel, float ang_vel);
 
   // Marker member methods
-  visualization_msgs::Marker makeIntMarker();
-  void makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg);
+  visualization_msgs::Marker makeIntMarker(const geometry_msgs::PoseStamped &marker_pose);
+  void makeIntMarkerControl(
+      visualization_msgs::InteractiveMarker &msg,
+      const geometry_msgs::PoseStamped &marker_pose);
   void placeGoalMarker();
   void deleteGoalMarker();
 

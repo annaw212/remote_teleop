@@ -87,12 +87,6 @@ RemoteTeleop::RemoteTeleop()
           nh_, "/reset_marker_as",
           boost::bind(&RemoteTeleop::resetMarkerCallback, this, _1), false) {
 
-  // Initialize the messy stuff
-  initializeIntMarkers();
-  initializeSubscribers();
-  initializePublishers();
-  initializeActions();
-
   // Initialize the internal variables
 
   lin_vel_ = INIT_LIN_VEL; // Velocity
@@ -118,6 +112,12 @@ RemoteTeleop::RemoteTeleop()
   point_click_running_ = false;
   obstacle_detected_ = false;
   stop_ = false;
+
+  // Initialize the messy stuff
+  initializeIntMarkers();
+  initializeSubscribers();
+  initializePublishers();
+  initializeActions();
 
   // Send the initial velocities to rviz
   initializeFrontendVelocities(lin_vel_, ang_vel_);
@@ -191,16 +191,27 @@ void RemoteTeleop::initializeActions() {
 /*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializeIntMarkers() {
+  // Make a pose a origin of base_link
+  geometry_msgs::PoseStamped base_link_pose;
+  base_link_pose.header.frame_id = "/base_link";
+  base_link_pose.pose.orientation.w = 1.0;
+  initializeIntMarkers(base_link_pose);
+}
+
+/*----------------------------------------------------------------------------------*/
+
+void RemoteTeleop::initializeIntMarkers(const geometry_msgs::PoseStamped &marker_pose) {
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
-  int_marker.header.frame_id = "base_link";
+  int_marker.header.frame_id = marker_pose.header.frame_id;
   int_marker.header.stamp = ros::Time::now();
   int_marker.name = "simple_6dof";
   int_marker.description = "Simple 6-DOF Control";
+  int_marker.pose = marker_pose.pose;
 
   // Create the box marker and the non-interactive control containing the box
-  makeIntMarkerControl(int_marker);
+  makeIntMarkerControl(int_marker, marker_pose);
 
   // Create the interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
@@ -266,40 +277,54 @@ void RemoteTeleop::initializeFrontendVelocities(float lin_vel, float ang_vel) {
 
 /*----------------------------------------------------------------------------------*/
 
-visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
+visualization_msgs::Marker RemoteTeleop::makeIntMarker(const geometry_msgs::PoseStamped &marker_pose) {
+
   // Create a marker
   visualization_msgs::Marker marker;
-  marker.header.frame_id = "base_link";
+  marker.header.frame_id = marker_pose.header.frame_id;
+
   // Use mesh
   marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+
   // Scale the marker
   marker.scale.x = 1.0;
   marker.scale.y = 1.0;
   marker.scale.z = 1.0;
-  // Assign colors to the marker
-  marker.color.r = 0.1;
-  marker.color.g = 0.56;
-  marker.color.b = 1.0;
+
+  // Assign colors to the marker based on obstacle_detected_
+  if (obstacle_detected_) {
+    marker.color.r = 1.0;
+    marker.color.g = 0.0;
+    marker.color.b = 0.0;
+  }
+  else {
+    marker.color.r = 0.1;
+    marker.color.g = 0.56;
+    marker.color.b = 1.0;
+  }
+
   marker.color.a = 1.0;
   marker.mesh_use_embedded_materials = false;
 
   // Add the mesh
   marker.mesh_resource = "package://freight_100_description/meshes/freight.dae";
-  marker.pose.orientation.w = 1;
+  marker.pose = marker_pose.pose;
 
   return marker;
 }
 
 /*----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
+void RemoteTeleop::makeIntMarkerControl(
+    visualization_msgs::InteractiveMarker &msg,
+    const geometry_msgs::PoseStamped &marker_pose) {
 
   // Create an interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
   // Set the control variables
   control.always_visible = true;
   // Assign a marker to the control
-  control.markers.push_back(makeIntMarker());
+  control.markers.push_back(makeIntMarker(marker_pose));
   // Assign the control to an interactive marker
   msg.controls.push_back(control);
 }
@@ -431,9 +456,23 @@ void RemoteTeleop::turnInPlaceCallback(
 void RemoteTeleop::processIntMarkerFeedback(
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
 
-  // Grab the incoming position info from the marker
-  nav_goal_pose_.header = feedback->header;
-  nav_goal_pose_.pose = feedback->pose;
+  if (nav_goal_pose_.header != feedback->header && nav_goal_pose_.pose != feedback->pose) {
+    // Grab the incoming position info from the marker
+    nav_goal_pose_.header = feedback->header;
+    nav_goal_pose_.pose = feedback->pose;
+
+    // Whenever someone moves the marker, reset the obstacle_detected_ flag
+    // since we haven't obstacle checked the current pose
+    // If the obstacle_detected_ flag was previously true then recreate the interactive marker in blue
+    // and delete goal location pin marker
+    if (obstacle_detected_) {
+      obstacle_detected_ = false;
+      initializeIntMarkers(nav_goal_pose_);
+      deleteGoalMarker();
+    }
+  }
+
+
 }
 
 /*----------------------------------------------------------------------------------*/
@@ -457,7 +496,11 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 
 void RemoteTeleop::resetMarkerCallback(
     const remote_teleop_robot_backend::ResetMarkerGoalConstPtr &msg) {
-  // Delete the marker and then create a new one
+
+  // Delete the goal marker
+  deleteGoalMarker();
+
+  // Delete the interactive marker and then create a new one
   int_marker_server_.clear();
   int_marker_server_.applyChanges();
 
@@ -715,13 +758,11 @@ void RemoteTeleop::pointClickCallback(
   }
 
   if (obstacle_detected_ == true) {
-    // Path was not clear -- reset variable and exit function
-    obstacle_detected_ = false;
-    // Update the turn in place result and success fields
-    point_click_result_.success = true;
+    // Update the result and success fields
+    point_click_result_.success = false;
     point_click_server_.setSucceeded(point_click_result_);
-    // Snap the interactive marker back to (0,0,0)
-    initializeIntMarkers();
+    // Remake the marker in red to indicate obstacle detected
+    initializeIntMarkers(nav_goal_pose_);
     return;
   }
 
@@ -781,6 +822,13 @@ void RemoteTeleop::pointClickCallback(
 
   } else {
     stopMovement();
+  }
+
+  if (obstacle_detected_ == true) {
+    // Update the result and success fields
+    point_click_result_.success = false;
+    point_click_server_.setSucceeded(point_click_result_);
+    return;
   }
 
   // Update the turn in place result and success fields
@@ -866,12 +914,10 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
       }
 
       if (obstacle_detected_ == true) {
-        // Path was not clear -- reset variable and exit function
-        obstacle_detected_ = false;
         // Stop the robot from moving
         stopMovement();
-        // Snap the interactive marker back to (0,0,0)
-        initializeIntMarkers();
+        // Remake the marker in red to indicate obstacle detected
+        initializeIntMarkers(nav_goal_pose_);
         return;
       }
 
