@@ -35,7 +35,7 @@ Once you have your catkin workspace created, make sure you are in the `src` fold
    
 Next, clone the `remote_teleop` repository into your `src` folder. Your directory should now look like the following:
 ```
-catkin_ws
+catkin_ws (or whatever name you choose)
 ├── build
 ├── devel
 ├── src
@@ -56,45 +56,70 @@ Tip: add `source /my/path/to/catkin_ws/devel/setup.bash` to your `.bashrc` so yo
 **Checks**
 1. For every terminal open on your local machine, make sure you have set the `ROS_MASTER_URI` to point at the robot.
   `export ROS_MASTER_URI=http://robot-name:11311`
-  You can make a shortcut for setting this in each terminal by editing your `.bashrc` file and creating an `alias`.
 2. Make sure you are running `roscore` in a terminal.
 3. Make sure all necessary packages are installed (check by compiling the package using `catkin_make`.
 
 ## Launching the Backend Nodes
 
-To launch the ROS nodes, you can work on either your local machine or on the robot itself. 
-- **Local machine:** `roslaunch remote_teleop rt_nodes.launch`
-- **Robot:** Running on the robot is a little move involved, but is the better option when latency is concern.
-  - SSH into the robot: `ssh fetch@freightXXXX-XXXX`
-  - Make sure your local machine's IP address (which can be found by running the command `ifconfig` on a terminal separate from the robot) is inside the robot's `/etc/hosts` file so your robot and local machine can communicate:
-    ```
-    cd /etc/
-    sudo vim hosts
-    # add your local machine's IP address and hostname to the file
-    ```
-    Note: Do the same for the robot's IP address and hostname on your local machine's `/etc/hosts` file.
-    
-  - Enter your dev docker if you have one (`docker exec -it docker-name`), otherwise create a new dev docker to work in:
-    - Outside of the robot, make a directory to store the updater in: `mkdir ~/temp_dev`.
-    - SSH into the robot: `ssh fetch@freightXXXX-XXXX`
-    - Backup the cronjob for later and stop the updater: `sudo mv /etc/cron.d/updater_status_checker ~/temp_dev; sudo service updater stop`
-    - Bring down the robot docker (delete, unless it is a dev docker that belongs to someone else, in which case stop the docker instead): `cd /etc/fetchcore/docker && docker-compose down` or `docker stop docker-name`
-    - Pull yourself a new master_dev docker image: `docker pull quay.io/fetch/dev:robot__master_dev`
-    - Make a new folder to store the config for your new dev_docker in: `mkdir ~/dev_docker_config`
-    - Copy that configuration from the prod docker: `cp /etc/fetchcore/docker/robot.env /home/fetch/dev_docker_config/robot.env`
-    - Edit the `docker-compose` file: `vi /home/fetch/dev_docker_config/docker-compose.yml`
-    - Start the dev docker: `cd /home/fetch/dev_docker_config && docker-compose up -d`
-    - To check if the docker is running: `docker ps | grep -v k8s`
-    - Enter the dev docker: `docker exec -it docker-name`
- - Once you are inside your dev docker, run: `cd /root/` to make sure you are in the root of the robot.
- - Follow the instructions from the [Building](https://github.com/annaw212/remote_teleop/new/master?readme=1#building) section to create a catkin workspace and clone the `remote_teleop` repository.
- - Launch the nodes: `roslaunch remote_teleop rt_nodes.launch`
- 
+The backend nodes are launched on the robot. SSH in and then make sure you have a copy of the `remote_teleop` repository on the robot. Follow the instructions from the [Building](https://github.com/annaw212/remote_teleop/new/master?readme=1#building) section to set up the repository.
+
+Next, make sure your local machine's IP address (which can be found by running the command `ifconfig` on a terminal separate from the robot) is inside the robot's `/etc/hosts` file so your robot and local machine can communicate:
+    ```
+    cd /etc/
+    sudo vim hosts
+    # add your local machine's IP address and hostname to the file
+    ```
+    Note: Do the same for the robot's IP address and hostname on your local machine's `/etc/hosts` file.
+
+To launch the ROS nodes, make sure you are in the `/root/` folder of your robot, and run `roslaunch remote_teleop rt_nodes.launch`.
  
 ## Launching the Rviz Plugin
 
 To load the custom Rviz plugin, open a new terminal and run:
 ```
-cd ~/catkin_ws/src/remote_teleop/remote_teleop_rviz_plugin
+export ROS_MASTER_URI=http://robot-name:11311
+cd rviz -d /path/to/remote_teleop/remote_teleop_rviz_plugin/rviz_config.rviz
 rviz -d rviz_config.rviz
 ```
+# Using Remote Teleop
+
+Once the Rviz plugin and backend nodes are running, you should be able to see the Remote Teleop Rviz panel, upward and downward RGB camera feeds, the 2D laser scan, Point Cloud, costmap/occupancy grid, interactive marker, and robot mesh.
+
+**INSERT IMAGE HERE**
+
+If you are unable to see the robot mesh, make sure the machine running has the [ra-fetch-commercial_robots repository](https://github.com/zebratechnologies/ra-fetch-commercial_robots) installed.
+
+**Navigation**
+
+To navigate the robot, drag and rotate the interactive marker to the goal pose and press the `Confirm Coordinates` button on the Remote Teleop Rviz panel. If you have chosen a valid location (meaning free of obstacles), the interactive marker will disappear and be replaced with a goal location marker pin. If you have chosen an invalid location, the interactive marker will turn red to indicate to the user that the robot is unable to navigate to that location, and then will reset itself.
+
+In the event that you move the interactive marker but aren't satisfied with the location, you may press `Reset Marker` to snap the interactive marker back to the robot. This is only valid while the robot is _not_ moving.
+
+**INSERT IMAGE HERE OF DRAG AND DROP NAVIGATION AND GOAL MARKER**
+
+
+As of right now (9/8/2022), the robot does not perform obstacle avoidance. Instead, before and during navigation, it checks the straight-line path between its current location and the goal location for obstacles, and if any are detected, the robot stops and cancels that navigation goal.
+
+**Turn-in-Place**
+
+The robot can be turned in place with the `Turn Left` and `Turn Right` buttons available on the Remote Teleop Rviz panel. These buttons will turn the robot 30 degrees in the respective direction.
+
+If you are interested in turning the robot greater or less than 30 degrees, you may use the interactive marker rotation feature to do so.
+
+**Nudge**
+
+In the event that the user is interested in moving forward or backward a very small distance, they may use the `Nudge Forward` or `Nudge Backward` buttons. These buttons move the robot 15cm in the respective direction.
+
+Please note that obstacle checking does not occur during nudge. Use at your own risk.
+
+**Velocity Toggles**
+
+To change the linear or angular velocity of the robot, use the input stepper toggles to change the velocities. By default the robot is initialized at 0.5 m/s for both linear and angular velocity. The maximum velocity is 1.5 m/s and the minimum velocity is set to 0.1 m/s.
+
+**Virtual E-Stop**
+
+The `STOP` button stops all motion immediately.
+
+Once the button has been pressed and all motion has ceased, the robot is able to accept another navigation or button command.
+
+# Demo Videos
