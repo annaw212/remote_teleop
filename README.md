@@ -31,7 +31,8 @@ Note: You must have [ROS downloaded](http://wiki.ros.org/noetic/Installation/Ubu
 Begin by [creating a catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace).
 
 Once you have your catkin workspace created, make sure you are in the `src` folder of your catkin workspace.
-   - `cd ~/catkin_ws/src`
+
+    `cd ~/catkin_ws/src`
    
 Next, clone the `remote_teleop` repository into your `src` folder. Your directory should now look like the following:
 ```
@@ -55,9 +56,9 @@ Tip: add `source /my/path/to/catkin_ws/devel/setup.bash` to your `.bashrc` so yo
 # Running
 **Checks**
 1. For every terminal open on your local machine, make sure you have set the `ROS_MASTER_URI` to point at the robot.
-   ```
-   export ROS_MASTER_URI=http://robot-name:11311
-   ```
+
+  `export ROS_MASTER_URI=http://robot-name:11311`
+    
 2. Make sure all necessary packages are installed (check by compiling the package using `catkin_make`.
 
 ## Launching the Backend Nodes
@@ -65,12 +66,13 @@ Tip: add `source /my/path/to/catkin_ws/devel/setup.bash` to your `.bashrc` so yo
 The backend nodes are launched on the robot. SSH in and then make sure you have a copy of the `remote_teleop` repository on the robot. Follow the instructions from the [Building](https://github.com/annaw212/remote_teleop/new/master?readme=1#building) section to set up the repository.
 
 Next, make sure your local machine's IP address (which can be found by running the command `ifconfig` on a terminal separate from the robot) is inside the robot's `/etc/hosts` file so your robot and local machine can communicate:
-    ```
-    cd /etc/
-    sudo vim hosts
-    # add your local machine's IP address and hostname to the file
-    ```
-    Note: Do the same for the robot's IP address and hostname on your local machine's `/etc/hosts` file.
+
+  ```
+  cd /etc/
+  sudo vim hosts
+  # add your local machine's IP address and hostname to the file
+  ```
+  Note: Do the same for the robot's IP address and hostname on your local machine's `/etc/hosts` file.
 
 To launch the ROS nodes, make sure you are in the `/root/` folder of your robot, and run `roslaunch remote_teleop rt_nodes.launch`.
  
