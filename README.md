@@ -28,7 +28,7 @@ Open up the terminal on your computer. I am using Ubuntu 20.04 LTS and ROS Noeti
 
 Note: You must have [ROS downloaded](http://wiki.ros.org/noetic/Installation/Ubuntu) to run the project.
 
-Begin by [creating a catkin workspace tutorial](http://wiki.ros.org/catkin/Tutorials/create_a_workspace).
+Begin by [creating a catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace).
 
 Once you have your catkin workspace created, make sure you are in the `src` folder of your catkin workspace.
    - `cd ~/catkin_ws/src`
