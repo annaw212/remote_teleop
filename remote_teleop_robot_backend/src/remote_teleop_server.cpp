@@ -87,12 +87,6 @@ RemoteTeleop::RemoteTeleop()
           nh_, "/reset_marker_as",
           boost::bind(&RemoteTeleop::resetMarkerCallback, this, _1), false) {
 
-  // Initialize the messy stuff
-  initializeIntMarkers();
-  initializeSubscribers();
-  initializePublishers();
-  initializeActions();
-
   // Initialize the internal variables
 
   lin_vel_ = INIT_LIN_VEL; // Velocity
@@ -118,6 +112,12 @@ RemoteTeleop::RemoteTeleop()
   point_click_running_ = false;
   obstacle_detected_ = false;
   stop_ = false;
+
+  // Initialize the messy stuff
+  initializeIntMarkers();
+  initializeSubscribers();
+  initializePublishers();
+  initializeActions();
 
   // Send the initial velocities to rviz
   initializeFrontendVelocities(lin_vel_, ang_vel_);
@@ -191,16 +191,27 @@ void RemoteTeleop::initializeActions() {
 /*----------------------------------------------------------------------------------*/
 
 void RemoteTeleop::initializeIntMarkers() {
+  // Make a pose a origin of base_link
+  geometry_msgs::PoseStamped base_link_pose;
+  base_link_pose.header.frame_id = "/base_link";
+  base_link_pose.pose.orientation.w = 1.0;
+  initializeIntMarkers(base_link_pose);
+}
+
+/*----------------------------------------------------------------------------------*/
+
+void RemoteTeleop::initializeIntMarkers(const geometry_msgs::PoseStamped &marker_pose) {
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
-  int_marker.header.frame_id = "base_link";
+  int_marker.header.frame_id = marker_pose.header.frame_id;
   int_marker.header.stamp = ros::Time::now();
   int_marker.name = "simple_6dof";
   int_marker.description = "Simple 6-DOF Control";
+  int_marker.pose = marker_pose.pose;
 
   // Create the box marker and the non-interactive control containing the box
-  makeIntMarkerControl(int_marker);
+  makeIntMarkerControl(int_marker, marker_pose);
 
   // Create the interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
@@ -266,40 +277,54 @@ void RemoteTeleop::initializeFrontendVelocities(float lin_vel, float ang_vel) {
 
 /*----------------------------------------------------------------------------------*/
 
-visualization_msgs::Marker RemoteTeleop::makeIntMarker() {
+visualization_msgs::Marker RemoteTeleop::makeIntMarker(const geometry_msgs::PoseStamped &marker_pose) {
+
   // Create a marker
   visualization_msgs::Marker marker;
-  marker.header.frame_id = "base_link";
+  marker.header.frame_id = marker_pose.header.frame_id;
+
   // Use mesh
   marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+
   // Scale the marker
   marker.scale.x = 1.0;
   marker.scale.y = 1.0;
   marker.scale.z = 1.0;
-  // Assign colors to the marker
-  marker.color.r = 0.5;
-  marker.color.g = 0.5;
-  marker.color.b = 0.0;
+
+  // Assign colors to the marker based on obstacle_detected_
+  if (obstacle_detected_) {
+    marker.color.r = 1.0;
+    marker.color.g = 0.0;
+    marker.color.b = 0.0;
+  }
+  else {
+    marker.color.r = 0.1;
+    marker.color.g = 0.56;
+    marker.color.b = 1.0;
+  }
+
   marker.color.a = 1.0;
   marker.mesh_use_embedded_materials = false;
 
   // Add the mesh
   marker.mesh_resource = "package://freight_100_description/meshes/freight.dae";
-  marker.pose.orientation.w = 1;
+  marker.pose = marker_pose.pose;
 
   return marker;
 }
 
 /*----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &msg) {
+void RemoteTeleop::makeIntMarkerControl(
+    visualization_msgs::InteractiveMarker &msg,
+    const geometry_msgs::PoseStamped &marker_pose) {
 
   // Create an interactive marker control
   visualization_msgs::InteractiveMarkerControl control;
   // Set the control variables
   control.always_visible = true;
   // Assign a marker to the control
-  control.markers.push_back(makeIntMarker());
+  control.markers.push_back(makeIntMarker(marker_pose));
   // Assign the control to an interactive marker
   msg.controls.push_back(control);
 }
@@ -308,43 +333,80 @@ void RemoteTeleop::makeIntMarkerControl(visualization_msgs::InteractiveMarker &m
 
 void RemoteTeleop::placeGoalMarker() {
 
-  // Create a non-interactive marker
-  visualization_msgs::Marker marker;
-  // Give the marker header values and a namespace
-  marker.header.frame_id = "odom";
-  marker.header.stamp = ros::Time::now();
-  marker.ns = "remote_teleop_goal_marker";
-  marker.id = 0;
-  // Assign a shape to the marker and add the marker to rviz
-  marker.type = visualization_msgs::Marker::CUBE;
-  marker.action = visualization_msgs::Marker::ADD;
+  // Set the goal frame
+  std::string goal_frame = "odom";
+
+  // Create non-interactive markers
+  visualization_msgs::Marker sphere_marker;
+  visualization_msgs::Marker cylinder_marker;
+
+  // Give the markers header values and a namespace
+  sphere_marker.header.frame_id = goal_frame;
+  cylinder_marker.header.frame_id = goal_frame;
+  sphere_marker.header.stamp = ros::Time::now();
+  cylinder_marker.header.stamp = ros::Time::now();
+  sphere_marker.ns = "remote_teleop_goal_marker";
+  cylinder_marker.ns = "remote_teleop_goal_marker";
+  sphere_marker.id = 0;
+  cylinder_marker.id = 1;
+
+  // Assign shapes to the markers and add the markers to rviz
+  sphere_marker.type = visualization_msgs::Marker::SPHERE;
+  cylinder_marker.type = visualization_msgs::Marker::CYLINDER;
+
+  sphere_marker.action = visualization_msgs::Marker::ADD;
+  cylinder_marker.action = visualization_msgs::Marker::ADD;
+
   // Create a PoseStamped message to store the pose goal of the marker in
   geometry_msgs::PoseStamped marker_pose = nav_goal_pose_;
-  // Signal the goal frame
-  std::string goal_frame = "odom";
-  // Make sure the marker's goal pose is in odom
+
+  // Make sure the markers' goal poses are in odom
   marker_pose = transformPose(nav_goal_pose_, goal_frame);
+
+  // Scale the markers
+  sphere_marker.scale.x = 0.4;
+  sphere_marker.scale.y = 0.4;
+  sphere_marker.scale.z = 0.4;
+
+  cylinder_marker.scale.x = 0.1;
+  cylinder_marker.scale.y = 0.1;
+  cylinder_marker.scale.z = 0.9;
+
   // Assign the pose values to the marker
-  marker.pose.position.x = marker_pose.pose.position.x;
-  marker.pose.position.y = marker_pose.pose.position.y;
-  marker.pose.position.z = marker_pose.pose.position.z;
-  marker.pose.orientation.x = marker_pose.pose.orientation.x;
-  marker.pose.orientation.y = marker_pose.pose.orientation.y;
-  marker.pose.orientation.z = marker_pose.pose.orientation.z;
-  marker.pose.orientation.w = marker_pose.pose.orientation.w;
-  // Scale the marker
-  marker.scale.x = .5;
-  marker.scale.y = .5;
-  marker.scale.z = .5;
-  // Give the marker a color
-  marker.color.a = 1.0; // Don't forget to set the alpha!
-  marker.color.r = 0.0;
-  marker.color.g = 1.0;
-  marker.color.b = 0.0;
-  // Set the lifetime of the marker (0 = forever)
-  marker.lifetime = ros::Duration();
-  // Publish the marker
-  marker_publisher_.publish(marker);
+  sphere_marker.pose.position.x = marker_pose.pose.position.x;
+  sphere_marker.pose.position.y = marker_pose.pose.position.y;
+  sphere_marker.pose.position.z = marker_pose.pose.position.z + cylinder_marker.scale.z;
+  sphere_marker.pose.orientation.x = 0.0;
+  sphere_marker.pose.orientation.y = 0.0;
+  sphere_marker.pose.orientation.z = 0.0;
+  sphere_marker.pose.orientation.w = 1.0;
+
+  cylinder_marker.pose.position.x = marker_pose.pose.position.x;
+  cylinder_marker.pose.position.y = marker_pose.pose.position.y;
+  cylinder_marker.pose.position.z = marker_pose.pose.position.z + cylinder_marker.scale.z / 2.0;
+  cylinder_marker.pose.orientation.x = 0.0;
+  cylinder_marker.pose.orientation.y = 0.0;
+  cylinder_marker.pose.orientation.z = 0.0;
+  cylinder_marker.pose.orientation.w = 1.0;
+
+  // Give the markers colors
+  sphere_marker.color.r = 1.0;
+  sphere_marker.color.g = 0.0;
+  sphere_marker.color.b = 0.0;
+  sphere_marker.color.a = 1.0;
+
+  cylinder_marker.color.r = 0.9;
+  cylinder_marker.color.g = 0.9;
+  cylinder_marker.color.b = 0.9;
+  cylinder_marker.color.a = 1.0;
+
+  // Set the lifetime of the markers; ros::Duration() = forever
+  sphere_marker.lifetime = ros::Duration();
+  cylinder_marker.lifetime = ros::Duration();
+
+  // Publish the markers
+  marker_publisher_.publish(sphere_marker);
+  marker_publisher_.publish(cylinder_marker);
 }
 
 /*----------------------------------------------------------------------------------*/
@@ -394,9 +456,23 @@ void RemoteTeleop::turnInPlaceCallback(
 void RemoteTeleop::processIntMarkerFeedback(
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
 
-  // Grab the incoming position info from the marker
-  nav_goal_pose_.header = feedback->header;
-  nav_goal_pose_.pose = feedback->pose;
+  if (nav_goal_pose_.header != feedback->header && nav_goal_pose_.pose != feedback->pose) {
+    // Grab the incoming position info from the marker
+    nav_goal_pose_.header = feedback->header;
+    nav_goal_pose_.pose = feedback->pose;
+
+    // Whenever someone moves the marker, reset the obstacle_detected_ flag
+    // since we haven't obstacle checked the current pose
+    // If the obstacle_detected_ flag was previously true then recreate the interactive marker in blue
+    // and delete goal location pin marker
+    if (obstacle_detected_) {
+      obstacle_detected_ = false;
+      initializeIntMarkers(nav_goal_pose_);
+      deleteGoalMarker();
+    }
+  }
+
+
 }
 
 /*----------------------------------------------------------------------------------*/
@@ -420,7 +496,11 @@ void RemoteTeleop::costmapCallback(const nav_msgs::OccupancyGrid &grid) {
 
 void RemoteTeleop::resetMarkerCallback(
     const remote_teleop_robot_backend::ResetMarkerGoalConstPtr &msg) {
-  // Delete the marker and then create a new one
+
+  // Delete the goal marker
+  deleteGoalMarker();
+
+  // Delete the interactive marker and then create a new one
   int_marker_server_.clear();
   int_marker_server_.applyChanges();
 
@@ -678,13 +758,11 @@ void RemoteTeleop::pointClickCallback(
   }
 
   if (obstacle_detected_ == true) {
-    // Path was not clear -- reset variable and exit function
-    obstacle_detected_ = false;
-    // Update the turn in place result and success fields
-    point_click_result_.success = true;
+    // Update the result and success fields
+    point_click_result_.success = false;
     point_click_server_.setSucceeded(point_click_result_);
-    // Snap the interactive marker back to (0,0,0)
-    initializeIntMarkers();
+    // Remake the marker in red to indicate obstacle detected
+    initializeIntMarkers(nav_goal_pose_);
     return;
   }
 
@@ -744,6 +822,13 @@ void RemoteTeleop::pointClickCallback(
 
   } else {
     stopMovement();
+  }
+
+  if (obstacle_detected_ == true) {
+    // Update the result and success fields
+    point_click_result_.success = false;
+    point_click_server_.setSucceeded(point_click_result_);
+    return;
   }
 
   // Update the turn in place result and success fields
@@ -829,12 +914,10 @@ void RemoteTeleop::navigate(float angle, bool turn_left, float x_dist,
       }
 
       if (obstacle_detected_ == true) {
-        // Path was not clear -- reset variable and exit function
-        obstacle_detected_ = false;
         // Stop the robot from moving
         stopMovement();
-        // Snap the interactive marker back to (0,0,0)
-        initializeIntMarkers();
+        // Remake the marker in red to indicate obstacle detected
+        initializeIntMarkers(nav_goal_pose_);
         return;
       }
 
