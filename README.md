@@ -55,9 +55,10 @@ Tip: add `source /my/path/to/catkin_ws/devel/setup.bash` to your `.bashrc` so yo
 # Running
 **Checks**
 1. For every terminal open on your local machine, make sure you have set the `ROS_MASTER_URI` to point at the robot.
-  `export ROS_MASTER_URI=http://robot-name:11311`
-2. Make sure you are running `roscore` in a terminal.
-3. Make sure all necessary packages are installed (check by compiling the package using `catkin_make`.
+   ```
+   export ROS_MASTER_URI=http://robot-name:11311
+   ```
+2. Make sure all necessary packages are installed (check by compiling the package using `catkin_make`.
 
 ## Launching the Backend Nodes
 
@@ -85,9 +86,9 @@ rviz -d rviz_config.rviz
 
 Once the Rviz plugin and backend nodes are running, you should be able to see the Remote Teleop Rviz panel, upward and downward RGB camera feeds, the 2D laser scan, Point Cloud, costmap/occupancy grid, interactive marker, and robot mesh.
 
-**INSERT IMAGE HERE**
+![image](https://user-images.githubusercontent.com/107591234/189235810-850bfb28-0d41-4312-b21e-1e74651c0139.png)
 
-If you are unable to see the robot mesh, make sure the machine running has the [ra-fetch-commercial_robots repository](https://github.com/zebratechnologies/ra-fetch-commercial_robots) installed.
+If you are unable to see the robot mesh, make sure the machine running Rviz has the [ra-fetch-commercial_robots repository](https://github.com/zebratechnologies/ra-fetch-commercial_robots) installed.
 
 **Navigation**
 
@@ -95,7 +96,17 @@ To navigate the robot, drag and rotate the interactive marker to the goal pose a
 
 In the event that you move the interactive marker but aren't satisfied with the location, you may press `Reset Marker` to snap the interactive marker back to the robot. This is only valid while the robot is _not_ moving.
 
-**INSERT IMAGE HERE OF DRAG AND DROP NAVIGATION AND GOAL MARKER**
+_Navigation Goal Marker_
+
+![image](https://user-images.githubusercontent.com/107591234/189235910-447ba340-9801-4f74-abf9-12bed187c888.png)
+
+_Valid Navigation Goal_ & _Invalid Navigation Goal_
+
+![image](https://user-images.githubusercontent.com/107591234/189236151-977b0e5b-e19a-46d4-bfec-8c6cca3a4c95.png)
+![image](https://user-images.githubusercontent.com/107591234/189236432-1944b65f-f26d-46db-acbd-4671e917a6b3.png)
+
+
+
 
 
 As of right now (9/8/2022), the robot does not perform obstacle avoidance. Instead, before and during navigation, it checks the straight-line path between its current location and the goal location for obstacles, and if any are detected, the robot stops and cancels that navigation goal.
@@ -123,3 +134,13 @@ The `STOP` button stops all motion immediately.
 Once the button has been pressed and all motion has ceased, the robot is able to accept another navigation or button command.
 
 # Demo Videos
+
+**Navigation Demo**
+
+https://user-images.githubusercontent.com/107591234/189237156-e93c4343-9255-4829-b4d0-fa2e212d0d7e.mp4
+
+**Buttons Demo**
+
+https://user-images.githubusercontent.com/107591234/189237179-5ba1a29f-91fb-4041-878c-c51d1583b548.mp4
+
+
