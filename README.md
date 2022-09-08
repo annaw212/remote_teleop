@@ -79,7 +79,7 @@ To launch the ROS nodes, make sure you are in the `/root/` folder of your robot,
 To load the custom Rviz plugin, open a new terminal and run:
 ```
 export ROS_MASTER_URI=http://robot-name:11311
-cd rviz -d /path/to/remote_teleop/remote_teleop_rviz_plugin/rviz_config.rviz
+cd /path/to/remote_teleop/remote_teleop_rviz_plugin/rviz_config.rviz
 rviz -d rviz_config.rviz
 ```
 # Using Remote Teleop
