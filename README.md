@@ -113,7 +113,7 @@ As of right now (9/8/2022), the robot does not perform obstacle avoidance. Inste
 
 **Turn-in-Place**
 
-The robot can be turned in place with the `Turn Left` and `Turn Right` buttons available on the Remote Teleop Rviz panel. These buttons will turn the robot 30 degrees in the respective direction.
+The robot can be turned in place with the `Turn Left` and `Turn Right` buttons available on the Remote Teleop Rviz panel. These buttons will turn the robot 30&deg; in the respective direction.
 
 If you are interested in turning the robot greater or less than 30 degrees, you may use the interactive marker rotation feature to do so.
 
