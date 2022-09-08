@@ -193,7 +193,7 @@ void RemoteTeleop::initializeActions() {
 void RemoteTeleop::initializeIntMarkers() {
   // Make a pose a origin of base_link
   geometry_msgs::PoseStamped base_link_pose;
-  base_link_pose.header.frame_id = "/base_link";
+  base_link_pose.header.frame_id = "base_link";
   base_link_pose.pose.orientation.w = 1.0;
   initializeIntMarkers(base_link_pose);
 }
