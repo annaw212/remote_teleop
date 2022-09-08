@@ -74,7 +74,7 @@ Next, make sure your local machine's IP address (which can be found by running t
   ```
   Note: Do the same for the robot's IP address and hostname on your local machine's `/etc/hosts` file.
 
-To launch the ROS nodes, make sure you are in the `/root/` folder of your robot, and run `roslaunch remote_teleop rt_nodes.launch`.
+To launch the ROS nodes, run `roslaunch remote_teleop rt_nodes.launch`.
  
 ## Launching the Rviz Plugin
 
