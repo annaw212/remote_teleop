@@ -38,6 +38,7 @@
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
+#include <remote_teleop_robot_backend/PointClickNavActionResult.h>
 #include <remote_teleop_robot_backend/Velocity.h>
 
 class QLineEdit;
@@ -135,6 +136,7 @@ protected:
   // The ROS subscriber for updating the initial velocities based on the backend
   // values
   ros::Subscriber velocity_subscriber_;
+  ros::Subscriber nav_update_subscriber_;
 
   // The ROS node handle.
   ros::NodeHandle nh_;
@@ -157,7 +159,7 @@ protected:
   // pointClickResultCallback() is subscribed to the point_click_as/result topic
   // and receives the incoming updates. It updates the status bar accordingly.
   void pointClickResultCallback(
-      const remote_teleop_robot_backend::PointClickNavResultConstPtr &result);
+      const remote_teleop_robot_backend::PointClickNavActionResultConstPtr &result);
 };
 
 } // namespace remote_teleop_rviz_plugin

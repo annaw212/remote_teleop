@@ -48,6 +48,8 @@
 #include <remote_teleop_robot_backend/StopNavActionGoal.h>
 #include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
 #include <remote_teleop_robot_backend/Velocity.h>
+#include <remote_teleop_robot_backend/PointClickNavActionResult.h>
+#include <remote_teleop_robot_backend/PointClickNavResult.h>
 
 #include "remote_teleop_panel.h"
 
@@ -382,18 +384,21 @@ void RemoteTeleopPanel::velocityCallback(
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleopPanel::pointClickResultCallback(
-    const remote_teleop_robot_backend::PointClickNavResultConstPtr &result) {
+    const remote_teleop_robot_backend::PointClickNavActionResultConstPtr &result) {
   // This wasn't being printed yesterday, so maybe try to figure out if this
   // message is even being published. I would recommend 'rosmsg echo' :) Good
   // luck
+  
+  // 9/9/2022: Having issue with 'no member called success'
+  
   printf("Got here\n");
-  if (result->success == true) {
-    status_label_->setText("Status: Navigation completed successfully.");
-    status_label_->clear();
-  } else {
-    status_label_->setText("Status: Navigation failed successfully.");
-    status_label_->clear();
-  }
+//  if (result->success == true) {
+//    status_label_->setText("Status: Navigation completed successfully.");
+//    status_label_->clear();
+//  } else {
+//    status_label_->setText("Status: Navigation failed successfully.");
+//    status_label_->clear();
+//  }
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -414,6 +419,8 @@ void RemoteTeleopPanel::load(const rviz::Config &config) {
   // Initialize subscriber
   velocity_subscriber_ = nh_.subscribe(
       "/rt_initial_velocities", 1, &RemoteTeleopPanel::velocityCallback, this);
+  nav_update_subscriber_ = nh_.subscribe(
+      "point_click_as/result", 1, &RemoteTeleopPanel::pointClickResultCallback, this);
 
   // Initialize publishers
   turn_goal_publisher_ =
