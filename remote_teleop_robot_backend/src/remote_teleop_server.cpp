@@ -338,6 +338,8 @@ void RemoteTeleop::placeGoalMarker() {
 
   // Set the goal frame
   std::string goal_frame = "odom";
+  
+  deleteGoalMarker();
 
   // Create non-interactive markers
   visualization_msgs::Marker sphere_marker;
@@ -485,7 +487,6 @@ void RemoteTeleop::processIntMarkerFeedback(
       obstacle_detected_ = false;
       initializeIntMarkers(nav_goal_pose_);
       deleteGoalMarker();
-      ROS_INFO_STREAM("Obstacle detected flag reset to false");
     }
   }
 }
