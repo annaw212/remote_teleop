@@ -297,8 +297,8 @@ RemoteTeleop::makeIntMarker(const geometry_msgs::PoseStamped &marker_pose) {
   if (obstacle_detected_) {
     marker.color.r = 1.0;
     marker.color.g = 0.0;
-    marker.color.b = 0.0;   // TODO: maybe make this invisible?
-    marker.color.a = 0.0;
+    marker.color.b = 0.0;
+    marker.color.a = 0.00001;
   } else {
     marker.color.r = 0.1;
     marker.color.g = 0.56;
@@ -399,7 +399,7 @@ void RemoteTeleop::placeGoalMarker() {
 //  sphere_marker.color.g = 0.0;
 //  sphere_marker.color.b = 0.0;
 //  sphere_marker.color.a = 1.0;
-  
+  ROS_INFO_STREAM("Checking obstacle detected flag");
   if(obstacle_detected_ == true) {
     sphere_marker.color.r = 1.0;
     sphere_marker.color.g = 0.0;
@@ -485,6 +485,7 @@ void RemoteTeleop::processIntMarkerFeedback(
       obstacle_detected_ = false;
       initializeIntMarkers(nav_goal_pose_);
       deleteGoalMarker();
+      ROS_INFO_STREAM("Obstacle detected flag reset to false");
     }
   }
 }
