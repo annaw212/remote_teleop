@@ -1,5 +1,5 @@
 #goal
-bool coords_confimed
+bool coords_confirmed
 ---
 #result
 bool success

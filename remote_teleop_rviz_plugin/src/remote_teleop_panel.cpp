@@ -283,6 +283,14 @@ void RemoteTeleopPanel::sendTurnGoal() {
     msg.goal.turn_left = turn_left_;
     // Publish the message
     turn_goal_publisher_.publish(msg);
+    // Update the status message
+    status_label_->clear();
+    if (turn_left_ == true) {
+      status_label_->setText("<b>Status: Turning left.</b>");
+    } else {
+      status_label_->setText("<b>Status: Turning right.</b>");
+    }
+    
   }
 }
 
@@ -297,9 +305,12 @@ void RemoteTeleopPanel::sendNavGoal() {
     // Create a message of the desired type
     remote_teleop_robot_backend::PointClickNavActionGoal msg;
     // Set the message fields
-    msg.goal.coords_confimed = true;
+    msg.goal.coords_confirmed = true;
     // Publish the message
     nav_goal_publisher_.publish(msg);
+    // Update the status message
+    status_label_->clear();
+    status_label_->setText("<b>Status: Starting navigation.</b>");
   }
 }
 
@@ -353,6 +364,13 @@ void RemoteTeleopPanel::sendNudgeGoal() {
     msg.goal.fwd = nudge_fwd_;
     // Publish the message
     nudge_goal_publisher_.publish(msg);
+    // Update the status message
+    status_label_->clear();
+    if (nudge_fwd_ == true) {
+      status_label_->setText("<b>Status: Nudging forward.</b>");
+    } else {
+      status_label_->setText("<b>Status: Nudging backward.</b>");
+    }
   }
 }
 
