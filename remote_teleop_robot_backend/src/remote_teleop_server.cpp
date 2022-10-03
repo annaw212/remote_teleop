@@ -278,7 +278,7 @@ void RemoteTeleop::initializeFrontendVelocities(float lin_vel, float ang_vel) {
 /*----------------------------------------------------------------------------------*/
 
 visualization_msgs::Marker RemoteTeleop::makeIntMarker(const geometry_msgs::PoseStamped &marker_pose) {
-
+  ROS_INFO_STREAM("make interactive marker");
   // Create a marker
   visualization_msgs::Marker marker;
   marker.header.frame_id = marker_pose.header.frame_id;
@@ -427,9 +427,9 @@ void RemoteTeleop::deleteGoalMarker() {
 
 void RemoteTeleop::turnInPlaceCallback(
     const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal) {
-
+  ROS_INFO_STREAM("turn in place callback");
   // TODO: gray out rviz plugin buttons when turn is being executed
-
+  
   // Set a variable to signal that turning in place is currently happening
   turn_in_place_running_ = true;
 
@@ -515,7 +515,7 @@ void RemoteTeleop::resetMarkerCallback(
 
 void RemoteTeleop::nudgeCallback(
     const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
-
+  ROS_INFO_STREAM("nudge callback");
   // Delete the marker
   int_marker_server_.clear();
   int_marker_server_.applyChanges();

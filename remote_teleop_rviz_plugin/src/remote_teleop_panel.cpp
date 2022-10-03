@@ -335,7 +335,7 @@ void RemoteTeleopPanel::sendStopGoal() {
 // Publish the distance and direction if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
 void RemoteTeleopPanel::sendNudgeGoal() {
-
+  ROS_INFO_STREAM("send nudge goal");
   // Make sure the publisher exists and ROS is not shutting down
   if (ros::ok() && nudge_goal_publisher_) {
     // Create a message of the desired type
