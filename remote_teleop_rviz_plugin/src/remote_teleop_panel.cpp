@@ -196,7 +196,7 @@ RemoteTeleopPanel::RemoteTeleopPanel(QWidget *parent)
 // setTurnGoalLeft() sets the degrees and direction variables and calls
 // sendTurnGoal() for the new variable values to be published
 void RemoteTeleopPanel::setTurnGoalLeft() {
-
+  ROS_INFO_STREAM("set turn goal left");
   // Assign the value to send (this is a pre-determined static value)
   degrees_ = 30.0;
   // Set the turn_left_ internal variable
@@ -210,7 +210,7 @@ void RemoteTeleopPanel::setTurnGoalLeft() {
 // setTurnGoalLeft() sets the degrees and direction variables and calls
 // sendTurnGoal() for the new variable values to be published
 void RemoteTeleopPanel::setTurnGoalRight() {
-
+  ROS_INFO_STREAM("set turn goal right");
   // Assign the value to send (this is a pre-determined static value)
   degrees_ = 30.0;
   // Set the turn_left_ internal variable
@@ -237,7 +237,7 @@ void RemoteTeleopPanel::setVelGoal() {
 // setNudgeGoalFwd() sets the distance and direction variables and calls
 // sendNudgeGoal() for the new variable values to be published
 void RemoteTeleopPanel::setNudgeGoalFwd() {
-
+  ROS_INFO_STREAM("set nudge goal forward");
   // Set the distance variable at 15cm
   nudge_dist_ = 0.15;
   // Set the direction to forward
@@ -251,7 +251,7 @@ void RemoteTeleopPanel::setNudgeGoalFwd() {
 // setNudgeGoalBwd() sets the distance and direction variables and calls
 // sendNudgeGoal() for the new variable values to be published
 void RemoteTeleopPanel::setNudgeGoalBwd() {
-
+  ROS_INFO_STREAM("set nudge goal backward");
   // Set the distance variable at 15cm
   nudge_dist_ = 0.15; // 15cm
   // Set the direction to backwards
@@ -265,7 +265,7 @@ void RemoteTeleopPanel::setNudgeGoalBwd() {
 // Publish the degrees and direction if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
 void RemoteTeleopPanel::sendTurnGoal() {
-
+  ROS_INFO_STREAM("send turn goal");
   // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && turn_goal_publisher_) {
     // Create a message of the desired type
@@ -318,7 +318,7 @@ void RemoteTeleopPanel::sendVelGoal() {
 // Publish the stop goal if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
 void RemoteTeleopPanel::sendStopGoal() {
-
+  ROS_INFO_STREAM("send stop goal");
   // Make sure the publisher exists and ROS not shutting down
   if (ros::ok() && stop_goal_publisher_) {
     // Create a message of the desired type
