@@ -840,6 +840,9 @@ void RemoteTeleop::pointClickCallback(
     // Update the result and success fields
     point_click_result_.success = false;
     point_click_server_.setSucceeded(point_click_result_);
+    // Delete the goal marker and reset the interactive marker
+    deleteGoalMarker();
+    initializeIntMarkers();
     return;
   }
 
