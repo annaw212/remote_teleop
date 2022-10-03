@@ -3,5 +3,6 @@ bool coords_confirmed
 ---
 #result
 bool success
+bool obstacle
 ---
 #feedback

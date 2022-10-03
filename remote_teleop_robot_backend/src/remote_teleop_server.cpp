@@ -841,6 +841,7 @@ void RemoteTeleop::pointClickCallback(
   if (obstacle_detected_ == true) {
     // Update the result and success fields
     point_click_result_.success = false;
+    point_click_result_.obstacle = true;
     point_click_server_.setSucceeded(point_click_result_);
     // Delete the goal marker and reset the interactive marker
     deleteGoalMarker();
@@ -850,6 +851,7 @@ void RemoteTeleop::pointClickCallback(
 
   // Update the turn in place result and success fields
   point_click_result_.success = true;
+  point_click_result_.obstacle = false;
   point_click_server_.setSucceeded(point_click_result_);
 
   // Snap the interactive marker back to (0,0,0)

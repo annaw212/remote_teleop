@@ -417,7 +417,11 @@ void RemoteTeleopPanel::pointClickResultCallback(
   if (result->result.success == true) {
     status_label_->setText("<b>Status: Navigation completed.</b>");
   } else {
-    status_label_->setText("<b>Status: Navigation failed.</b>");
+    if (result->result.obstacle == true) {
+      status_label_->setText("<b>Status: Navigation failed. Obstacle detected.</b>");
+    } else {
+      status_label_->setText("<b>Status: Navigation failed. Time out error.</b>");
+    }    
   }
 }
 
