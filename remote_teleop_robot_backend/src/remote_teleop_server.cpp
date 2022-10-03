@@ -200,7 +200,8 @@ void RemoteTeleop::initializeIntMarkers() {
 
 /*----------------------------------------------------------------------------------*/
 
-void RemoteTeleop::initializeIntMarkers(const geometry_msgs::PoseStamped &marker_pose) {
+void RemoteTeleop::initializeIntMarkers(
+    const geometry_msgs::PoseStamped &marker_pose) {
 
   // Create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
@@ -277,8 +278,9 @@ void RemoteTeleop::initializeFrontendVelocities(float lin_vel, float ang_vel) {
 
 /*----------------------------------------------------------------------------------*/
 
-visualization_msgs::Marker RemoteTeleop::makeIntMarker(const geometry_msgs::PoseStamped &marker_pose) {
-  ROS_INFO_STREAM("make interactive marker");
+visualization_msgs::Marker
+RemoteTeleop::makeIntMarker(const geometry_msgs::PoseStamped &marker_pose) {
+
   // Create a marker
   visualization_msgs::Marker marker;
   marker.header.frame_id = marker_pose.header.frame_id;
@@ -295,15 +297,16 @@ visualization_msgs::Marker RemoteTeleop::makeIntMarker(const geometry_msgs::Pose
   if (obstacle_detected_) {
     marker.color.r = 1.0;
     marker.color.g = 0.0;
-    marker.color.b = 0.0;
-  }
-  else {
+    marker.color.b = 0.0;   // TODO: maybe make this invisible?
+    marker.color.a = 0.0;
+  } else {
     marker.color.r = 0.1;
     marker.color.g = 0.56;
     marker.color.b = 1.0;
+    marker.color.a = 1.0;
   }
 
-  marker.color.a = 1.0;
+//  marker.color.a = 1.0;
   marker.mesh_use_embedded_materials = false;
 
   // Add the mesh
@@ -375,7 +378,8 @@ void RemoteTeleop::placeGoalMarker() {
   // Assign the pose values to the marker
   sphere_marker.pose.position.x = marker_pose.pose.position.x;
   sphere_marker.pose.position.y = marker_pose.pose.position.y;
-  sphere_marker.pose.position.z = marker_pose.pose.position.z + cylinder_marker.scale.z;
+  sphere_marker.pose.position.z =
+      marker_pose.pose.position.z + cylinder_marker.scale.z;
   sphere_marker.pose.orientation.x = 0.0;
   sphere_marker.pose.orientation.y = 0.0;
   sphere_marker.pose.orientation.z = 0.0;
@@ -383,17 +387,30 @@ void RemoteTeleop::placeGoalMarker() {
 
   cylinder_marker.pose.position.x = marker_pose.pose.position.x;
   cylinder_marker.pose.position.y = marker_pose.pose.position.y;
-  cylinder_marker.pose.position.z = marker_pose.pose.position.z + cylinder_marker.scale.z / 2.0;
+  cylinder_marker.pose.position.z =
+      marker_pose.pose.position.z + cylinder_marker.scale.z / 2.0;
   cylinder_marker.pose.orientation.x = 0.0;
   cylinder_marker.pose.orientation.y = 0.0;
   cylinder_marker.pose.orientation.z = 0.0;
   cylinder_marker.pose.orientation.w = 1.0;
 
   // Give the markers colors
-  sphere_marker.color.r = 1.0;
-  sphere_marker.color.g = 0.0;
-  sphere_marker.color.b = 0.0;
-  sphere_marker.color.a = 1.0;
+//  sphere_marker.color.r = 1.0; // TODO: change the colors of these based on success
+//  sphere_marker.color.g = 0.0;
+//  sphere_marker.color.b = 0.0;
+//  sphere_marker.color.a = 1.0;
+  
+  if(obstacle_detected_ == true) {
+    sphere_marker.color.r = 1.0;
+    sphere_marker.color.g = 0.0;
+    sphere_marker.color.b = 0.0;
+    sphere_marker.color.a = 1.0;
+  } else {
+    sphere_marker.color.r = 0.0;
+    sphere_marker.color.g = 1.0;
+    sphere_marker.color.b = 0.0;
+    sphere_marker.color.a = 1.0;
+  }
 
   cylinder_marker.color.r = 0.9;
   cylinder_marker.color.g = 0.9;
@@ -427,9 +444,7 @@ void RemoteTeleop::deleteGoalMarker() {
 
 void RemoteTeleop::turnInPlaceCallback(
     const remote_teleop_robot_backend::TurnInPlaceGoalConstPtr &goal) {
-  ROS_INFO_STREAM("turn in place callback");
-  // TODO: gray out rviz plugin buttons when turn is being executed
-  
+
   // Set a variable to signal that turning in place is currently happening
   turn_in_place_running_ = true;
 
@@ -456,23 +471,22 @@ void RemoteTeleop::turnInPlaceCallback(
 void RemoteTeleop::processIntMarkerFeedback(
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
 
-  if (nav_goal_pose_.header != feedback->header && nav_goal_pose_.pose != feedback->pose) {
+  if (nav_goal_pose_.header != feedback->header &&
+      nav_goal_pose_.pose != feedback->pose) {
     // Grab the incoming position info from the marker
     nav_goal_pose_.header = feedback->header;
     nav_goal_pose_.pose = feedback->pose;
 
     // Whenever someone moves the marker, reset the obstacle_detected_ flag
     // since we haven't obstacle checked the current pose
-    // If the obstacle_detected_ flag was previously true then recreate the interactive marker in blue
-    // and delete goal location pin marker
+    // If the obstacle_detected_ flag was previously true then recreate the
+    // interactive marker in blue and delete goal location pin marker
     if (obstacle_detected_) {
       obstacle_detected_ = false;
       initializeIntMarkers(nav_goal_pose_);
       deleteGoalMarker();
     }
   }
-
-
 }
 
 /*----------------------------------------------------------------------------------*/
@@ -515,7 +529,7 @@ void RemoteTeleop::resetMarkerCallback(
 
 void RemoteTeleop::nudgeCallback(
     const remote_teleop_robot_backend::NudgeGoalConstPtr &goal) {
-  ROS_INFO_STREAM("nudge callback");
+
   // Delete the marker
   int_marker_server_.clear();
   int_marker_server_.applyChanges();
@@ -765,8 +779,6 @@ void RemoteTeleop::pointClickCallback(
     initializeIntMarkers(nav_goal_pose_);
     return;
   }
-
-  ROS_INFO("SAFE TO NAVIGATE"); // TODO: Delete this
 
   // TODO: Delete the interactive marker so it's not confusing during navigation
   int_marker_server_.clear();
