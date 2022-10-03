@@ -451,6 +451,7 @@ void RemoteTeleop::turnInPlaceCallback(
   // Delete the marker
   int_marker_server_.clear();
   int_marker_server_.applyChanges();
+  deleteGoalMarker();
 
   // Tell robot to turn the desired angle
   turnInPlace(goal->degrees * (M_PI / 180), goal->turn_left);
@@ -533,6 +534,7 @@ void RemoteTeleop::nudgeCallback(
   // Delete the marker
   int_marker_server_.clear();
   int_marker_server_.applyChanges();
+  deleteGoalMarker();
 
   // Initiate the nudge command
   if (goal->fwd == true && !stop_) {
