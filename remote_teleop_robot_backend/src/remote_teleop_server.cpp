@@ -395,11 +395,6 @@ void RemoteTeleop::placeGoalMarker() {
   cylinder_marker.pose.orientation.w = 1.0;
 
   // Give the markers colors
-//  sphere_marker.color.r = 1.0; // TODO: change the colors of these based on success
-//  sphere_marker.color.g = 0.0;
-//  sphere_marker.color.b = 0.0;
-//  sphere_marker.color.a = 1.0;
-  ROS_INFO_STREAM("Checking obstacle detected flag");
   if(obstacle_detected_ == true) {
     sphere_marker.color.r = 1.0;
     sphere_marker.color.g = 0.0;
@@ -1039,7 +1034,6 @@ void RemoteTeleop::obstacleCheck(float x1, float y1, float x2, float y2,
 
     // Check if there is an obstacle at that point
     if (occupancy_grid_.data[idx] != 0) {
-      ROS_INFO("OBSTACLE DETECTED");
       // Set the variable to indicate that an obstacle has been detected
       obstacle_detected_ = true;
       int_marker_server_.clear();

@@ -420,7 +420,7 @@ void RemoteTeleopPanel::pointClickResultCallback(
     if (result->result.obstacle == true) {
       status_label_->setText("<b>Status: Navigation failed. Obstacle detected.</b>");
     } else {
-      status_label_->setText("<b>Status: Navigation failed. Time out error.</b>");
+      status_label_->setText("<b>Status: Navigation failed.</b>");
     }    
   }
 }
