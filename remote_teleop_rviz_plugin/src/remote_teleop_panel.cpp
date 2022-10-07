@@ -59,7 +59,7 @@
 #include <remote_teleop_robot_backend/TurnInPlaceResult.h>
 #include <remote_teleop_robot_backend/Velocity.h>
 
-#include "remote_teleop_panel.h"
+#include "remote_teleop_rviz_plugin/remote_teleop_panel.h"
 
 namespace remote_teleop_rviz_plugin {
 
