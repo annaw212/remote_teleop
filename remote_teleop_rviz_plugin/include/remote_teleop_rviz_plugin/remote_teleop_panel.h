@@ -37,7 +37,16 @@
 
 #include <QDoubleSpinBox>
 #include <QLabel>
+#include <remote_teleop_robot_backend/NudgeActionResult.h>
+#include <remote_teleop_robot_backend/NudgeResult.h>
+#include <remote_teleop_robot_backend/PointClickNavActionResult.h>
 #include <remote_teleop_robot_backend/PointClickNavResult.h>
+#include <remote_teleop_robot_backend/ResetMarkerActionResult.h>
+#include <remote_teleop_robot_backend/ResetMarkerResult.h>
+#include <remote_teleop_robot_backend/StopNavActionResult.h>
+#include <remote_teleop_robot_backend/StopNavResult.h>
+#include <remote_teleop_robot_backend/TurnInPlaceActionResult.h>
+#include <remote_teleop_robot_backend/TurnInPlaceResult.h>
 #include <remote_teleop_robot_backend/Velocity.h>
 
 class QLineEdit;
@@ -135,6 +144,11 @@ protected:
   // The ROS subscriber for updating the initial velocities based on the backend
   // values
   ros::Subscriber velocity_subscriber_;
+  ros::Subscriber nav_update_subscriber_;
+  ros::Subscriber turn_update_subscriber_;
+  ros::Subscriber stop_update_subscriber_;
+  ros::Subscriber nudge_update_subscriber_;
+  ros::Subscriber reset_marker_update_subscriber_;
 
   // The ROS node handle.
   ros::NodeHandle nh_;
@@ -157,7 +171,32 @@ protected:
   // pointClickResultCallback() is subscribed to the point_click_as/result topic
   // and receives the incoming updates. It updates the status bar accordingly.
   void pointClickResultCallback(
-      const remote_teleop_robot_backend::PointClickNavResultConstPtr &result);
+      const remote_teleop_robot_backend::PointClickNavActionResultConstPtr
+          &result);
+
+  // turnInPlaceResultCallback() is subscribed to the turn_in_place_as/result
+  // topic and receives the incoming updates. It updates the status bar
+  // accordingly.
+  void turnInPlaceResultCallback(
+      const remote_teleop_robot_backend::TurnInPlaceActionResultConstPtr
+          &result);
+
+  // stopNavResultCallback() is subscribed to the stop_nav_as/result
+  // and receives the incoming updates. It updates the status bar accordingly.
+  void stopNavResultCallback(
+      const remote_teleop_robot_backend::StopNavActionResultConstPtr &result);
+
+  // nudgeResultCallback() is subscribed to the nudge_as/result topic
+  // and receives the incoming updates. It updates the status bar accordingly.
+  void nudgeResultCallback(
+      const remote_teleop_robot_backend::NudgeActionResultConstPtr &result);
+
+  // resetMarkerResultCallback() is subscribed to the reset_marker_as/result
+  // topic and receives the incoming updates. It updates the status bar
+  // accordingly.
+  void resetMarkerResultCallback(
+      const remote_teleop_robot_backend::ResetMarkerActionResultConstPtr
+          &result);
 };
 
 } // namespace remote_teleop_rviz_plugin
