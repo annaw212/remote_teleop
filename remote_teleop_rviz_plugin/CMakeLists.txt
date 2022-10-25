@@ -8,7 +8,7 @@ project(remote_teleop_rviz_plugin)
 find_package(catkin REQUIRED COMPONENTS rviz roscpp)
 find_package(catkin REQUIRED remote_teleop_robot_backend)
 catkin_package()
-include_directories(${catkin_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS})
 link_directories(${catkin_LIBRARY_DIRS})
 
 ## This setting causes Qt's "MOC" generation to happen automatically.
