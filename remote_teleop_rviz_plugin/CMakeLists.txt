@@ -21,17 +21,9 @@ if(rviz_QT_VERSION VERSION_LESS "5")
   find_package(Qt4 ${rviz_QT_VERSION} EXACT REQUIRED QtCore QtGui)
   ## pull in all required include dirs, define QT_LIBRARIES, etc.
   include(${QT_USE_FILE})
-  
-  qt4_wrap_cpp(rqt_testing_MOCS ${rqt_testing_HDRS})
-  qt4_wrap_ui(rqt_testing_UIS_H ${rqt_testing_UIS})
-  
 else()
   message(STATUS "Using Qt5 based on the rviz_QT_VERSION: ${rviz_QT_VERSION}")
   find_package(Qt5 ${rviz_QT_VERSION} EXACT REQUIRED Core Widgets)
-  
-  qt5_wrap_cpp(rqt_testing_MOCS ${rqt_testing_HDRS})
-  qt5_wrap_ui(rqt_testing_UIS_H ${rqt_testing_UIS})
-  
   ## make target_link_libraries(${QT_LIBRARIES}) pull in all required dependencies
   set(QT_LIBRARIES Qt5::Widgets)
 endif()
