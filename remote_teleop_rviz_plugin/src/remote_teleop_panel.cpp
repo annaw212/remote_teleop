@@ -42,11 +42,21 @@
 #include <QValidator>
 
 #include <remote_teleop_robot_backend/NudgeActionGoal.h>
+#include <remote_teleop_robot_backend/NudgeActionResult.h>
+#include <remote_teleop_robot_backend/NudgeResult.h>
 #include <remote_teleop_robot_backend/PointClickNavActionGoal.h>
+#include <remote_teleop_robot_backend/PointClickNavActionResult.h>
+#include <remote_teleop_robot_backend/PointClickNavResult.h>
 #include <remote_teleop_robot_backend/ResetMarkerActionGoal.h>
+#include <remote_teleop_robot_backend/ResetMarkerActionResult.h>
+#include <remote_teleop_robot_backend/ResetMarkerResult.h>
 #include <remote_teleop_robot_backend/SpeedToggleActionGoal.h>
 #include <remote_teleop_robot_backend/StopNavActionGoal.h>
+#include <remote_teleop_robot_backend/StopNavActionResult.h>
+#include <remote_teleop_robot_backend/StopNavResult.h>
 #include <remote_teleop_robot_backend/TurnInPlaceActionGoal.h>
+#include <remote_teleop_robot_backend/TurnInPlaceActionResult.h>
+#include <remote_teleop_robot_backend/TurnInPlaceResult.h>
 #include <remote_teleop_robot_backend/Velocity.h>
 
 #include "remote_teleop_panel.h"
@@ -155,7 +165,7 @@ RemoteTeleopPanel::RemoteTeleopPanel(QWidget *parent)
   stop_nav_button_->setStyleSheet(
       "font:bold;background-color:red;font-size:36px;height:42px;width:100px");
 
-  status_label_ = new QLabel("Status: ");
+  status_label_ = new QLabel("<b>Status: </b>");
 
   // Add the horizontal box to the vertical box layout
   topic_layout->addWidget(status_label_);
@@ -273,6 +283,14 @@ void RemoteTeleopPanel::sendTurnGoal() {
     msg.goal.turn_left = turn_left_;
     // Publish the message
     turn_goal_publisher_.publish(msg);
+    // Update the status message
+    status_label_->clear();
+    if (turn_left_ == true) {
+      status_label_->setText("<b>Status: Turning left.</b>");
+    } else {
+      status_label_->setText("<b>Status: Turning right.</b>");
+    }
+    
   }
 }
 
@@ -287,9 +305,12 @@ void RemoteTeleopPanel::sendNavGoal() {
     // Create a message of the desired type
     remote_teleop_robot_backend::PointClickNavActionGoal msg;
     // Set the message fields
-    msg.goal.coords_confimed = true;
+    msg.goal.coords_confirmed = true;
     // Publish the message
     nav_goal_publisher_.publish(msg);
+    // Update the status message
+    status_label_->clear();
+    status_label_->setText("<b>Status: Starting navigation.</b>");
   }
 }
 
@@ -343,6 +364,13 @@ void RemoteTeleopPanel::sendNudgeGoal() {
     msg.goal.fwd = nudge_fwd_;
     // Publish the message
     nudge_goal_publisher_.publish(msg);
+    // Update the status message
+    status_label_->clear();
+    if (nudge_fwd_ == true) {
+      status_label_->setText("<b>Status: Nudging forward.</b>");
+    } else {
+      status_label_->setText("<b>Status: Nudging backward.</b>");
+    }
   }
 }
 
@@ -382,18 +410,66 @@ void RemoteTeleopPanel::velocityCallback(
 /*-----------------------------------------------------------------------------------*/
 
 void RemoteTeleopPanel::pointClickResultCallback(
-    const remote_teleop_robot_backend::PointClickNavResultConstPtr &result) {
-  // This wasn't being printed yesterday, so maybe try to figure out if this
-  // message is even being published. I would recommend 'rosmsg echo' :) Good
-  // luck
-  printf("Got here\n");
-  if (result->success == true) {
-    status_label_->setText("Status: Navigation completed successfully.");
-    status_label_->clear();
+    const remote_teleop_robot_backend::PointClickNavActionResultConstPtr
+        &result) {
+
+  status_label_->clear();
+  if (result->result.success == true) {
+    status_label_->setText("<b>Status: Navigation completed.</b>");
   } else {
-    status_label_->setText("Status: Navigation failed successfully.");
-    status_label_->clear();
+    if (result->result.obstacle == true) {
+      status_label_->setText("<b>Status: Navigation failed. Obstacle detected.</b>");
+    } else {
+      status_label_->setText("<b>Status: Navigation failed.</b>");
+    }    
   }
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopPanel::turnInPlaceResultCallback(
+    const remote_teleop_robot_backend::TurnInPlaceActionResultConstPtr
+        &result) {
+
+  status_label_->clear();
+  if (turn_left_ == true) {
+    status_label_->setText("<b>Status: Left turn in place completed.</b>");
+  } else {
+    status_label_->setText("<b>Status: Right turn in place completed.</b>");
+  }
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopPanel::stopNavResultCallback(
+    const remote_teleop_robot_backend::StopNavActionResultConstPtr &result) {
+
+  status_label_->clear();
+  status_label_->setText("<b>Status: Stopping navigation.</b>");
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopPanel::nudgeResultCallback(
+    const remote_teleop_robot_backend::NudgeActionResultConstPtr &result) {
+
+  status_label_->clear();
+  if (nudge_fwd_ == true) {
+    status_label_->setText("<b>Status: Forward nudge completed.</b>");
+  } else {
+    status_label_->setText("<b>Status: Backward nudge completed.</b>");
+  }
+}
+
+/*-----------------------------------------------------------------------------------*/
+
+void RemoteTeleopPanel::resetMarkerResultCallback(
+    const remote_teleop_robot_backend::ResetMarkerActionResultConstPtr
+        &result) {
+
+  status_label_->clear();
+  status_label_->setText(
+      "<b>Status: Resetting marker to original position.</b>");
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -414,6 +490,19 @@ void RemoteTeleopPanel::load(const rviz::Config &config) {
   // Initialize subscriber
   velocity_subscriber_ = nh_.subscribe(
       "/rt_initial_velocities", 1, &RemoteTeleopPanel::velocityCallback, this);
+  nav_update_subscriber_ =
+      nh_.subscribe("point_click_as/result", 1,
+                    &RemoteTeleopPanel::pointClickResultCallback, this);
+  turn_update_subscriber_ =
+      nh_.subscribe("turn_in_place_as/result", 1,
+                    &RemoteTeleopPanel::turnInPlaceResultCallback, this);
+  stop_update_subscriber_ = nh_.subscribe(
+      "stop_nav_as/result", 1, &RemoteTeleopPanel::stopNavResultCallback, this);
+  nudge_update_subscriber_ = nh_.subscribe(
+      "nudge_as/result", 1, &RemoteTeleopPanel::nudgeResultCallback, this);
+  reset_marker_update_subscriber_ =
+      nh_.subscribe("reset_marker_as/result", 1,
+                    &RemoteTeleopPanel::resetMarkerResultCallback, this);
 
   // Initialize publishers
   turn_goal_publisher_ =
