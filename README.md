@@ -346,6 +346,6 @@ if __name__ == "__main__":
 ```
 Build the project.
 
-As a sanity check, make sure your commands have been created by looking in the `~/bazel_ws/install/bin` folder. If they have not, something has gone wrong in your launch file.
+As a sanity check, make sure your commands have been created by looking in the `~/bazel_ws/install/bin` folder. If they have not, something has gone wrong in your `launch` file.
 
 If all is well, you should be able to run your project using the `carl-carrack_ros-remote_teleop-remote_teleop_launch` command (or whatever your command is) from inside your project’s `launch` folder.
