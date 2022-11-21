@@ -199,3 +199,15 @@ carl
         ├── src
             ├── remote_teleop_server.cpp
 ```
+**Message Conversion**
+The most straight-forward step of conversion is moving the messages from your project to the `bottle` folder inside `carl`. Because it uses a `catkin_ws` to contain the messages, nothing in the declaration of the messages needs to be changed, and the files can just be copied and pasted into the folder. The same goes for `CMakeLists.txt` and `package.xml`. 
+
+Run `bazel-pack -f` to build the `bazel_ws` to reflect the new changes. This will also help you 
+
+Note:
+
+* You DO need to create a new folder to contain your messages inside of `catkin_ws/src`. In this example, I created `fetch_remote_teleop_msgs`. 
+
+* Check to make sure your `CMakeLists.txt` and `package.xml` files are updated to contain the correct names and paths to reflect the move.
+
+* You will need to update any `#include` in your source files to reflect the new path.
