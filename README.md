@@ -145,4 +145,207 @@ https://user-images.githubusercontent.com/107591234/189237156-e93c4343-9255-4829
 
 https://user-images.githubusercontent.com/107591234/189237179-5ba1a29f-91fb-4041-878c-c51d1583b548.mp4
 
+# Conversion from ROS to Bazel
 
+**File Structure of ROS project backend**
+```
+remote_teleop
+├── remote_teleop_robot_backend       # The backend code to be run on the robot
+    ├── CMakeLists.txt
+    ├── package.xml
+    ├── action
+        ├── Nudge.action
+        ├── PointClickNav.action
+        ├── ResetMarker.action
+        ├── SpeedToggle.action
+        ├── StopNav.action
+        ├── TurnInPlace.action
+    ├── include
+        ├── remote_teleop_server.h
+    ├── launch
+        ├── costmap_freight.yaml
+        ├── rt_nodes.launch
+    ├── msg
+        ├── Velocity.msg
+    ├── src
+        ├── remote_teleop_server.cpp
+```
+**File structure of the Bazel project**
+```
+carl
+├── carrack_ros
+    ├── bottle                            # This is where messages are kept
+        ├── catkin_ws/src
+            ├── fetch_remote_teleop_msgs
+                ├── CMakeLists.txt
+                ├── action
+                    ├── Nudge.action
+                    ├── PointClickNav.action
+                    ├── ResetMarker.action
+                    ├── SpeedToggle.action
+                    ├── StopNav.action
+                    ├── TurnInPlace.action
+                ├── msg
+                    ├── Velocity.msg
+                ├── package.xml
+    ├── remote_teleop                     # This is where the actual project is
+        ├── BUILD
+        ├── include
+            ├── remote_teleop_server.h
+        ├── launch
+            ├── costmap_freight.yaml
+            ├── remote_teleop_launch.py
+            ├── rt_nodes.launch
+        ├── src
+            ├── remote_teleop_server.cpp
+```
+**Message Conversion**
+
+The most straight-forward step of conversion is moving the messages from your project to the `bottle` folder inside `carl`. Because it uses a `catkin_ws` to contain the messages, nothing in the declaration of the messages needs to be changed, and the files can just be copied and pasted into the folder. The same goes for `CMakeLists.txt` and `package.xml`. 
+
+Run `bazel-pack -f` to build the `bazel_ws` to reflect the new changes. This will also help you 
+
+Note:
+
+* You DO need to create a new folder to contain your messages inside of `catkin_ws/src`. In this example, I created `fetch_remote_teleop_msgs`. 
+
+* Check to make sure your `CMakeLists.txt` and `package.xml` files are updated to contain the correct names and paths to reflect the move.
+
+* You will need to update any `#include` in your source files to reflect the new path.
+
+**Project Conversion**
+
+Create a folder inside of `carrack_ros` that will contain the project. In this case, the folder is named `remote_teleop`.
+
+Inside that folder, you will need a `BUILD` file, your source and header files, and your launch files.
+
+The main difference for the project in Bazel (aside from the `BUILD` file) is that the launch file will be different. Instead of having a `.launch` file, you will have a Python launch file. _In this case, I was able to include my `.launch` files in this project and just call them from the Python launch file, but normally you would not have a `.launch` file._
+
+_**Build File**_
+
+To create the `BUILD` file, you need a few elements:
+
+* If you have header files in your project, you will need a `fetch_cc_library` declaration. 
+
+    * Note: you will need to load this at the top of your file.
+
+* If you have source files in your project, you will need a `fetch_cc_binary` declaration.
+
+    * Note: you will need to load this at the top of your file.
+
+* If you have a Python launch file, you will need a `py_binary` declaration.
+
+* You will need to know which packages your project depends on to run and declare them here.
+
+The following file is what my `BUILD` file looks like.
+```
+# This declares which rules your project will follow and that you will have a
+# fetch_cc_binary and fetch_cc_library in your BUILD file.
+load("@carl//:custom_rules.bzl", "fetch_cc_binary", "fetch_cc_library")
+
+fetch_cc_library (
+   name = "remote_teleop",
+   hdrs = glob([
+        "include/remote_teleop_server.h"
+   ]),
+   include_prefix = "carrack_ros/remote_teleop",
+   strip_include_prefix = "//carrack_ros/remote_teleop/include",
+   visibility = ["//visibility:public"],
+   deps = [
+        "//bottle:cpp_msgs",
+        "@ros//:roscpp",
+        "@ros//:geometry_msgs",
+        "@ros//:std_msgs",
+        "@ros//:visualization_msgs",
+        "@ros//:actionlib",
+        "@ros//:actionlib_msgs",
+		"@ros//:tf",
+		"@ros//:tf2_geometry_msgs",
+		"@interactive_markers",
+   ],
+)
+
+fetch_cc_binary (
+    name = "remote_teleop_backend_node",
+    srcs = [
+        "src/remote_teleop_server.cpp", 
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":remote_teleop",
+    ],
+)
+
+py_binary(
+    name = "remote_teleop_launch",
+    srcs = ["launch/remote_teleop_launch.py"],
+    data = [
+		"launch/rt_nodes.launch",
+		"launch/costmap_freight.yaml",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+		"//boab/launcher:launchboi",
+	],
+)
+```
+Build the project using `bazel-pack -f` to check for errors.
+
+_**Launch File**_
+
+The Python launch files are placed inside a `launch` folder inside of the project folder. They depend on a launcher called `LaunchBoi` which launches the node when its command is run.
+
+* Even if you have the `.launch` file, you need to launch the main project node from the Python launch file. You can launch supporting nodes from the `.launch` file (for example, an image rotate node), but the actual project node (`remote_teleop_robot_backend`) cannot be launched from there or an error will occur.
+
+* You can launch multiple nodes from the Python launch file, so you do not need to create multiple of them.
+
+* Most projects (but not this one) include a params file. A param file defines how we want to configure our node. In the example below, there is a `costmap_param_file` but that is not the same thing as an actual params file.
+
+    * It is a Python script containing all the params which gets converted to a json document that’s generated into a special folder.
+
+    * A param file’s path gets passed into each node.
+
+    * Inside the `/etc/fetchcore/profiles` folder, there are default parameter files that are overridden by the specified param file.
+
+    * You need an `init` function for your params.
+
+    * There is no particular way to create a params file, but a good example can be found in the `~/bazel_ws/src/carl/carrack_ros/realsense_params` folder.
+
+The following file is what my Python launch file looks like.
+```
+#!/usr/bin/env python
+
+import os
+from boab.param.writer.base import Exe
+from boab.launcher.launchboi import LaunchBoi
+
+if __name__ == "__main__":
+    # Launch path info
+    pkg_path = "carrack_ros/remote_teleop/launch"       # This is where to find the launch file
+    launch_file = "rt_nodes.launch"                     # This is the .launch file from the ROS project
+    costmap_param_file = "costmap_freight.yaml"         # This is a .yaml file I use for costmap params in the ROS project
+
+    # Execution path info
+    exec_name = "remote_teleop"
+    exec_dir = os.path.join(Exe().dir, pkg_path)
+
+    # Create execution command
+    # Note how 'roslaunch' is the command. This is because I am launching the .launch file through the LaunchBoi
+    exec_cmd = "roslaunch --wait %s/%s parampath:=%s/%s" % (exec_dir, launch_file, exec_dir, costmap_param_file)
+
+    print(exec_cmd)                                     # This is optional
+    lb = LaunchBoi(exec_name)                           # Create the LaunchBoi object
+
+    # You can launch multiple nodes using one LaunchBoi
+    # The format is as follows: lb.launch(<name_of_node>, <command_used_to_launch_node>, postfix, add_sys_args)
+    lb.launch("remote_teleop_backend", "carl-carrack_ros-remote_teleop-remote_teleop_backend_node")
+    lb.launch("remote_teleop_robot_backend_node", exec_cmd, "launchboi_kill:=dongs", False)
+    
+    # Run the LaunchBoi
+    lb.run()
+```
+Build the project.
+
+As a sanity check, make sure your commands have been created by looking in the `~/bazel_ws/install/bin` folder. If they have not, something has gone wrong in your `launch` file.
+
+If all is well, you should be able to run your project using the `carl-carrack_ros-remote_teleop-remote_teleop_launch` command (or whatever your command is) from inside your project’s `launch` folder.
