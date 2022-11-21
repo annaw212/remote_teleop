@@ -145,4 +145,57 @@ https://user-images.githubusercontent.com/107591234/189237156-e93c4343-9255-4829
 
 https://user-images.githubusercontent.com/107591234/189237179-5ba1a29f-91fb-4041-878c-c51d1583b548.mp4
 
+# Conversion from ROS to Bazel
 
+**File Structure of ROS project backend**
+```
+remote_teleop
+├── remote_teleop_robot_backend       # The backend code to be run on the robot
+    ├── CMakeLists.txt
+    ├── package.xml
+    ├── action
+        ├── Nudge.action
+        ├── PointClickNav.action
+        ├── ResetMarker.action
+        ├── SpeedToggle.action
+        ├── StopNav.action
+        ├── TurnInPlace.action
+    ├── include
+        ├── remote_teleop_server.h
+    ├── launch
+        ├── costmap_freight.yaml
+        ├── rt_nodes.launch
+    ├── msg
+        ├── Velocity.msg
+    ├── src
+        ├── remote_teleop_server.cpp
+```
+**File structure of the Bazel project**
+```
+carl
+├── carrack_ros
+    ├── bottle                            # This is where messages are kept
+        ├── catkin_ws/src
+            ├── fetch_remote_teleop_msgs
+                ├── CMakeLists.txt
+                ├── action
+                    ├── Nudge.action
+                    ├── PointClickNav.action
+                    ├── ResetMarker.action
+                    ├── SpeedToggle.action
+                    ├── StopNav.action
+                    ├── TurnInPlace.action
+                ├── msg
+                    ├── Velocity.msg
+                ├── package.xml
+    ├── remote_teleop                     # This is where the actual project is
+        ├── BUILD
+        ├── include
+            ├── remote_teleop_server.h
+        ├── launch
+            ├── costmap_freight.yaml
+            ├── remote_teleop_launch.py
+            ├── rt_nodes.launch
+        ├── src
+            ├── remote_teleop_server.cpp
+```
